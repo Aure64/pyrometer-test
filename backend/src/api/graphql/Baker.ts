@@ -221,9 +221,16 @@ export const Baker = objectType({
           );
           if (!consensusKey) return null;
 
+          let activePkh: string;
+          if (typeof consensusKey.active === "string") {
+            activePkh = consensusKey.active;
+          } else {
+            activePkh = consensusKey.active.pkh;
+          }
           return {
             ...consensusKey,
-            explorerUrl: mkExplorerUrl(ctx, consensusKey.active),
+            active: activePkh,
+            explorerUrl: mkExplorerUrl(ctx, activePkh),
           };
         } catch (err) {
           throw mkGQLError(err as Error);
@@ -279,10 +286,18 @@ export const Baker = objectType({
           return null;
         }
         try {
-          return await ctx.rpc.getParticipation(
+          const participation = await ctx.rpc.getParticipation(
             parent.address,
             `head~${parent.headDistance}`
           );
+          if ("expected_attesting_rewards" in participation) {
+            return {
+              ...participation,
+              expected_endorsing_rewards:
+                participation.expected_attesting_rewards,
+            };
+          }
+          return participation;
         } catch (err) {
           throw mkGQLError(err as Error);
         }

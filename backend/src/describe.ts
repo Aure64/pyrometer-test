@@ -170,6 +170,10 @@ const main = async () => {
       name: "Delegate",
       protocol: true,
     },
+    [`${urls.E_DELEGATES_PKH("head", sampleAddress)}/consensus_key`]: {
+      name: "ConsensusKey",
+      protocol: true,
+    },
     [urls.E_DELEGATE_PARTICIPATION("head", sampleAddress)]: {
       name: "Participation",
       protocol: true,
