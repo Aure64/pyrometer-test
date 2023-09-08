@@ -13,30 +13,30 @@
     "generate:gql": "graphql-codegen"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.12",
-    "@chakra-ui/react": "^2.5.5",
+    "@apollo/client": "^3.8.3",
+    "@chakra-ui/react": "^2.8.0",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "framer-motion": "^10",
-    "graphql": "^16.6.0",
+    "graphql": "^16.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^4.8.0"
+    "react-icons": "^4.11.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^3.3.0",
-    "@graphql-codegen/typescript": "^3.0.3",
-    "@graphql-codegen/typescript-operations": "^3.0.3",
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
-    "@types/react": "^18.0.37",
-    "@types/react-dom": "^18.0.11",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "6.6.0",
     "@typescript-eslint/parser": "6.6.0",
-    "@vitejs/plugin-react": "^3.1.0",
+    "@vitejs/plugin-react": "^4.0.4",
     "eslint": "8.48.0",
     "eslint-config-prettier": "9.0.0",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2",
-    "vite": "^4.2.2"
+    "vite": "^4.4.9"
   }
 }
