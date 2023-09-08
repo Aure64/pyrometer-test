@@ -11,11 +11,17 @@ export type _018_Proxford$ContractId = string;
  * The fitness, or score, of a block, that allow the Tezos to decide which chain is the best. A fitness value is a list of byte sequences. They are compared as follows: shortest lists are smaller; lists of the same length are compared according to the lexicographical order.
  */
 export type BlockFitness = string[];
-export type _018_Proxford$LiquidityBakingVote = PerBlockVoteOn | PerBlockVoteOff | PerBlockVotePass;
+export type _018_Proxford$LiquidityBakingVote =
+  | PerBlockVoteOn
+  | PerBlockVoteOff
+  | PerBlockVotePass;
 export type PerBlockVoteOn = "on";
 export type PerBlockVoteOff = "off";
 export type PerBlockVotePass = "pass";
-export type _018_Proxford$AdaptiveIssuanceVote = PerBlockVoteOn1 | PerBlockVoteOff1 | PerBlockVotePass1;
+export type _018_Proxford$AdaptiveIssuanceVote =
+  | PerBlockVoteOn1
+  | PerBlockVoteOff1
+  | PerBlockVotePass1;
 export type PerBlockVoteOn1 = "on";
 export type PerBlockVoteOff1 = "off";
 export type PerBlockVotePass1 = "pass";
@@ -151,7 +157,12 @@ export type _018_Proxford$Operation$Alpha$SuccessfulManagerOperationResult =
  * Decimal representation of a positive big number
  */
 export type PositiveBigNumber = string;
-export type Micheline$018_Proxford$MichelsonV1$Expression = Int | String | Bytes | Sequence | Prim_Generic;
+export type Micheline$018_Proxford$MichelsonV1$Expression =
+  | Int
+  | String
+  | Bytes
+  | Sequence
+  | Prim_Generic;
 /**
  * Decimal representation of a big number
  */
@@ -399,29 +410,30 @@ export type BlockApplication41 = "block";
 export type ProtocolMigration41 = "migration";
 export type Subsidy41 = "subsidy";
 export type Simulation41 = "simulation";
-export type _018_Proxford$OperationMetadataWithLegacyAttestationName$Alpha$BalanceUpdates = (
-  | Contract1
-  | BlockFees1
-  | Deposits1
-  | NonceRevelationRewards1
-  | EndorsingRewards
-  | BakingRewards1
-  | BakingBonuses1
-  | StorageFees1
-  | DoubleSigningPunishments1
-  | LostEndorsingRewards
-  | LiquidityBakingSubsidies1
-  | Burned1
-  | Commitments1
-  | Bootstrap1
-  | Invoice1
-  | InitialCommitments1
-  | Minted1
-  | FrozenBonds1
-  | SmartRollupRefutationPunishments1
-  | SmartRollupRefutationRewards1
-  | UnstakedDeposits1
-)[];
+export type _018_Proxford$OperationMetadataWithLegacyAttestationName$Alpha$BalanceUpdates =
+  (
+    | Contract1
+    | BlockFees1
+    | Deposits1
+    | NonceRevelationRewards1
+    | EndorsingRewards
+    | BakingRewards1
+    | BakingBonuses1
+    | StorageFees1
+    | DoubleSigningPunishments1
+    | LostEndorsingRewards
+    | LiquidityBakingSubsidies1
+    | Burned1
+    | Commitments1
+    | Bootstrap1
+    | Invoice1
+    | InitialCommitments1
+    | Minted1
+    | FrozenBonds1
+    | SmartRollupRefutationPunishments1
+    | SmartRollupRefutationRewards1
+    | UnstakedDeposits1
+  )[];
 export type Sapling$Transaction$Commitment = string;
 export type Sapling$Transaction$CommitmentValue = string;
 export type Sapling$DH$Epk = string;
@@ -557,7 +569,11 @@ export type _018_Proxford$Operation$Alpha$OperationContentsAndResult =
   | ZkRollupOrigination1
   | ZkRollupPublish1
   | ZkRollupUpdate1;
-export type _018_Proxford$Operation$Alpha$OperationResult$Reveal = Applied | Failed | Skipped | Backtracked;
+export type _018_Proxford$Operation$Alpha$OperationResult$Reveal =
+  | Applied
+  | Failed
+  | Skipped
+  | Backtracked;
 export type _018_Proxford$ApplyInternalResults$Alpha$OperationResult =
   | Transaction1
   | Origination2
@@ -578,19 +594,28 @@ export type _018_Proxford$Operation$Alpha$InternalOperationResult$Delegation =
   | Failed3
   | Skipped3
   | Backtracked2;
-export type _018_Proxford$Operation$Alpha$InternalOperationResult$Event = Applied3 | Failed4 | Skipped4 | Backtracked3;
+export type _018_Proxford$Operation$Alpha$InternalOperationResult$Event =
+  | Applied3
+  | Failed4
+  | Skipped4
+  | Backtracked3;
 export type _018_Proxford$Operation$Alpha$OperationResult$Transaction =
   | (ToContract3 | ToSmartRollup3)
   | Failed5
   | Skipped5
   | (ToContract4 | ToSmartRollup4);
-export type _018_Proxford$Operation$Alpha$OperationResult$Origination = Applied4 | Failed6 | Skipped6 | Backtracked4;
-export type _018_Proxford$Operation$Alpha$OperationResult$Delegation = Applied5 | Failed7 | Skipped7 | Backtracked5;
+export type _018_Proxford$Operation$Alpha$OperationResult$Origination =
+  | Applied4
+  | Failed6
+  | Skipped6
+  | Backtracked4;
+export type _018_Proxford$Operation$Alpha$OperationResult$Delegation =
+  | Applied5
+  | Failed7
+  | Skipped7
+  | Backtracked5;
 export type _018_Proxford$Operation$Alpha$OperationResult$RegisterGlobalConstant =
-  | Applied6
-  | Failed8
-  | Skipped8
-  | Backtracked6;
+  Applied6 | Failed8 | Skipped8 | Backtracked6;
 export type _018_Proxford$Operation$Alpha$OperationResult$IncreasePaidStorage =
   | Applied7
   | Failed9
@@ -607,20 +632,11 @@ export type _018_Proxford$Operation$Alpha$OperationResult$TransferTicket =
   | Skipped11
   | Backtracked9;
 export type _018_Proxford$Operation$Alpha$OperationResult$DalPublishSlotHeader =
-  | Applied10
-  | Failed12
-  | Skipped12
-  | Backtracked10;
+  Applied10 | Failed12 | Skipped12 | Backtracked10;
 export type _018_Proxford$Operation$Alpha$OperationResult$SmartRollupOriginate =
-  | Applied11
-  | Failed13
-  | Skipped13
-  | Backtracked11;
+  Applied11 | Failed13 | Skipped13 | Backtracked11;
 export type _018_Proxford$Operation$Alpha$OperationResult$SmartRollupAddMessages =
-  | Applied12
-  | Failed14
-  | Skipped14
-  | Backtracked12;
+  Applied12 | Failed14 | Skipped14 | Backtracked12;
 export type _018_Proxford$Operation$Alpha$OperationResult$SmartRollupCement =
   | Applied13
   | Failed15
@@ -658,15 +674,9 @@ export type Ongoing3 = "ongoing";
 export type ConflictResolved3 = "conflict_resolved";
 export type Timeout3 = "timeout";
 export type _018_Proxford$Operation$Alpha$OperationResult$SmartRollupExecuteOutboxMessage =
-  | Applied17
-  | Failed19
-  | Skipped19
-  | Backtracked17;
+  Applied17 | Failed19 | Skipped19 | Backtracked17;
 export type _018_Proxford$Operation$Alpha$OperationResult$SmartRollupRecoverBond =
-  | Applied18
-  | Failed20
-  | Skipped20
-  | Backtracked18;
+  Applied18 | Failed20 | Skipped20 | Backtracked18;
 export type _018_Proxford$Operation$Alpha$OperationResult$ZkRollupOrigination =
   | Applied19
   | Failed21
@@ -765,38 +775,39 @@ export type Dissection2 = {
 }[];
 export type None4 = null;
 export type _018_Proxford$OperationWithLegacyAttestationName$Alpha$OperationContentsAndResult =
-  | Endorsement2
-  | Preendorsement2
-  | DoubleEndorsementEvidence1
-  | DoublePreendorsementEvidence1
-  | SeedNonceRevelation3
-  | VdfRevelation3
-  | DalAttestation3
-  | DoubleBakingEvidence3
-  | ActivateAccount3
-  | Proposals3
-  | Ballot3
-  | DrainDelegate3
-  | Reveal4
-  | Transaction4
-  | Origination5
-  | Delegation5
-  | RegisterGlobalConstant3
-  | IncreasePaidStorage4
-  | UpdateConsensusKey4
-  | TransferTicket3
-  | DalPublishSlotHeader3
-  | SmartRollupOriginate4
-  | SmartRollupAddMessages3
-  | SmartRollupCement3
-  | SmartRollupPublish3
-  | SmartRollupRefute3
-  | SmartRollupTimeout3
-  | SmartRollupExecuteOutboxMessage3
-  | SmartRollupRecoverBond3
-  | ZkRollupOrigination3
-  | ZkRollupPublish3
-  | ZkRollupUpdate3;
+
+    | Endorsement2
+    | Preendorsement2
+    | DoubleEndorsementEvidence1
+    | DoublePreendorsementEvidence1
+    | SeedNonceRevelation3
+    | VdfRevelation3
+    | DalAttestation3
+    | DoubleBakingEvidence3
+    | ActivateAccount3
+    | Proposals3
+    | Ballot3
+    | DrainDelegate3
+    | Reveal4
+    | Transaction4
+    | Origination5
+    | Delegation5
+    | RegisterGlobalConstant3
+    | IncreasePaidStorage4
+    | UpdateConsensusKey4
+    | TransferTicket3
+    | DalPublishSlotHeader3
+    | SmartRollupOriginate4
+    | SmartRollupAddMessages3
+    | SmartRollupCement3
+    | SmartRollupPublish3
+    | SmartRollupRefute3
+    | SmartRollupTimeout3
+    | SmartRollupExecuteOutboxMessage3
+    | SmartRollupRecoverBond3
+    | ZkRollupOrigination3
+    | ZkRollupPublish3
+    | ZkRollupUpdate3;
 export type Dissection3 = {
   state?: _018_Proxford$ContractId;
   tick: PositiveBigNumber;
@@ -1733,7 +1744,10 @@ export interface ZkRollupOrigination {
   gas_limit: PositiveBigNumber;
   storage_limit: PositiveBigNumber;
   public_parameters: string;
-  circuits_info: [] | [_018_Proxford$ContractId] | [_018_Proxford$ContractId, Public | Private | Fee][];
+  circuits_info:
+    | []
+    | [_018_Proxford$ContractId]
+    | [_018_Proxford$ContractId, Public | Private | Fee][];
   init_state: string[];
   nb_ops: number;
 }
@@ -2934,7 +2948,10 @@ export interface ZkRollupOrigination1 {
   gas_limit: PositiveBigNumber;
   storage_limit: PositiveBigNumber;
   public_parameters: string;
-  circuits_info: [] | [_018_Proxford$ContractId] | [_018_Proxford$ContractId, Public1 | Private1 | Fee1][];
+  circuits_info:
+    | []
+    | [_018_Proxford$ContractId]
+    | [_018_Proxford$ContractId, Public1 | Private1 | Fee1][];
   init_state: string[];
   nb_ops: number;
   metadata: {
@@ -3520,7 +3537,10 @@ export interface ZkRollupOrigination2 {
   gas_limit: PositiveBigNumber;
   storage_limit: PositiveBigNumber;
   public_parameters: string;
-  circuits_info: [] | [_018_Proxford$ContractId] | [_018_Proxford$ContractId, Public2 | Private2 | Fee2][];
+  circuits_info:
+    | []
+    | [_018_Proxford$ContractId]
+    | [_018_Proxford$ContractId, Public2 | Private2 | Fee2][];
   init_state: string[];
   nb_ops: number;
 }
@@ -4040,7 +4060,10 @@ export interface ZkRollupOrigination3 {
   gas_limit: PositiveBigNumber;
   storage_limit: PositiveBigNumber;
   public_parameters: string;
-  circuits_info: [] | [_018_Proxford$ContractId] | [_018_Proxford$ContractId, Public3 | Private3 | Fee3][];
+  circuits_info:
+    | []
+    | [_018_Proxford$ContractId]
+    | [_018_Proxford$ContractId, Public3 | Private3 | Fee3][];
   init_state: string[];
   nb_ops: number;
   metadata: {

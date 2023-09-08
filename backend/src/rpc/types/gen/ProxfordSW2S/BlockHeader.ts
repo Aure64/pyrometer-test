@@ -10,11 +10,17 @@ export type ChainId = string;
  * The fitness, or score, of a block, that allow the Tezos to decide which chain is the best. A fitness value is a list of byte sequences. They are compared as follows: shortest lists are smaller; lists of the same length are compared according to the lexicographical order.
  */
 export type BlockFitness = string[];
-export type _018_Proxford$LiquidityBakingVote = PerBlockVoteOn | PerBlockVoteOff | PerBlockVotePass;
+export type _018_Proxford$LiquidityBakingVote =
+  | PerBlockVoteOn
+  | PerBlockVoteOff
+  | PerBlockVotePass;
 export type PerBlockVoteOn = "on";
 export type PerBlockVoteOff = "off";
 export type PerBlockVotePass = "pass";
-export type _018_Proxford$AdaptiveIssuanceVote = PerBlockVoteOn1 | PerBlockVoteOff1 | PerBlockVotePass1;
+export type _018_Proxford$AdaptiveIssuanceVote =
+  | PerBlockVoteOn1
+  | PerBlockVoteOff1
+  | PerBlockVotePass1;
 export type PerBlockVoteOn1 = "on";
 export type PerBlockVoteOff1 = "off";
 export type PerBlockVotePass1 = "pass";
