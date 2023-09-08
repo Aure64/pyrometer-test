@@ -42,17 +42,19 @@ import { Constants } from "./types";
 export const getNetworkConnections = async (
   node: string,
 ): Promise<NetworkConnection[]> => {
-  return await rpcFetch(`${node}/${E_NETWORK_CONNECTIONS}`);
+  return (await rpcFetch(
+    `${node}/${E_NETWORK_CONNECTIONS}`,
+  )) as NetworkConnection[];
 };
 
 export const getTezosVersion = async (node: string): Promise<TezosVersion> => {
-  return await rpcFetch(`${node}/${E_TEZOS_VERSION}`);
+  return (await rpcFetch(`${node}/${E_TEZOS_VERSION}`)) as TezosVersion;
 };
 
 export const getBootstrappedStatus = async (
   node: string,
 ): Promise<BootstrappedStatus> => {
-  return await rpcFetch(`${node}/${E_IS_BOOTSTRAPPED}`);
+  return (await rpcFetch(`${node}/${E_IS_BOOTSTRAPPED}`)) as BootstrappedStatus;
 };
 
 const F_FROZEN_DEPOSITS = "frozen_deposits";
@@ -127,7 +129,7 @@ export default (
     const params = { level: level.toString() };
     return retry404(() =>
       rpcFetch(`${node}/${E_ENDORSING_RIGHTS(block, params)}`),
-    );
+    ) as Promise<EndorsingRights>;
   };
 
   const getBakingRights = async (
@@ -150,30 +152,36 @@ export default (
     }
     return retry404(() =>
       rpcFetch(`${node}/${E_BAKING_RIGHTS(block, params)}`),
-    );
+    ) as Promise<BakingRights>;
   };
 
   const getConstants = async (node: string): Promise<Constants> => {
-    return await rpcFetch(`${node}/${E_CONSTANTS("head")}`);
+    return (await rpcFetch(`${node}/${E_CONSTANTS("head")}`)) as Constants;
   };
 
   const getChainId = async (node: string): Promise<string> => {
-    return await rpcFetch(`${node}/${E_CHAIN_ID}`);
+    return (await rpcFetch(`${node}/${E_CHAIN_ID}`)) as string;
   };
 
   const getBlock = async (node: string, block: string): Promise<Block> => {
-    return retry404(() => rpcFetch(`${node}/${E_BLOCK(block)}`));
+    return retry404(() =>
+      rpcFetch(`${node}/${E_BLOCK(block)}`),
+    ) as Promise<Block>;
   };
 
   const getBlockHash = async (node: string, block: string): Promise<string> => {
-    return retry404(() => rpcFetch(`${node}/${E_BLOCK_HASH(block)}`));
+    return retry404(() =>
+      rpcFetch(`${node}/${E_BLOCK_HASH(block)}`),
+    ) as Promise<string>;
   };
 
   const _getBlockHeader = async (
     node: string,
     block: string,
   ): Promise<BlockHeader> => {
-    return retry404(() => rpcFetch(`${node}/${E_BLOCK_HEADER(block)}`));
+    return retry404(() =>
+      rpcFetch(`${node}/${E_BLOCK_HEADER(block)}`),
+    ) as Promise<BlockHeader>;
   };
 
   const getBlockHeader = makeMemoizedAsyncFunction(
@@ -190,7 +198,9 @@ export default (
     pkh: string,
     block: string,
   ): Promise<Delegate> => {
-    return await rpcFetch(`${node}/${E_DELEGATES_PKH(block, pkh)}`);
+    return (await rpcFetch(
+      `${node}/${E_DELEGATES_PKH(block, pkh)}`,
+    )) as Promise<Delegate>;
   };
 
   const getParticipation = async (
@@ -198,7 +208,9 @@ export default (
     pkh: string,
     block: string,
   ): Promise<Participation> => {
-    return await rpcFetch(`${node}/${E_DELEGATE_PARTICIPATION(block, pkh)}`);
+    return (await rpcFetch(
+      `${node}/${E_DELEGATE_PARTICIPATION(block, pkh)}`,
+    )) as Promise<Participation>;
   };
 
   const log = getLogger("rpc");
@@ -282,7 +294,9 @@ export default (
     node: string,
     block: string,
   ): Promise<TzAddress[]> => {
-    return await rpcFetch(`${node}/${E_ACTIVE_DELEGATES(block)}`);
+    return (await rpcFetch(`${node}/${E_ACTIVE_DELEGATES(block)}`)) as Promise<
+      TzAddress[]
+    >;
   };
 
   return {
