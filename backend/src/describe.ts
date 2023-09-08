@@ -2,7 +2,8 @@
 import { compile } from "json-schema-to-typescript";
 
 import * as FS from "fs";
-import { Argv } from "yargs";
+import yargs, { Argv } from "yargs";
+import { hideBin } from "yargs/helpers";
 import { get as rpcFetch } from "./rpc/util";
 import * as urls from "./rpc/urls";
 
@@ -109,12 +110,10 @@ type WithProtocol = {
 };
 
 const main = async () => {
-  //eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { hideBin } = require("yargs/helpers");
-  //eslint-disable-next-line @typescript-eslint/no-var-requires
-  const argv = require("yargs/yargs")(hideBin(process.argv))
+  const argv = await yargs(hideBin(process.argv))
     .usage(
       "$0 <url>",
+      // @ts-ignore TS complains but this is correct
       "generate types from Tezos RPC descriptions",
       (yargs: Argv) => {
         yargs.positional("url", {
