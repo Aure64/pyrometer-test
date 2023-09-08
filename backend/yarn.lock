@@ -1051,13 +1051,19 @@
   resolved "https://registry.yarnpkg.com/@stablelib/wipe/-/wipe-1.0.1.tgz#d21401f1d59ade56a62e139462a97f104ed19a36"
   integrity sha512-WfqfX/eXGiAd3RJe4VU2snh/ZPwtSjLG4ynQ/vYzvghTh7dHFcI1wl+nrkWG6lGhukOxOsUHfv8dUXr58D0ayg==
 
-"@taquito/utils@16.1.2":
-  version "16.1.2"
-  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-16.1.2.tgz#08eb99f784eb22c9026f02eab6a42cf1c68c8c75"
-  integrity sha512-CIs/qu8aFzetuo4B6EuGMD1JN5F+fxj+RYYpg69gTunzGiq8hx3D8BpRqidK4esiiNtUu1UrGiI5k1fr8myezQ==
+"@taquito/core@^17.3.0":
+  version "17.3.0"
+  resolved "https://registry.yarnpkg.com/@taquito/core/-/core-17.3.0.tgz#4bd381fd97535d877db3ced92d6e5f92cce9472c"
+  integrity sha512-worh4CMAue4GqLZeJOB1PwIHZ+LH+RmHxfRuSD/c0VoAbuJUVkdRu+uLgGyx+hdIKUeyAxe2g41c50VSMYF3Zw==
+
+"@taquito/utils@17.3.0":
+  version "17.3.0"
+  resolved "https://registry.yarnpkg.com/@taquito/utils/-/utils-17.3.0.tgz#92cbd0568d71dfd1c8bc021fe01e71396d14d6cd"
+  integrity sha512-e1MdHDdDcK473bdi/zLtBV91b/7SUx/j0kwKXgPt04hbKX+/Nu1mJSviExFE/GXgxFvB6iufDui45Ui8jcYKtg==
   dependencies:
     "@stablelib/blake2b" "^1.0.1"
     "@stablelib/ed25519" "^1.0.3"
+    "@taquito/core" "^17.3.0"
     "@types/bs58check" "^2.1.0"
     bignumber.js "^9.1.0"
     blakejs "^1.2.1"
