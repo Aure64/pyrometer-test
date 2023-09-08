@@ -1599,7 +1599,7 @@ export interface ZkRollupPublish {
           l1_dst: _016_PtMumbai$ContractId;
           rollup_id: _016_PtMumbai$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -1612,7 +1612,7 @@ export interface ZkRollupPublish {
           rollup_id: _016_PtMumbai$ContractId;
           payload: string[];
         },
-        Some | None2
+        Some | None2,
       ][];
 }
 export interface Some {
@@ -1638,7 +1638,7 @@ export interface ZkRollupUpdate {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -1648,7 +1648,7 @@ export interface ZkRollupUpdate {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];
@@ -3185,7 +3185,7 @@ export interface ZkRollupPublish1 {
           l1_dst: _016_PtMumbai$ContractId;
           rollup_id: _016_PtMumbai$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -3198,7 +3198,7 @@ export interface ZkRollupPublish1 {
           rollup_id: _016_PtMumbai$ContractId;
           payload: string[];
         },
-        Some1 | None4
+        Some1 | None4,
       ][];
   metadata: {
     balance_updates?: _016_PtMumbai$OperationMetadata$Alpha$BalanceUpdates;
@@ -3249,7 +3249,7 @@ export interface ZkRollupUpdate1 {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -3259,7 +3259,7 @@ export interface ZkRollupUpdate1 {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];

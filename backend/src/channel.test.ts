@@ -13,12 +13,12 @@ const mkTempDir = async (): Promise<string> => {
   const tmpDir = os.tmpdir();
   return await fs.promises.mkdtemp(
     `${tmpDir}${sep}pyrometer-storage-test`,
-    "utf8"
+    "utf8",
   );
 };
 
 const mkEventLog = async (
-  storageDir: string
+  storageDir: string,
 ): Promise<[eventlog.EventLog<Event>, Event[]]> => {
   const eventLog = await eventlog.open<Event>(storageDir);
 
@@ -80,7 +80,7 @@ describe("channel", () => {
       },
       storageDir,
       eventLog,
-      { max_batch_size, ttl, interval }
+      { max_batch_size, ttl, interval },
     );
 
     setTimeout(() => chan.stop(), interval * 5e3);
@@ -107,7 +107,7 @@ describe("channel", () => {
       },
       storageDir,
       eventLog,
-      { max_batch_size, ttl, interval }
+      { max_batch_size, ttl, interval },
     );
 
     setTimeout(() => chan.stop(), interval * 5e3);
@@ -134,7 +134,7 @@ describe("channel", () => {
       },
       storageDir,
       eventLog,
-      { max_batch_size, ttl, interval }
+      { max_batch_size, ttl, interval },
     );
 
     setTimeout(() => chan.stop(), interval * 5e3);
@@ -165,7 +165,7 @@ describe("channel", () => {
       },
       storageDir,
       eventLog,
-      { max_batch_size, ttl, interval }
+      { max_batch_size, ttl, interval },
     );
 
     setTimeout(() => chan.stop(), interval * 5e3);

@@ -202,7 +202,7 @@ describe("format", () => {
   it("just email subject if one line", async () => {
     const [subject, text] = format.email(events.slice(0, 5), true);
     expect(subject).toMatchInlineSnapshot(
-      `"tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk 🥖 @1000[1-4]² 👍 @1000[2-5]² 😕 @10003"`
+      `"tz1irJKkXS2DBWkU1NnmFQx1c1L7pbGg4yhk 🥖 @1000[1-4]² 👍 @1000[2-5]² 😕 @10003"`,
     );
     expect(text).toBe("");
   });

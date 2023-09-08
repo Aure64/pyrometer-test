@@ -63,7 +63,7 @@ export const create = async (
     teztnets_config: teztnetsConfig,
     low_peer_count: lowPeerCount,
   }: NodeMonitorConfig,
-  rpcConfig: RpcClientConfig
+  rpcConfig: RpcClientConfig,
 ): Promise<NodeMonitor> => {
   const teztnetsNodes: string[] = [];
   if (teztnets) {
@@ -80,14 +80,14 @@ export const create = async (
         } else {
           getLogger("nm").warn(
             `Network ${networkName} has no rpc URL, skipping`,
-            data
+            data,
           );
         }
       }
     } catch (err) {
       getLogger("nm").error(
         `Unable to get teztnets config from ${teztnetsConfig}`,
-        err
+        err,
       );
     }
   }
@@ -96,7 +96,7 @@ export const create = async (
   const nodeSet = [...new Set([...nodes, ...teztnetsNodes])];
 
   const allSubs = nodeSet.map((node) =>
-    subscribeToNode(node, rpcConfig, onEvent, lowPeerCount)
+    subscribeToNode(node, rpcConfig, onEvent, lowPeerCount),
   );
 
   const start = async () => {
@@ -133,7 +133,7 @@ const subscribeToNode = (
   node: string,
   rpcConfig: RpcClientConfig,
   onEvent: (event: Event) => Promise<void>,
-  lowPeerCount: number
+  lowPeerCount: number,
 ): Sub => {
   const rpc = client(node, rpcConfig);
 
@@ -375,7 +375,7 @@ export const checkBlockInfo = ({
     } else if (
       catchUpOccurred(
         previousNodeInfo?.bootstrappedStatus,
-        nodeInfo.bootstrappedStatus
+        nodeInfo.bootstrappedStatus,
       )
     ) {
       log.debug(`Node caught up`);
@@ -393,7 +393,7 @@ export const checkBlockInfo = ({
         log.debug("Node previously had too few peers, not generating event");
       } else {
         log.debug(
-          `${nodeInfo.url} has low peer count: ${nodeInfo.peerCount}/${lowPeerCount}`
+          `${nodeInfo.url} has low peer count: ${nodeInfo.peerCount}/${lowPeerCount}`,
         );
         events.push(newEvent(Events.NodeLowPeers));
       }
@@ -405,7 +405,7 @@ export const checkBlockInfo = ({
         previousNodeInfo.peerCount <= lowPeerCount
       ) {
         log.debug(
-          `${nodeInfo.url} low peer count resolved: ${nodeInfo.peerCount}/${lowPeerCount}`
+          `${nodeInfo.url} low peer count resolved: ${nodeInfo.peerCount}/${lowPeerCount}`,
         );
         events.push(newEvent(Events.NodeLowPeersResolved));
       } else {
@@ -419,7 +419,7 @@ export const checkBlockInfo = ({
 
 const catchUpOccurred = (
   previousResult: BootstrappedStatus | undefined,
-  currentStatus: BootstrappedStatus
+  currentStatus: BootstrappedStatus,
 ) => {
   // can't determine this without a previous status
   if (!previousResult) {

@@ -45,7 +45,7 @@ const listenForChatId = async (token: string): Promise<number> => {
 
 export const create = async (
   config: TelegramConfig,
-  storageDir: string
+  storageDir: string,
 ): Promise<Sender> => {
   const log = getLogger(LOGGER_NAME);
   const bot = new TelegramBot(config.token);
@@ -71,7 +71,7 @@ export const create = async (
     } catch (err) {
       log.error(
         `Unable to fetch Telegram chatId for token ${config.token}`,
-        err
+        err,
       );
     }
   }
@@ -90,7 +90,7 @@ export const create = async (
         count += 1;
         log.debug(
           `Sending message ${count} of length ${message.length}`,
-          message
+          message,
         );
         await bot.sendMessage(chatId, `<pre>${message}</pre>`, {
           parse_mode: "HTML",
@@ -103,7 +103,7 @@ export const create = async (
       count += 1;
       log.debug(
         `Sending message ${count} of length ${message.length}`,
-        message
+        message,
       );
       await bot.sendMessage(chatId, `<pre>${message}</pre>`, {
         parse_mode: "HTML",

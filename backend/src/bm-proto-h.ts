@@ -54,7 +54,7 @@ export default async ({
       | Events.DoubleBaked
       | Events.DoubleEndorsed,
     level = blockLevel,
-    slotCount?: number
+    slotCount?: number,
   ): BakerEvent => {
     const event: any = {
       baker,
@@ -123,7 +123,7 @@ export const loadBlockRights = async (
   blockId: string,
   level: number,
   priority: number,
-  rpc: RpcClient
+  rpc: RpcClient,
 ): Promise<BlockData> => {
   const bakingRightsPromise = rpc.getBakingRights(blockId, level, priority);
   const endorsingRightsPromise = rpc.getEndorsingRights(blockId, level - 1);
@@ -176,14 +176,14 @@ export const checkBlockBakingRights = ({
   if (!blockRight) {
     log.error(
       `No rights found block ${blockId} at priority ${blockPriority}`,
-      bakingRights
+      bakingRights,
     );
     return null;
   }
 
   if (bakerRight.priority < blockRight.priority) {
     log.info(
-      `${baker} had baking slot for priority ${bakerRight.priority}, but missed it (block baked at priority ${blockPriority})`
+      `${baker} had baking slot for priority ${bakerRight.priority}, but missed it (block baked at priority ${blockPriority})`,
     );
     return Events.MissedBake;
   }
@@ -194,7 +194,7 @@ export const checkBlockBakingRights = ({
     blockBaker === baker
   ) {
     log.info(
-      `${baker} baked block ${blockId} at priority ${blockPriority} of level ${blockRight.level}`
+      `${baker} baked block ${blockId} at priority ${blockPriority} of level ${blockRight.level}`,
     );
     return Events.Baked;
   }
@@ -222,12 +222,12 @@ export const checkBlockEndorsingRights = ({
   | null => {
   const log = getLogger(name);
   const endorsingRight = endorsingRights.find(
-    (right) => right.level === level && right.delegate === baker
+    (right) => right.level === level && right.delegate === baker,
   );
   if (endorsingRight) {
     const slotCount = endorsingRight.slots.length;
     log.debug(
-      `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`
+      `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`,
     );
     const didEndorse =
       endorsementOperations.find((op) => isEndorsementByDelegate(op, baker)) !==
@@ -247,7 +247,7 @@ export const checkBlockEndorsingRights = ({
 
 const isEndorsementByDelegate = (
   operation: OperationEntry,
-  delegate: string
+  delegate: string,
 ): boolean => {
   for (const contentsItem of operation.contents) {
     if (
@@ -296,19 +296,19 @@ export const checkBlockAccusationsForDoubleEndorsement = async ({
           if (endorser) {
             if (endorser === baker) {
               log.info(
-                `Double endorsement for baker ${baker} at block ${block.hash}`
+                `Double endorsement for baker ${baker} at block ${block.hash}`,
               );
               return true;
             }
           } else {
             log.warn(
-              `Unable to find endorser for double endorsed block ${block.hash}`
+              `Unable to find endorser for double endorsed block ${block.hash}`,
             );
           }
         } catch (err) {
           log.warn(
             `Error fetching block info to determine double endorsement violator because of `,
-            err
+            err,
           );
         }
       }
@@ -356,23 +356,23 @@ export const checkBlockAccusationsForDoubleBake = async ({
             `${accusedLevel}`,
             accusedLevel,
             undefined,
-            baker
+            baker,
           );
           const hadBakingRights =
             (bakingRights as BakingRightsH).find(
               (right) =>
-                right.priority === accusedPriority && right.delegate === baker
+                right.priority === accusedPriority && right.delegate === baker,
             ) !== undefined;
           if (hadBakingRights) {
             log.info(
-              `Double bake for baker ${baker} at level ${accusedLevel} with hash ${accusedHash}`
+              `Double bake for baker ${baker} at level ${accusedLevel} with hash ${accusedHash}`,
             );
             return true;
           }
         } catch (err) {
           log.warn(
             `Error fetching baking rights to determine double bake violator because of `,
-            err
+            err,
           );
         }
       }

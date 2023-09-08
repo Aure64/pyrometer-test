@@ -62,7 +62,7 @@ describe("filtered sender", () => {
       {
         exclude: [],
         bakers: undefined,
-      }
+      },
     );
 
     await sender(toSend);
@@ -81,7 +81,7 @@ describe("filtered sender", () => {
       {
         exclude: [Events.Baked],
         bakers: undefined,
-      }
+      },
     );
 
     await sender(toSend);
@@ -100,7 +100,7 @@ describe("filtered sender", () => {
       {
         exclude: Object.values(Events),
         bakers: undefined,
-      }
+      },
     );
 
     await sender(toSend);
@@ -119,7 +119,7 @@ describe("filtered sender", () => {
       {
         exclude: [],
         bakers: ["tz345"],
-      }
+      },
     );
 
     await sender(toSend);

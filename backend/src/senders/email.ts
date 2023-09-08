@@ -54,7 +54,7 @@ export const create = (config: EmailConfig): Sender => {
     const [subject, text] = formatEmail(
       events,
       config.emoji,
-      config.short_address
+      config.short_address,
     );
 
     const fromAddr =

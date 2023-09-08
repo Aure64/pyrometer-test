@@ -19,7 +19,7 @@ const format = (
   events: eventTypes.Event[],
   useEmoji = false,
   abbreviateAddress = false,
-  linePerBaker = false
+  linePerBaker = false,
 ): string[] => {
   const bakerEvents = events.filter(isBakerEvent);
   const otherEvents = events.filter(nonBakerEvent);
@@ -27,7 +27,7 @@ const format = (
     bakerEvents,
     useEmoji,
     abbreviateAddress,
-    linePerBaker
+    linePerBaker,
   );
   const formattedOtherEvents = otherEvents.map(toString);
   return [...formattedOtherEvents, ...formattedBakerEvents];
@@ -65,7 +65,7 @@ const formatKindText = (kind: E): string => kind.replace("_", " ");
 
 const Formatters: {
   [K in eventTypes.Event["kind"]]: (
-    u: Extract<eventTypes.Event, { kind: K }>
+    u: Extract<eventTypes.Event, { kind: K }>,
   ) => string;
 } = {
   [E.MissedBake]: (e) => `${e.baker} missed a bake at level ${e.level}`,
@@ -151,7 +151,7 @@ const DIGITS_SUPERSCRIPT: {
 
 export const renderNumber = (
   n: number,
-  digitsMap: { [key: string]: string }
+  digitsMap: { [key: string]: string },
 ) => {
   const s = n.toString();
   const result = [];
@@ -169,7 +169,7 @@ export const aggregateByBaker = (
   events: eventTypes.BakerEvent[],
   useEmoji = false,
   abbreviateAddress = false,
-  linePerBaker = false
+  linePerBaker = false,
 ): string[] => {
   const formatKind = useEmoji ? formatKindEmoji : formatKindText;
   const eventsByBaker = groupBy(events, "baker");
@@ -219,7 +219,7 @@ export const aggregateByBaker = (
 
 export const summary = (
   events: eventTypes.Event[],
-  useEmoji = false
+  useEmoji = false,
 ): string => {
   const formatKind = useEmoji ? formatKindEmoji : formatKindText;
   const counts = countBy(events, "kind");
@@ -244,7 +244,7 @@ export const summary = (
 export const email = (
   events: eventTypes.Event[],
   useEmoji = false,
-  abbreviateAddress = false
+  abbreviateAddress = false,
 ): [string, string] => {
   const lines = format(events, useEmoji, abbreviateAddress, true);
 

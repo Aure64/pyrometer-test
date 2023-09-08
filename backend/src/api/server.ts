@@ -27,8 +27,8 @@ app.use(
           skip: function (_req, res) {
             return res.statusCode < 400;
           },
-        }
-  )
+        },
+  ),
 );
 app.use(cors());
 
@@ -60,7 +60,7 @@ export const start = (
     webroot: configuredWebroot,
     show_system_info,
   }: UIConfig,
-  rpcConfig: RpcClientConfig
+  rpcConfig: RpcClientConfig,
 ) => {
   console.error("show_system_info", show_system_info);
 
@@ -89,9 +89,9 @@ export const start = (
         rpc,
         rpcConfig,
         explorer_url,
-        show_system_info
+        show_system_info,
       ),
-    })
+    }),
   );
 
   return app.listen(port, host, () => {

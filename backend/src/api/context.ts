@@ -16,7 +16,7 @@ export const createContext = (
   rpcUrl: string,
   rpcConfig: RpcClientConfig,
   explorerUrl: string | undefined,
-  showSystemInfo: boolean | undefined
+  showSystemInfo: boolean | undefined,
 ) => {
   return {
     nodeInfoCollection,

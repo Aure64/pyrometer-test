@@ -20,12 +20,12 @@ const TMP_POSTFIX = ".tmp";
 const isNotTmp = (fileName: string) => !fileName.endsWith(TMP_POSTFIX);
 
 export const open = async (
-  storagePath: string | string[]
+  storagePath: string | string[],
 ): Promise<Storage> => {
   const log = getLogger("storage");
 
   const storageDir = normalize(
-    Array.isArray(storagePath) ? join(...storagePath) : storagePath
+    Array.isArray(storagePath) ? join(...storagePath) : storagePath,
   );
   log.debug(`Storage path: ${storageDir}`);
 

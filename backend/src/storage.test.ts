@@ -8,7 +8,7 @@ const mkTempStorage = async (): Promise<storage.Storage> => {
   const tmpDir = os.tmpdir();
   const dir = await fs.promises.mkdtemp(
     `${tmpDir}${sep}pyrometer-storage-test`,
-    "utf8"
+    "utf8",
   );
   return await storage.open(dir);
 };

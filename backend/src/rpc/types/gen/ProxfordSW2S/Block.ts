@@ -1780,7 +1780,7 @@ export interface ZkRollupPublish {
           l1_dst: _018_Proxford$ContractId;
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -1793,7 +1793,7 @@ export interface ZkRollupPublish {
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
         },
-        Some | None1
+        Some | None1,
       ][];
 }
 export interface Some {
@@ -1819,7 +1819,7 @@ export interface ZkRollupUpdate {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -1829,7 +1829,7 @@ export interface ZkRollupUpdate {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];
@@ -3011,7 +3011,7 @@ export interface ZkRollupPublish1 {
           l1_dst: _018_Proxford$ContractId;
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -3024,7 +3024,7 @@ export interface ZkRollupPublish1 {
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
         },
-        Some1 | None2
+        Some1 | None2,
       ][];
   metadata: {
     balance_updates?: _018_Proxford$OperationMetadataWithLegacyAttestationName$Alpha$BalanceUpdates;
@@ -3075,7 +3075,7 @@ export interface ZkRollupUpdate1 {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -3085,7 +3085,7 @@ export interface ZkRollupUpdate1 {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];
@@ -3573,7 +3573,7 @@ export interface ZkRollupPublish2 {
           l1_dst: _018_Proxford$ContractId;
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -3586,7 +3586,7 @@ export interface ZkRollupPublish2 {
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
         },
-        Some2 | None4
+        Some2 | None4,
       ][];
 }
 export interface Some2 {
@@ -3612,7 +3612,7 @@ export interface ZkRollupUpdate2 {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -3622,7 +3622,7 @@ export interface ZkRollupUpdate2 {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];
@@ -4101,7 +4101,7 @@ export interface ZkRollupPublish3 {
           l1_dst: _018_Proxford$ContractId;
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -4114,7 +4114,7 @@ export interface ZkRollupPublish3 {
           rollup_id: _018_Proxford$ContractId;
           payload: string[];
         },
-        Some3 | None5
+        Some3 | None5,
       ][];
   metadata: {
     balance_updates?: _018_Proxford$OperationMetadataWithLegacyAttestationName$Alpha$BalanceUpdates;
@@ -4145,7 +4145,7 @@ export interface ZkRollupUpdate3 {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -4155,7 +4155,7 @@ export interface ZkRollupUpdate3 {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];

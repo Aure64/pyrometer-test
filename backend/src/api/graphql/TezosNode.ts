@@ -122,7 +122,7 @@ export const TezosNodeQuery = extendType({
                 },
                 updatedAt: updatedAt.toISOString(),
               };
-            }
+            },
           );
 
         return { items: nodes };

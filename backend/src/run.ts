@@ -51,14 +51,14 @@ const run = async (config: Config.Config) => {
 
   const createChannel = async (
     name: string,
-    sender: Sender
+    sender: Sender,
   ): Promise<channel.Channel> => {
     return await channel.create(
       name,
       sender,
       storageDir,
       eventLog,
-      notificationsConfig
+      notificationsConfig,
     );
   };
 
@@ -84,8 +84,8 @@ const run = async (config: Config.Config) => {
     channels.push(
       await createChannel(
         "telegram",
-        await TelegramSender(telegramConfig, storageDir)
-      )
+        await TelegramSender(telegramConfig, storageDir),
+      ),
     );
   }
 
@@ -147,7 +147,7 @@ const run = async (config: Config.Config) => {
       try {
         info(`Reading tezos client config from ${tzClientConfigFile}...`);
         const tzClientConfig = (await readJson(
-          tzClientConfigFile
+          tzClientConfigFile,
         )) as TzClientConfig;
         if (tzClientConfig.endpoint) {
           info(`Found tezos client endpoint ${tzClientConfig.endpoint}`);
@@ -196,7 +196,7 @@ const run = async (config: Config.Config) => {
           bakerMonitorConfig,
           config.rpc,
           uiConfig.enabled,
-          onEvent
+          onEvent,
         )
       : null;
 
@@ -205,7 +205,7 @@ const run = async (config: Config.Config) => {
       ? await NodeMonitor.create(
           onEvent,
           { ...nodeMonitorConfig, nodes },
-          config.rpc
+          config.rpc,
         )
       : null;
 
@@ -217,7 +217,7 @@ const run = async (config: Config.Config) => {
         bakerMonitor,
         bakerMonitorConfig.rpc,
         uiConfig,
-        config.rpc
+        config.rpc,
       )
     : null;
 

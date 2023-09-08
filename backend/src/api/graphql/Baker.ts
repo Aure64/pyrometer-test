@@ -110,7 +110,7 @@ const getGracePeriod = async (
   cycle: number,
   level: number,
   address: string,
-  atRiskThreshold: number
+  atRiskThreshold: number,
 ): Promise<number> => {
   const cacheKey = `${cycle}:${address}:gracePeriod`;
   let value = bakerCache.get(cacheKey);
@@ -149,7 +149,7 @@ export const Baker = objectType({
         try {
           return await ctx.rpc.getFullBalance(
             parent.address,
-            `head~${parent.headDistance}`
+            `head~${parent.headDistance}`,
           );
         } catch (err) {
           throw mkGQLError(err as Error);
@@ -163,7 +163,7 @@ export const Baker = objectType({
         try {
           return await ctx.rpc.getFrozenDeposits(
             parent.address,
-            `head~${parent.headDistance}`
+            `head~${parent.headDistance}`,
           );
         } catch (err) {
           throw mkGQLError(err as Error);
@@ -178,7 +178,7 @@ export const Baker = objectType({
         try {
           return await ctx.rpc.getStakingBalance(
             parent.address,
-            `head~${parent.headDistance}`
+            `head~${parent.headDistance}`,
           );
         } catch (err) {
           throw mkGQLError(err as Error);
@@ -198,7 +198,7 @@ export const Baker = objectType({
           cycle,
           level,
           address,
-          parent.atRiskThreshold
+          parent.atRiskThreshold,
         );
       },
     });
@@ -217,7 +217,7 @@ export const Baker = objectType({
         try {
           const consensusKey = await ctx.rpc.getConsensusKey(
             parent.address,
-            `head~${parent.headDistance}`
+            `head~${parent.headDistance}`,
           );
           if (!consensusKey) return null;
 
@@ -250,7 +250,7 @@ export const Baker = objectType({
           cycle,
           level,
           address,
-          parent.atRiskThreshold
+          parent.atRiskThreshold,
         );
         return gracePeriod - cycle <= parent.atRiskThreshold;
       },
@@ -288,7 +288,7 @@ export const Baker = objectType({
         try {
           const participation = await ctx.rpc.getParticipation(
             parent.address,
-            `head~${parent.headDistance}`
+            `head~${parent.headDistance}`,
           );
           if ("expected_attesting_rewards" in participation) {
             return {
@@ -347,7 +347,7 @@ export const BakerQuery = extendType({
         const bakerInfo =
           bakersFilter && bakersFilter.length > 0
             ? bakerMonitorInfo.bakerInfo.filter((x) =>
-                bakersFilter.includes(x.address)
+                bakersFilter.includes(x.address),
               )
             : bakerMonitorInfo.bakerInfo;
         if (bakersFilter) {
@@ -356,7 +356,7 @@ export const BakerQuery = extendType({
             sortWeights[bakersFilter[i]] = i;
           }
           bakerInfo.sort(
-            (a, b) => sortWeights[a.address] - sortWeights[b.address]
+            (a, b) => sortWeights[a.address] - sortWeights[b.address],
           );
         }
         const bakers = bakerInfo
@@ -381,7 +381,7 @@ export const BakerQuery = extendType({
                     };
                   }),
                 };
-              }
+              },
             );
             return {
               address: bakerInfo.address,

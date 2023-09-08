@@ -20,7 +20,7 @@ export const create = async (
   send: Sender,
   storageDirectory: string,
   eventLog: EventLog<Event>,
-  { max_batch_size: maxBatchSize, ttl, interval }: NotificationsConfig
+  { max_batch_size: maxBatchSize, ttl, interval }: NotificationsConfig,
 ): Promise<Channel> => {
   const log = getLogger(name);
 

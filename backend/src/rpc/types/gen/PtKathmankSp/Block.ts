@@ -613,14 +613,14 @@ export type Ended =
   | [ConflictResolved | _014_PtKathma$ContractId | Timeout]
   | [
       ConflictResolved | _014_PtKathma$ContractId | Timeout,
-      _014_PtKathma$ContractId
+      _014_PtKathma$ContractId,
     ];
 export type Ended1 =
   | []
   | [ConflictResolved1 | _014_PtKathma$ContractId | Timeout1]
   | [
       ConflictResolved1 | _014_PtKathma$ContractId | Timeout1,
-      _014_PtKathma$ContractId
+      _014_PtKathma$ContractId,
     ];
 export type _014_PtKathma$Operation$Alpha$OperationResult$ScRollupTimeout =
   | Applied24
@@ -632,14 +632,14 @@ export type Ended2 =
   | [ConflictResolved2 | _014_PtKathma$ContractId | Timeout2]
   | [
       ConflictResolved2 | _014_PtKathma$ContractId | Timeout2,
-      _014_PtKathma$ContractId
+      _014_PtKathma$ContractId,
     ];
 export type Ended3 =
   | []
   | [ConflictResolved3 | _014_PtKathma$ContractId | Timeout3]
   | [
       ConflictResolved3 | _014_PtKathma$ContractId | Timeout3,
-      _014_PtKathma$ContractId
+      _014_PtKathma$ContractId,
     ];
 export type _014_PtKathma$Operation$Alpha$OperationResult$ScRollupExecuteOutboxMessage =
   Applied25 | Failed27 | Skipped27 | Backtracked25;
@@ -1677,7 +1677,7 @@ export interface Some2 {
             content: _014_PtKathma$ContractId;
             back_pointers: _014_PtKathma$ContractId[];
           };
-        }
+        },
       ]
     | [
         {
@@ -1698,7 +1698,7 @@ export interface Some2 {
           index: number;
           content: _014_PtKathma$ContractId;
           back_pointers: _014_PtKathma$ContractId[];
-        }[]
+        }[],
       ][];
   level: {
     rollup: _014_PtKathma$ContractId;
@@ -3086,7 +3086,7 @@ export interface Some5 {
             content: _014_PtKathma$ContractId;
             back_pointers: _014_PtKathma$ContractId[];
           };
-        }
+        },
       ]
     | [
         {
@@ -3107,7 +3107,7 @@ export interface Some5 {
           index: number;
           content: _014_PtKathma$ContractId;
           back_pointers: _014_PtKathma$ContractId[];
-        }[]
+        }[],
       ][];
   level: {
     rollup: _014_PtKathma$ContractId;

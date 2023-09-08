@@ -47,7 +47,7 @@ const main = async () => {
             const config = await Config.load();
             const serialized = TOML.stringify(config.asObject());
             console.log(serialized);
-          }
+          },
         )
         .command(
           "sample [path]",
@@ -57,7 +57,7 @@ const main = async () => {
           },
           (args) => {
             writeSampleConfig(args.path);
-          }
+          },
         )
         .demandCommand();
     })
@@ -88,10 +88,10 @@ const main = async () => {
               if (answer === "y") {
                 clearData(config.storageDirectory);
               }
-            }
+            },
           );
         }
-      }
+      },
     )
     .command(
       "run",
@@ -102,7 +102,7 @@ const main = async () => {
       async () => {
         const config = await Config.load();
         await run(config);
-      }
+      },
     )
     .demandCommand().argv;
 };

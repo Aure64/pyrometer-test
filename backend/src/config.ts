@@ -204,13 +204,13 @@ const LOW_PEER_COUNT: UserPref = {
 const mkExcludeEventsPref = (
   key: string,
   group: string | undefined,
-  defaultValue: Events[] = []
+  defaultValue: Events[] = [],
 ): UserPref => {
   return {
     key,
     default: defaultValue,
     description: `Events to omit from notifications\nAvailable options: ${Object.values(
-      Events
+      Events,
     ).join(", ")}`,
     alias: undefined,
     type: "string",
@@ -289,7 +289,7 @@ const SLACK_SHORT_ADDRESS: UserPref = {
 
 const SLACK_EXCLUDED_EVENTS = mkExcludeEventsPref(
   `${SLACK_KEY}:exclude`,
-  SLACK_GROUP
+  SLACK_GROUP,
 );
 
 const SLACK_ONLY_BAKERS = mkOnlyBakersPref(`${SLACK_KEY}:bakers`, SLACK_GROUP);
@@ -347,12 +347,12 @@ const TELEGRAM_SHORT_ADDRESS: UserPref = {
 
 const TELEGRAM_EXCLUDED_EVENTS = mkExcludeEventsPref(
   `${TELEGRAM_KEY}:exclude`,
-  TELEGRAM_GROUP
+  TELEGRAM_GROUP,
 );
 
 const TELEGRAM_ONLY_BAKERS = mkOnlyBakersPref(
   `${TELEGRAM_KEY}:bakers`,
-  TELEGRAM_GROUP
+  TELEGRAM_GROUP,
 );
 
 const EMAIL_GROUP = "Email Notifications:";
@@ -480,7 +480,7 @@ const EMAIL_SHORT_ADDRESS: UserPref = {
 
 const EMAIL_EXCLUDED_EVENTS = mkExcludeEventsPref(
   `${EMAIL_KEY}:exclude`,
-  EMAIL_GROUP
+  EMAIL_GROUP,
 );
 
 const EMAIL_ONLY_BAKERS = mkOnlyBakersPref(`${EMAIL_KEY}:bakers`, EMAIL_GROUP);
@@ -534,12 +534,12 @@ const DESKTOP_SHORT_ADDRESS: UserPref = {
 
 const DESKTOP_EXCLUDED_EVENTS = mkExcludeEventsPref(
   `${DESKTOP_KEY}:exclude`,
-  DESKTOP_GROUP
+  DESKTOP_GROUP,
 );
 
 const DESKTOP_ONLY_BAKERS = mkOnlyBakersPref(
   `${DESKTOP_KEY}:bakers`,
-  DESKTOP_GROUP
+  DESKTOP_GROUP,
 );
 
 const WEBHOOK_GROUP = "Webhook Notifications:";
@@ -593,12 +593,12 @@ const WEBHOOK_TEST_ENDPOINT_PORT: UserPref = {
 
 const WEBHOOK_EXCLUDED_EVENTS = mkExcludeEventsPref(
   `${WEBHOOK_KEY}:exclude`,
-  WEBHOOK_GROUP
+  WEBHOOK_GROUP,
 );
 
 const WEBHOOK_ONLY_BAKERS = mkOnlyBakersPref(
   `${WEBHOOK_KEY}:bakers`,
-  WEBHOOK_GROUP
+  WEBHOOK_GROUP,
 );
 
 const WEBHOOK_REQUEST_TIMEOUT: UserPref = {
@@ -857,7 +857,7 @@ const makeYargOptions = (userPrefs: UserPref[]) => {
       };
       return accumulator;
     },
-    {}
+    {},
   );
   return options;
 };
@@ -876,7 +876,7 @@ const makeConfigDefaults = () => {
       }
       return accumulator;
     },
-    {}
+    {},
   );
   return defaults;
 };
@@ -895,7 +895,7 @@ export const makeSampleConfig = (): Record<string, string> => {
         return accumulator;
       }
     },
-    {}
+    {},
   );
   return sampleConfig;
 };
@@ -913,21 +913,21 @@ const makeConfigValidations = (): Validator.Rules => {
       if (value === "*") return true;
       return validateAddress(value) === TzValidationResult.VALID;
     },
-    "The :attribute is not a valid baker address."
+    "The :attribute is not a valid baker address.",
   );
   Validator.register(
     "loglevel",
     (value) => {
       return LOG_LEVELS.includes(`${value}`);
     },
-    "The :attribute is not a valid log level."
+    "The :attribute is not a valid log level.",
   );
   Validator.register(
     "email_protocol",
     (value) => {
       return PROTOCOL_OPTIONS.includes(`${value}`);
     },
-    "The :attribute is not a valid email protocol."
+    "The :attribute is not a valid email protocol.",
   );
   // Validator's URL regex is strict and doesn't accept localhost or IP addresses
   const linkRegex = /^https?:\/\/[^/\s]+(\/.*)?$/;
@@ -936,7 +936,7 @@ const makeConfigValidations = (): Validator.Rules => {
     (value) => {
       return linkRegex.test(`${value}`);
     },
-    "The :attribute is not a valid link."
+    "The :attribute is not a valid link.",
   );
 
   const rules = userPrefs.reduce(
@@ -946,7 +946,7 @@ const makeConfigValidations = (): Validator.Rules => {
         const settingsWithArrayRule = setPath(
           userPref.key,
           accumulator,
-          "array"
+          "array",
         );
         // array validations belong on key.*
         const childKey = `${userPref.key}.*`;
@@ -957,7 +957,7 @@ const makeConfigValidations = (): Validator.Rules => {
         return accumulator;
       }
     },
-    {}
+    {},
   );
   return rules;
 };
@@ -985,7 +985,7 @@ const formatValidationErrors = (errors: Validator.ValidationErrors): string => {
   const formatted = Object.entries(errors)
     .map(
       ([field, messages]) =>
-        `${field}:\n${messages.map((m) => "  * " + m).join("\n")}`
+        `${field}:\n${messages.map((m) => "  * " + m).join("\n")}`,
     )
     .join("\n");
   return formatted;
@@ -997,7 +997,7 @@ const formatValidationErrors = (errors: Validator.ValidationErrors): string => {
  */
 export const load = async (
   yargOptions = yargRunOptions,
-  validate = true
+  validate = true,
 ): Promise<Config> => {
   nconf.argv(yargs.strict().options(yargOptions));
   // user config file from argv overrides default location

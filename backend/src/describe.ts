@@ -121,7 +121,7 @@ const main = async () => {
           describe: "URL for Tezos Node RPC",
           type: "string",
         });
-      }
+      },
     )
     .strict()
     .parse();
@@ -129,7 +129,7 @@ const main = async () => {
   const node = argv.url;
 
   const blockHeader = (await rpcFetch(
-    `${node}/${urls.E_BLOCK_HEADER("head")}`
+    `${node}/${urls.E_BLOCK_HEADER("head")}`,
   )) as unknown as WithProtocol;
 
   const shortProtoHash = blockHeader.protocol.substr(0, 12);
@@ -189,7 +189,7 @@ const main = async () => {
       if (!FS.existsSync(schemaFileName)) {
         console.log(`Downloading schema to ${schemaFileName}`);
         const desc = (await rpcFetch(
-          `${node}/describe/${url}`
+          `${node}/describe/${url}`,
         )) as unknown as EndpointDescription;
         let schema = desc["static"].get_service.output.json_schema;
         schema.definitions = {
@@ -208,7 +208,7 @@ const main = async () => {
         FS.writeFileSync(
           `${outDirSchemas}/${name}.json`,
           JSON.stringify(processedSchema, null, 2),
-          "utf8"
+          "utf8",
         );
       } else {
         console.log(`Reading schema from ${schemaFileName}`);

@@ -40,7 +40,7 @@ import { EndorsingRights } from "./types";
 import { Constants } from "./types";
 
 export const getNetworkConnections = async (
-  node: string
+  node: string,
 ): Promise<NetworkConnection[]> => {
   return await rpcFetch(`${node}/${E_NETWORK_CONNECTIONS}`);
 };
@@ -50,7 +50,7 @@ export const getTezosVersion = async (node: string): Promise<TezosVersion> => {
 };
 
 export const getBootstrappedStatus = async (
-  node: string
+  node: string,
 ): Promise<BootstrappedStatus> => {
   return await rpcFetch(`${node}/${E_IS_BOOTSTRAPPED}`);
 };
@@ -71,7 +71,7 @@ export type RpcClient = {
   getBlockHash: (block?: string) => Promise<string>;
   getBlockHistory: (
     blockHash: string,
-    length?: number
+    length?: number,
   ) => Promise<BlockHeader[]>;
   getFullBalance: (pkh: TzAddress, block?: string) => Promise<string>;
   getFrozenDeposits: (pkh: TzAddress, block?: string) => Promise<string>;
@@ -79,18 +79,18 @@ export type RpcClient = {
   getGracePeriod: (pkh: TzAddress, block?: string) => Promise<number>;
   getConsensusKey: (
     pkh: TzAddress,
-    block?: string
+    block?: string,
   ) => Promise<ConsensusKey | null>;
   getDeactivated: (pkh: TzAddress, block?: string) => Promise<boolean>;
   getEndorsingRights: (
     block: string,
-    level: number
+    level: number,
   ) => Promise<EndorsingRights>;
   getBakingRights: (
     block: string,
     level: number,
     max_priority?: number,
-    delegate?: string
+    delegate?: string,
   ) => Promise<BakingRights>;
   getConstants: () => Promise<Constants>;
   getChainId: () => Promise<string>;
@@ -98,7 +98,7 @@ export type RpcClient = {
   getParticipation: (pkh: TzAddress, block?: string) => Promise<Participation>;
   getRights: (
     level: number,
-    maxRoundOrPriority: number
+    maxRoundOrPriority: number,
   ) => Promise<[BakingRights, EndorsingRights]>;
   getActiveBakers: (block: string) => Promise<TzAddress[]>;
 };
@@ -113,7 +113,7 @@ export default (
   {
     retry_interval_ms: retryIntervalMs,
     retry_attempts: retryAttempts,
-  }: RpcClientConfig
+  }: RpcClientConfig,
 ): RpcClient => {
   const retry404 = <T>(apiCall: () => Promise<T>) => {
     return _retry404(apiCall, retryIntervalMs, retryAttempts);
@@ -122,11 +122,11 @@ export default (
   const getEndorsingRights = async (
     node: string,
     block: string,
-    level: number
+    level: number,
   ): Promise<EndorsingRights> => {
     const params = { level: level.toString() };
     return retry404(() =>
-      rpcFetch(`${node}/${E_ENDORSING_RIGHTS(block, params)}`)
+      rpcFetch(`${node}/${E_ENDORSING_RIGHTS(block, params)}`),
     );
   };
 
@@ -135,7 +135,7 @@ export default (
     block: string,
     level: number,
     max_priority?: number,
-    delegate?: string
+    delegate?: string,
   ): Promise<BakingRights> => {
     const params: Record<string, string> = { level: level.toString() };
     if (level !== undefined) {
@@ -149,7 +149,7 @@ export default (
       params.delegate = delegate;
     }
     return retry404(() =>
-      rpcFetch(`${node}/${E_BAKING_RIGHTS(block, params)}`)
+      rpcFetch(`${node}/${E_BAKING_RIGHTS(block, params)}`),
     );
   };
 
@@ -171,7 +171,7 @@ export default (
 
   const _getBlockHeader = async (
     node: string,
-    block: string
+    block: string,
   ): Promise<BlockHeader> => {
     return retry404(() => rpcFetch(`${node}/${E_BLOCK_HEADER(block)}`));
   };
@@ -182,13 +182,13 @@ export default (
     },
     (_nodeRpcUrl: string, block: string) =>
       block.toLowerCase().startsWith("head") ? null : block,
-    10
+    10,
   );
 
   const getDelegate = async (
     node: string,
     pkh: string,
-    block: string
+    block: string,
   ): Promise<Delegate> => {
     return await rpcFetch(`${node}/${E_DELEGATES_PKH(block, pkh)}`);
   };
@@ -196,7 +196,7 @@ export default (
   const getParticipation = async (
     node: string,
     pkh: string,
-    block: string
+    block: string,
   ): Promise<Participation> => {
     return await rpcFetch(`${node}/${E_DELEGATE_PARTICIPATION(block, pkh)}`);
   };
@@ -210,7 +210,7 @@ export default (
   const fetchDelegateField = async (
     pkh: TzAddress,
     block: string,
-    field: string
+    field: string,
   ) => {
     const cacheKey = `${block}:${pkh}:${field}`;
     let value = delegateCache.get(cacheKey);
@@ -225,7 +225,7 @@ export default (
       await delay(d);
       const dt = Date.now();
       value = await rpcFetch(
-        `${delegatesUrl(nodeRpcUrl, pkh, block)}/${field}`
+        `${delegatesUrl(nodeRpcUrl, pkh, block)}/${field}`,
       );
       log.debug(`got value for ${cacheKey} in ${Date.now() - dt}`);
       //cache requests using block id relative to head for a few
@@ -237,7 +237,7 @@ export default (
       });
     } else {
       log.debug(
-        `CACHE HIT: '${value}' under ${cacheKey} (${delegateCache.size} items cached)`
+        `CACHE HIT: '${value}' under ${cacheKey} (${delegateCache.size} items cached)`,
       );
     }
     return value;
@@ -261,7 +261,7 @@ export default (
   const fetchBlockHeaders = async (
     node: string,
     blockHash: string,
-    length: number
+    length: number,
   ): Promise<BlockHeader[]> => {
     const history: BlockHeader[] = [];
     let nextHash = blockHash;
@@ -280,7 +280,7 @@ export default (
 
   const getActiveBakers = async (
     node: string,
-    block: string
+    block: string,
   ): Promise<TzAddress[]> => {
     return await rpcFetch(`${node}/${E_ACTIVE_DELEGATES(block)}`);
   };
@@ -302,7 +302,7 @@ export default (
       block: string,
       level: number,
       max_priority?: number,
-      delegate?: string
+      delegate?: string,
     ) => {
       return getBakingRights(nodeRpcUrl, block, level, max_priority, delegate);
     },
@@ -315,7 +315,7 @@ export default (
       },
       (block: string) =>
         block.toLowerCase().startsWith("head") ? null : block,
-      10
+      10,
     ),
 
     getBlock: (block = "head") => {
@@ -337,12 +337,12 @@ export default (
       } catch (err) {
         if (err instanceof HttpResponseError && err.status === 404) {
           log.info(
-            `Got 404 for ${fullBalanceFields[0]}, switching to ${fullBalanceFields[1]}`
+            `Got 404 for ${fullBalanceFields[0]}, switching to ${fullBalanceFields[1]}`,
           );
           const result = await fetchDelegateField(
             pkh,
             block,
-            fullBalanceFields[1]
+            fullBalanceFields[1],
           );
           fullBalanceFields = [...fullBalanceFields].reverse();
           return result;
@@ -357,12 +357,12 @@ export default (
       } catch (err) {
         if (err instanceof HttpResponseError && err.status === 404) {
           log.info(
-            `Got 404 for ${frozenDepositsFields[0]}, switching to ${frozenDepositsFields[1]}`
+            `Got 404 for ${frozenDepositsFields[0]}, switching to ${frozenDepositsFields[1]}`,
           );
           const result = await fetchDelegateField(
             pkh,
             block,
-            frozenDepositsFields[1]
+            frozenDepositsFields[1],
           );
           frozenDepositsFields = [...frozenDepositsFields].reverse();
           return result;
@@ -405,19 +405,19 @@ export default (
 
     getRights: async (
       level: number,
-      maxRoundOrPriority: number
+      maxRoundOrPriority: number,
     ): Promise<[BakingRights, EndorsingRights]> => {
       const blockId = `${level}`;
       const bakingRightsPromise = getBakingRights(
         nodeRpcUrl,
         blockId,
         level,
-        maxRoundOrPriority
+        maxRoundOrPriority,
       );
       const endorsingRightsPromise = getEndorsingRights(
         nodeRpcUrl,
         blockId,
-        level - 1
+        level - 1,
       );
       const [bakingRights, endorsingRights] = await Promise.all([
         bakingRightsPromise,

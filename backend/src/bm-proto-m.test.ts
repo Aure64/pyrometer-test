@@ -111,7 +111,7 @@ describe("checkBlockBakingRights", () => {
     const rights = block93601rights;
     expect(block.header.level).toEqual(rights[0].level);
     expect(rights[rights.length - 1].round).toEqual(
-      block.header.payload_round + 1
+      block.header.payload_round + 1,
     );
 
     const result = checkBlockBakingRights({
@@ -210,7 +210,7 @@ describe("checkBlockAccusationsForDoubleBake", () => {
 
     const result = await checkBlockAccusationsForDoubleBake(
       "tz3Q67aMz7gSMiQRcW729sXSfuMtkyAHYfqc",
-      block.operations[2]
+      block.operations[2],
     );
     expect(result).toEqual(true);
   });
@@ -220,7 +220,7 @@ describe("checkBlockAccusationsForDoubleBake", () => {
 
     const result = await checkBlockAccusationsForDoubleBake(
       "some other baker",
-      block.operations[2]
+      block.operations[2],
     );
     expect(result).toEqual(false);
   });
@@ -240,7 +240,7 @@ describe("checkBlockAccusationsForDoubleBake", () => {
 
     const result = await checkBlockAccusationsForDoubleBake(
       "tz3Q67aMz7gSMiQRcW729sXSfuMtkyAHYfqc",
-      [evidenceNoMetadata]
+      [evidenceNoMetadata],
     );
     expect(result).toEqual(false);
   });
@@ -251,7 +251,7 @@ describe("checkBlockAccusationsForDoubleBake", () => {
 
     const result = await checkBlockAccusationsForDoubleBake(
       block.metadata!.baker,
-      block.operations[2]
+      block.operations[2],
     );
     expect(result).toEqual(false);
   });
@@ -311,7 +311,7 @@ describe("checkBlockAccusationsForDoubleEndorsement", () => {
   it("returns event if baker is accused", async () => {
     const result = await checkBlockAccusationsForDoubleEndorsement(
       "tz1YPSCGWXwBdTncK2aCctSZAXWvGsGwVJqU",
-      [evidence]
+      [evidence],
     );
     expect(result).toEqual(Events.DoubleEndorsed);
 
@@ -329,7 +329,7 @@ describe("checkBlockAccusationsForDoubleEndorsement", () => {
 
     const result2 = await checkBlockAccusationsForDoubleEndorsement(
       "tz1YPSCGWXwBdTncK2aCctSZAXWvGsGwVJqU",
-      [doublepreEndorsementEvidence]
+      [doublepreEndorsementEvidence],
     );
     expect(result2).toEqual(Events.DoublePreendorsed);
   });
@@ -337,7 +337,7 @@ describe("checkBlockAccusationsForDoubleEndorsement", () => {
   it("returns null if different baker is accused", async () => {
     const result = await checkBlockAccusationsForDoubleEndorsement(
       "some other baker",
-      [evidence]
+      [evidence],
     );
     expect(result).toEqual(null);
   });
@@ -354,7 +354,7 @@ describe("checkBlockAccusationsForDoubleEndorsement", () => {
 
     const result = await checkBlockAccusationsForDoubleEndorsement(
       "tz1YPSCGWXwBdTncK2aCctSZAXWvGsGwVJqU",
-      [evidenceNoMetadata]
+      [evidenceNoMetadata],
     );
     expect(result).toEqual(null);
   });
@@ -362,7 +362,7 @@ describe("checkBlockAccusationsForDoubleEndorsement", () => {
   it("returns null when there are no accusations", async () => {
     const result = await checkBlockAccusationsForDoubleEndorsement(
       "some baker",
-      []
+      [],
     );
     expect(result).toEqual(null);
   });

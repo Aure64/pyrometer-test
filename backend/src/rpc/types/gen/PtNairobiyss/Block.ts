@@ -1436,7 +1436,7 @@ export interface ZkRollupPublish {
           l1_dst: _017_PtNairob$ContractId;
           rollup_id: _017_PtNairob$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -1449,7 +1449,7 @@ export interface ZkRollupPublish {
           rollup_id: _017_PtNairob$ContractId;
           payload: string[];
         },
-        Some | None1
+        Some | None1,
       ][];
 }
 export interface Some {
@@ -1475,7 +1475,7 @@ export interface ZkRollupUpdate {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -1485,7 +1485,7 @@ export interface ZkRollupUpdate {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];
@@ -2726,7 +2726,7 @@ export interface ZkRollupPublish1 {
           l1_dst: _017_PtNairob$ContractId;
           rollup_id: _017_PtNairob$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -2739,7 +2739,7 @@ export interface ZkRollupPublish1 {
           rollup_id: _017_PtNairob$ContractId;
           payload: string[];
         },
-        Some1 | None2
+        Some1 | None2,
       ][];
   metadata: {
     balance_updates?: _017_PtNairob$OperationMetadata$Alpha$BalanceUpdates;
@@ -2790,7 +2790,7 @@ export interface ZkRollupUpdate1 {
             new_state: string[];
             fee: string;
             exit_validity: boolean;
-          }
+          },
         ][];
     private_pis:
       | []
@@ -2800,7 +2800,7 @@ export interface ZkRollupUpdate1 {
           {
             new_state: string[];
             fee: string;
-          }
+          },
         ][];
     fee_pi: {
       new_state: string[];

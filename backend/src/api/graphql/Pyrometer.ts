@@ -54,7 +54,7 @@ export const PyrometerInfo = objectType({
             (x) =>
               x.pid === process.pid ||
               x.command.includes("octez") ||
-              x.command.includes("tezos")
+              x.command.includes("tezos"),
           )
           .map((x) => {
             const started = new Date(x.started);

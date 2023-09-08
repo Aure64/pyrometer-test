@@ -19,7 +19,7 @@ export const E_BLOCK_HASH = (block: string) =>
 
 export const E_BAKING_RIGHTS = (
   block: string,
-  params?: Record<string, string>
+  params?: Record<string, string>,
 ) => {
   const path = `/chains/main/blocks/${block}/helpers/baking_rights`;
   return `${path}?${new URLSearchParams(params).toString()}`;
@@ -27,7 +27,7 @@ export const E_BAKING_RIGHTS = (
 
 export const E_ENDORSING_RIGHTS = (
   block: string,
-  params?: Record<string, string>
+  params?: Record<string, string>,
 ) => {
   const path = `/chains/main/blocks/${block}/helpers/endorsing_rights`;
   return `${path}?${new URLSearchParams(params).toString()}`;

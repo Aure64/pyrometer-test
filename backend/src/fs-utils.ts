@@ -26,12 +26,12 @@ export const writeJson = async (fileName: string, value: any): Promise<void> =>
   await fs.promises.writeFile(
     fileName,
     JSON.stringify(value, jsonReplacer),
-    encoding
+    encoding,
   );
 
 export const writeJsonSync = async (
   fileName: string,
-  value: any
+  value: any,
 ): Promise<void> =>
   fs.writeFileSync(fileName, JSON.stringify(value, jsonReplacer), encoding);
 
@@ -40,14 +40,14 @@ export const readJson = async (fileName: string): Promise<any> =>
 
 export const ensureExists = async (
   fileName: string,
-  initialValue: any
+  initialValue: any,
 ): Promise<void> => {
   try {
     await fs.promises.access(fileName, fs.constants.F_OK);
   } catch (err) {
     debug(
       `File ${fileName} doesn't exist, creating with value ${initialValue}`,
-      err
+      err,
     );
     const dir = dirname(fileName);
     await fs.promises.mkdir(dir, { recursive: true });

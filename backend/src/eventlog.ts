@@ -21,7 +21,7 @@ export const open = async <T>(
   storageDir: string,
   topic = "eventlog",
   maxSize = Number.MAX_SAFE_INTEGER,
-  logName = "eventlog"
+  logName = "eventlog",
 ): Promise<EventLog<T>> => {
   const store = await storage.open([storageDir, topic]);
 
@@ -56,7 +56,7 @@ export const open = async <T>(
   };
 
   const readFrom = async function* (
-    position: number
+    position: number,
   ): AsyncIterableIterator<LogEntry<T>> {
     let currentPosition = position < 0 ? sequence + position : position;
     while (currentPosition < sequence) {
@@ -85,7 +85,7 @@ export const open = async <T>(
 
 export const gc = <T>(
   eventLog: EventLog<T>,
-  consumers: EventLogConsumer[]
+  consumers: EventLogConsumer[],
 ): service.Service => {
   const name = "gc";
 

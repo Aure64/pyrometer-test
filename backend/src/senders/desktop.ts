@@ -26,7 +26,7 @@ const post = async (message: string, sound: boolean): Promise<void> => {
         } else {
           resolve();
         }
-      }
+      },
     );
   });
 };

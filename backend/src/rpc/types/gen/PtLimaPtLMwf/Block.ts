@@ -1744,7 +1744,7 @@ export interface ZkRollupOrigination {
                       | []
                       | [_015_PtLimaPt$ContractId]
                       | [_015_PtLimaPt$ContractId, _015_PtLimaPt$ContractId]
-                    )
+                    ),
                   ][];
               identities:
                 | []
@@ -1756,7 +1756,7 @@ export interface ZkRollupOrigination {
                       | [
                           | []
                           | [_015_PtLimaPt$ContractId]
-                          | [_015_PtLimaPt$ContractId, number][]
+                          | [_015_PtLimaPt$ContractId, number][],
                         ]
                       | [
                           (
@@ -1764,9 +1764,9 @@ export interface ZkRollupOrigination {
                             | [_015_PtLimaPt$ContractId]
                             | [_015_PtLimaPt$ContractId, number][]
                           ),
-                          string
+                          string,
                         ][]
-                    )
+                    ),
                   ][];
               not_committed:
                 | []
@@ -1788,9 +1788,9 @@ export interface ZkRollupOrigination {
                   nb_wires: number;
                   alpha: string;
                   ultra: boolean;
-                }
+                },
               ][];
-        }
+        },
       ]
     | [
         {
@@ -1818,7 +1818,7 @@ export interface ZkRollupOrigination {
                       | []
                       | [_015_PtLimaPt$ContractId]
                       | [_015_PtLimaPt$ContractId, _015_PtLimaPt$ContractId]
-                    )
+                    ),
                   ][];
               identities:
                 | []
@@ -1830,7 +1830,7 @@ export interface ZkRollupOrigination {
                       | [
                           | []
                           | [_015_PtLimaPt$ContractId]
-                          | [_015_PtLimaPt$ContractId, number][]
+                          | [_015_PtLimaPt$ContractId, number][],
                         ]
                       | [
                           (
@@ -1838,9 +1838,9 @@ export interface ZkRollupOrigination {
                             | [_015_PtLimaPt$ContractId]
                             | [_015_PtLimaPt$ContractId, number][]
                           ),
-                          string
+                          string,
                         ][]
-                    )
+                    ),
                   ][];
               not_committed:
                 | []
@@ -1862,10 +1862,10 @@ export interface ZkRollupOrigination {
                   nb_wires: number;
                   alpha: string;
                   ultra: boolean;
-                }
+                },
               ][];
         },
-        string
+        string,
       ];
   circuits_info:
     | []
@@ -1903,7 +1903,7 @@ export interface ZkRollupPublish {
           l1_dst: _015_PtLimaPt$ContractId;
           rollup_id: _015_PtLimaPt$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -1916,7 +1916,7 @@ export interface ZkRollupPublish {
           rollup_id: _015_PtLimaPt$ContractId;
           payload: string[];
         },
-        Some | None4
+        Some | None4,
       ][];
 }
 export interface Some {
@@ -3779,7 +3779,7 @@ export interface ZkRollupOrigination1 {
                       | []
                       | [_015_PtLimaPt$ContractId]
                       | [_015_PtLimaPt$ContractId, _015_PtLimaPt$ContractId]
-                    )
+                    ),
                   ][];
               identities:
                 | []
@@ -3791,7 +3791,7 @@ export interface ZkRollupOrigination1 {
                       | [
                           | []
                           | [_015_PtLimaPt$ContractId]
-                          | [_015_PtLimaPt$ContractId, number][]
+                          | [_015_PtLimaPt$ContractId, number][],
                         ]
                       | [
                           (
@@ -3799,16 +3799,16 @@ export interface ZkRollupOrigination1 {
                             | [_015_PtLimaPt$ContractId]
                             | [_015_PtLimaPt$ContractId, number][]
                           ),
-                          string
+                          string,
                         ][]
-                    )
+                    ),
                   ][];
               not_committed:
                 | []
                 | [_015_PtLimaPt$ContractId]
                 | [
                     _015_PtLimaPt$ContractId,
-                    Permutation1 | Plookup1 | Public1
+                    Permutation1 | Plookup1 | Public1,
                   ][];
             };
             common_keys: _015_PtLimaPt$ContractId[];
@@ -3826,9 +3826,9 @@ export interface ZkRollupOrigination1 {
                   nb_wires: number;
                   alpha: string;
                   ultra: boolean;
-                }
+                },
               ][];
-        }
+        },
       ]
     | [
         {
@@ -3856,7 +3856,7 @@ export interface ZkRollupOrigination1 {
                       | []
                       | [_015_PtLimaPt$ContractId]
                       | [_015_PtLimaPt$ContractId, _015_PtLimaPt$ContractId]
-                    )
+                    ),
                   ][];
               identities:
                 | []
@@ -3868,7 +3868,7 @@ export interface ZkRollupOrigination1 {
                       | [
                           | []
                           | [_015_PtLimaPt$ContractId]
-                          | [_015_PtLimaPt$ContractId, number][]
+                          | [_015_PtLimaPt$ContractId, number][],
                         ]
                       | [
                           (
@@ -3876,16 +3876,16 @@ export interface ZkRollupOrigination1 {
                             | [_015_PtLimaPt$ContractId]
                             | [_015_PtLimaPt$ContractId, number][]
                           ),
-                          string
+                          string,
                         ][]
-                    )
+                    ),
                   ][];
               not_committed:
                 | []
                 | [_015_PtLimaPt$ContractId]
                 | [
                     _015_PtLimaPt$ContractId,
-                    Permutation1 | Plookup1 | Public1
+                    Permutation1 | Plookup1 | Public1,
                   ][];
             };
             common_keys: _015_PtLimaPt$ContractId[];
@@ -3903,10 +3903,10 @@ export interface ZkRollupOrigination1 {
                   nb_wires: number;
                   alpha: string;
                   ultra: boolean;
-                }
+                },
               ][];
         },
-        string
+        string,
       ];
   circuits_info:
     | []
@@ -3971,7 +3971,7 @@ export interface ZkRollupPublish1 {
           l1_dst: _015_PtLimaPt$ContractId;
           rollup_id: _015_PtLimaPt$ContractId;
           payload: string[];
-        }
+        },
       ]
     | [
         {
@@ -3984,7 +3984,7 @@ export interface ZkRollupPublish1 {
           rollup_id: _015_PtLimaPt$ContractId;
           payload: string[];
         },
-        Some1 | None38
+        Some1 | None38,
       ][];
   metadata: {
     balance_updates?: _015_PtLimaPt$OperationMetadata$Alpha$BalanceUpdates;

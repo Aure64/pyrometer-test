@@ -94,7 +94,7 @@ export const create = async (
   }: BakerMonitorConfig,
   rpcConfig: RpcClientConfig,
   enableHistory: boolean,
-  onEvent: (event: Event) => Promise<void>
+  onEvent: (event: Event) => Promise<void>,
 ): Promise<BakerMonitor> => {
   const MAX_HISTORY = Math.max(7, missedEventsThreshold);
 
@@ -105,14 +105,14 @@ export const create = async (
   const chainId = await tryForever(
     () => rpc.getChainId(),
     60e3,
-    "get chain id"
+    "get chain id",
   );
 
   log.info(`Chain: ${chainId}`);
   const constants = await tryForever(
     () => rpc.getConstants(),
     60e3,
-    "get protocol constants"
+    "get protocol constants",
   );
 
   log.info("Protocol constants", JSON.stringify(constants, null, 2));
@@ -159,7 +159,7 @@ export const create = async (
   const historyDir = joinPath(storageDirectory, "history");
 
   const getBakerEventLog = async (
-    baker: TzAddress
+    baker: TzAddress,
   ): Promise<EventLog.EventLog<BakerBlockEvent>> => {
     let bakerLog = bakerEventLogs[baker];
     if (!bakerLog) {
@@ -208,7 +208,7 @@ export const create = async (
         const headHeader = await rpc.getBlockHeader("head");
         const { level: headLevel } = headHeader;
         log.debug(
-          `Got block ${hash} at level ${level} [currently at ${lastBlockLevel}, head is ${headLevel}]`
+          `Got block ${hash} at level ${level} [currently at ${lastBlockLevel}, head is ${headLevel}]`,
         );
       }
 
@@ -223,7 +223,7 @@ export const create = async (
 
       while (currentLevel <= level && !isInterrupted()) {
         log.debug(
-          `Processing block at level ${currentLevel} for ${bakers.length} baker(s)`
+          `Processing block at level ${currentLevel} for ${bakers.length} baker(s)`,
         );
         const block = await rpc.getBlock(`${currentLevel}`);
 
@@ -234,7 +234,7 @@ export const create = async (
 
         if (metadata === undefined) {
           log.info(
-            `Block ${block.hash} at level ${currentLevel} has no metadata, skipping`
+            `Block ${block.hash} at level ${currentLevel} has no metadata, skipping`,
           );
           currentLevel++;
           continue;
@@ -242,7 +242,7 @@ export const create = async (
 
         if (metadata.level_info === undefined) {
           log.info(
-            `Metadata for block ${block.hash} at level ${currentLevel} has no level info, skipping`
+            `Metadata for block ${block.hash} at level ${currentLevel} has no level info, skipping`,
           );
           currentLevel++;
           continue;
@@ -254,7 +254,7 @@ export const create = async (
 
         if (blockLevel !== currentLevel) {
           throw new Error(
-            `Block level ${currentLevel} was requested but data returned level ${blockLevel}`
+            `Block level ${currentLevel} was requested but data returned level ${blockLevel}`,
           );
         }
 
@@ -333,7 +333,7 @@ export const create = async (
         for (const { event, baker, newCount } of checkHealth(
           events,
           missedEventsThreshold,
-          missedCounts
+          missedCounts,
         )) {
           if (event) {
             bakerHealthEvents.push({
@@ -363,7 +363,7 @@ export const create = async (
               if (err instanceof HttpResponseError) {
                 if (
                   err.nodeErrors.some((x) =>
-                    x.id.endsWith("delegate.not_registered")
+                    x.id.endsWith("delegate.not_registered"),
                   )
                 ) {
                   log.error(`Delegate ${baker} is not registered`);
@@ -375,13 +375,13 @@ export const create = async (
           }
         } else {
           log.debug(
-            `Not checking deactivations as this cycle (${blockCycle}) was already checked`
+            `Not checking deactivations as this cycle (${blockCycle}) was already checked`,
           );
         }
 
         log.debug(
           `About to post ${events.length} baking events`,
-          format.aggregateByBaker(events)
+          format.aggregateByBaker(events),
         );
         for (const event of events) {
           await onEvent(event);
@@ -396,7 +396,7 @@ export const create = async (
         }
         log.debug(
           `About to post ${bakerHealthEvents.length} baker health events`,
-          format.aggregateByBaker(bakerHealthEvents)
+          format.aggregateByBaker(bakerHealthEvents),
         );
         for (const event of bakerHealthEvents) {
           await onEvent(event);
@@ -491,7 +491,7 @@ export const checkForDeactivations = ({
     };
   } else if (delegateInfo.grace_period - cycle <= threshold) {
     log.debug(
-      `Baker ${baker} is scheduled for deactivation in cycle ${delegateInfo.grace_period}`
+      `Baker ${baker} is scheduled for deactivation in cycle ${delegateInfo.grace_period}`,
     );
     return {
       kind: Events.DeactivationRisk,
@@ -516,7 +516,7 @@ export type CheckHealthResult = {
 export function* checkHealth(
   events: BakerEvent[],
   missedEventsThreshold: number,
-  missedCounts: Map<TzAddress, number>
+  missedCounts: Map<TzAddress, number>,
 ): Generator<CheckHealthResult> {
   for (const { baker, kind } of events) {
     const count = missedCounts.get(baker) || 0;

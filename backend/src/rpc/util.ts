@@ -18,7 +18,7 @@ type Millisecond = number;
 type RpcRetry = <T>(
   apiCall: () => Promise<T>,
   interval: Millisecond,
-  maxAttempts: number
+  maxAttempts: number,
 ) => Promise<T>;
 
 export const retry404: RpcRetry = async (apiCall, interval, maxAttempts) => {
@@ -34,7 +34,7 @@ export const retry404: RpcRetry = async (apiCall, interval, maxAttempts) => {
       }
       if (err instanceof HttpResponseError && err.status === 404) {
         getLogger("rpc").warn(
-          `Got ${err.status} from ${err.url}, retrying in ${interval}ms [attempt ${attempts} of ${maxAttempts}]`
+          `Got ${err.status} from ${err.url}, retrying in ${interval}ms [attempt ${attempts} of ${maxAttempts}]`,
         );
         await delay(interval);
       } else {
@@ -47,7 +47,7 @@ export const retry404: RpcRetry = async (apiCall, interval, maxAttempts) => {
 type TryForever = <T>(
   call: () => Promise<T>,
   interval: Millisecond,
-  label: string
+  label: string,
 ) => Promise<T>;
 
 export const tryForever: TryForever = async (call, interval, label = "") => {
@@ -58,7 +58,7 @@ export const tryForever: TryForever = async (call, interval, label = "") => {
     } catch (err) {
       getLogger("rpc").warn(
         `${label} failed, will retry in ${interval} ms`,
-        err
+        err,
       );
       await delay(interval);
     }
@@ -81,7 +81,7 @@ export class HttpResponseError extends Error {
     status: number,
     statusText: string,
     url: string,
-    nodeErrors: TezosNodeError[]
+    nodeErrors: TezosNodeError[],
   ) {
     super(message);
     this.message = message;
@@ -112,7 +112,7 @@ const agentSelector = (_parsedURL: URL) => {
 export const fetchTimeout = (
   url: string,
   ms: number,
-  options?: RequestInit
+  options?: RequestInit,
 ) => {
   const controller = new AbortController();
   const promise = fetch(url, {
@@ -139,7 +139,7 @@ export const get = async (url: string) => {
       nodeErrors = ((await response.json()) as TezosNodeError[]) || [];
     } catch (err) {
       getLogger("rpc").error(
-        `|> 500 ${url} could not get error response content`
+        `|> 500 ${url} could not get error response content`,
       );
     }
   }
@@ -148,6 +148,6 @@ export const get = async (url: string) => {
     response.status,
     response.statusText,
     url,
-    nodeErrors
+    nodeErrors,
   );
 };

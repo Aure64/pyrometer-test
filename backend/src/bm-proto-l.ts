@@ -58,7 +58,7 @@ export default async ({
       | Events.DoubleEndorsed
       | Events.DoublePreendorsed,
     level = blockLevel,
-    slotCount?: number
+    slotCount?: number,
   ): BakerEvent => {
     const event: any = {
       baker,
@@ -101,14 +101,14 @@ export default async ({
     }
     const doubleBakeEvent = await checkBlockAccusationsForDoubleBake(
       baker,
-      anonymousOperations
+      anonymousOperations,
     );
     if (doubleBakeEvent) {
       events.push(createEvent(baker, Events.DoubleBaked));
     }
     const doubleEndorseEvent = await checkBlockAccusationsForDoubleEndorsement(
       baker,
-      anonymousOperations
+      anonymousOperations,
     );
     if (doubleEndorseEvent) {
       events.push(createEvent(baker, doubleEndorseEvent));
@@ -157,21 +157,21 @@ export const checkBlockBakingRights = ({
   if (!blockRight) {
     log.error(
       `No rights found block ${blockId} at round ${blockPriority}`,
-      bakingRights
+      bakingRights,
     );
     return null;
   }
 
   if (blockProposer === baker && blockBaker !== baker) {
     log.info(
-      `${baker} proposed block at level ${blockRight.level}, but didn't bake it`
+      `${baker} proposed block at level ${blockRight.level}, but didn't bake it`,
     );
     return Events.MissedBonus;
   }
 
   if (bakerRight.round < blockRight.round) {
     log.info(
-      `${baker} had baking slot for round ${bakerRight.round}, but missed it (block baked at round ${blockPriority})`
+      `${baker} had baking slot for round ${bakerRight.round}, but missed it (block baked at round ${blockPriority})`,
     );
     return Events.MissedBake;
   }
@@ -182,7 +182,7 @@ export const checkBlockBakingRights = ({
     blockBaker === baker
   ) {
     log.info(
-      `${baker} baked block ${blockId} at round ${blockPriority} of level ${blockRight.level}`
+      `${baker} baked block ${blockId} at round ${blockPriority} of level ${blockRight.level}`,
     );
     return Events.Baked;
   }
@@ -215,12 +215,12 @@ export const checkBlockEndorsingRights = ({
     return null;
   }
   const endorsingRight = levelRights.delegates.find(
-    (d) => d.delegate === baker
+    (d) => d.delegate === baker,
   );
   if (endorsingRight) {
     const slotCount = endorsingRight.endorsing_power;
     log.debug(
-      `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`
+      `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`,
     );
     const didEndorse =
       endorsementOperations.find((op) => isEndorsementByDelegate(op, baker)) !==
@@ -240,7 +240,7 @@ export const checkBlockEndorsingRights = ({
 
 const isEndorsementByDelegate = (
   operation: OperationL,
-  delegate: string
+  delegate: string,
 ): boolean => {
   for (const contentsItem of operation.contents) {
     if (
@@ -258,7 +258,7 @@ const isEndorsementByDelegate = (
 
 export const checkBlockAccusationsForDoubleEndorsement = async (
   baker: string,
-  operations: OperationL[]
+  operations: OperationL[],
 ): Promise<Events.DoubleEndorsed | Events.DoublePreendorsed | null> => {
   const log = getLogger(name);
   for (const operation of operations) {
@@ -284,12 +284,12 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
             }
           }
           log.warn(
-            `Found ${kind} for level ${level} with metadata, but no freezer balance update, unable to process`
+            `Found ${kind} for level ${level} with metadata, but no freezer balance update, unable to process`,
           );
         } else {
           //perhaps the block is too old for node's history mode
           log.warn(
-            `Found ${kind} without metadata for level ${level}, unable to process`
+            `Found ${kind} without metadata for level ${level}, unable to process`,
           );
         }
       }
@@ -301,7 +301,7 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
 
 export const checkBlockAccusationsForDoubleBake = async (
   baker: string,
-  operations: OperationL[]
+  operations: OperationL[],
 ): Promise<boolean> => {
   const log = getLogger(name);
   for (const operation of operations) {
@@ -317,18 +317,18 @@ export const checkBlockAccusationsForDoubleBake = async (
               balanceUpdate.delegate === baker
             ) {
               log.info(
-                `${baker} double baked level ${level}, round ${payload_round}`
+                `${baker} double baked level ${level}, round ${payload_round}`,
               );
               return true;
             }
           }
           log.warn(
-            `Found double baking evidence for level ${level} with metadata, but no freezer balance update, unable to precess`
+            `Found double baking evidence for level ${level} with metadata, but no freezer balance update, unable to precess`,
           );
         } else {
           //perhaps the block is too old for node's history mode
           log.warn(
-            `Found double baking evidence without metadata for level ${level}, unable to process`
+            `Found double baking evidence without metadata for level ${level}, unable to process`,
           );
         }
       }

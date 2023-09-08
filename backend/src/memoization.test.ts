@@ -5,7 +5,7 @@ describe("makeMemoizedFunction", () => {
     const apiCall = jest.fn().mockResolvedValue("result");
     const memoizedFunction = makeMemoizedAsyncFunction(
       apiCall,
-      () => "key"
+      () => "key",
     ) as (arg: string) => Promise<string>;
 
     const result = await memoizedFunction("data");
@@ -17,7 +17,7 @@ describe("makeMemoizedFunction", () => {
     const apiCall = jest.fn().mockResolvedValue("result");
     const memoizedFunction = makeMemoizedAsyncFunction(
       apiCall,
-      () => "key"
+      () => "key",
     ) as (arg: string) => Promise<string>;
 
     const result = await memoizedFunction("data");
@@ -30,7 +30,7 @@ describe("makeMemoizedFunction", () => {
   it("fetches new data if memo key is empty", async () => {
     const apiCall = jest.fn().mockResolvedValue("result");
     const memoizedFunction = makeMemoizedAsyncFunction(apiCall, () => "") as (
-      arg: string
+      arg: string,
     ) => Promise<string>;
 
     const result = await memoizedFunction("data");
@@ -45,7 +45,7 @@ describe("makeMemoizedFunction", () => {
     const memoizedFunction = makeMemoizedAsyncFunction(
       apiCall,
       (k: string) => k,
-      1
+      1,
     ) as (arg: string) => Promise<string>;
 
     const result = await memoizedFunction("data");

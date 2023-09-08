@@ -13,7 +13,7 @@ export type Milliseconds = number;
 export const create = (
   name: string,
   task: (isInterrupted: () => boolean) => Promise<void>,
-  interval: Milliseconds = 60 * 1e3
+  interval: Milliseconds = 60 * 1e3,
 ): Service => {
   const log = getLogger(name);
   let count = 0;

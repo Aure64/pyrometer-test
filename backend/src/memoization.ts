@@ -6,7 +6,7 @@
 export const makeMemoizedAsyncFunction = <Args extends unknown[], Return>(
   originalFunction: (...args: Args) => Promise<Return>,
   makeMemoKey: (...args: Args) => string | null,
-  maxCacheLength?: number
+  maxCacheLength?: number,
 ): ((...args: Args) => Promise<Return>) => {
   const cache: Record<string, Return> = {};
   const memoizedFunction = async (...args: Args) => {

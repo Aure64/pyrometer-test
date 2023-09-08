@@ -101,7 +101,7 @@ describe("checkHealth", () => {
       cycle,
       level,
       timestamp,
-    } as BakerBlockEvent);
+    }) as BakerBlockEvent;
 
   it("returns baker is unhealthy when there are more missed events than threshold", async () => {
     const missedCounts = new Map<string, number>([
@@ -117,8 +117,8 @@ describe("checkHealth", () => {
         checkHealth(
           [mkEvent(kind, baker1)],
           missedEventsThreshold,
-          missedCounts
-        )
+          missedCounts,
+        ),
       );
 
       expect(health.length).toEqual(1);
@@ -142,8 +142,8 @@ describe("checkHealth", () => {
         checkHealth(
           [mkEvent(kind, baker1)],
           missedEventsThreshold,
-          missedCounts
-        )
+          missedCounts,
+        ),
       );
 
       expect(health.length).toEqual(1);
@@ -163,8 +163,8 @@ describe("checkHealth", () => {
         checkHealth(
           [mkEvent(kind, baker1)],
           missedEventsThreshold,
-          missedCounts
-        )
+          missedCounts,
+        ),
       );
 
       expect(health.length).toEqual(1);
