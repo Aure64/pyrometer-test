@@ -2,7 +2,7 @@ import { setLevel } from "loglevel";
 import loglevel, { LogLevelDesc } from "loglevel";
 import * as prefix from "loglevel-plugin-prefix";
 import { format } from "date-fns";
-import Chalk, { ChalkInstance } from "chalk";
+import Chalk from "chalk";
 
 export type LoggingConfig = {
   level: LogLevelDesc;
@@ -12,7 +12,7 @@ export type LoggingConfig = {
 export const setup = (config: LoggingConfig) => {
   console.log("Logging config", config);
 
-  const colors: Record<string, ChalkInstance> = {
+  const colors: Record<string, Chalk.Chalk> = {
     TRACE: Chalk.magenta,
     DEBUG: Chalk.cyan,
     INFO: Chalk.blue,
