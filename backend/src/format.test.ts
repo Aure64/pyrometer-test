@@ -188,6 +188,27 @@ describe("format", () => {
     `);
   });
 
+  it("uses address aliases", async () => {
+    expect(
+format.aggregateByBaker(events, true, true, false, {
+  [baker2]: "baker 2",
+  [baker5]: "baker 5" })).
+
+toMatchInlineSnapshot(`
+[
+  "tz1i…4yhk 🥖 @1000[1-4]²",
+  "        . 👍 @1000[2-5]²",
+  "        . 😕 @10003",
+  "baker 2 🥖 @10006",
+  "      . 👍 @1000[7-9]²",
+  "      . 😕 @10008",
+  "tz3R…CxD9 😴 @cycle 13",
+  "tz2T…9K9m 😴 @cycle 15",
+  "baker 5 😴 @cycle 17",
+]
+`);
+  });
+
   it("no more than one event of each kind (emoji)", async () => {
     expect(format.aggregateByBaker(events.slice(0, 3), true))
       .toMatchInlineSnapshot(`

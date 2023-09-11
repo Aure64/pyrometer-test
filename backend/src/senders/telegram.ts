@@ -6,6 +6,8 @@ import { delay } from "../delay";
 
 import { open as openStorage } from "../storage";
 
+import type { TzAddressAliasMap } from "../config";
+
 const LOGGER_NAME = "telegram-sender";
 
 export type TelegramConfig = {
@@ -13,6 +15,7 @@ export type TelegramConfig = {
   token: string;
   emoji: boolean;
   short_address: boolean;
+  alias: TzAddressAliasMap;
   exclude: Events[];
   bakers: string[] | undefined;
 };
@@ -80,7 +83,13 @@ export const create = async (
     if (!chatId) {
       throw new Error("Telegram notification channel is missing chatId");
     }
-    const lines = format(events, config.emoji, config.short_address);
+    const lines = format(
+      events,
+      config.emoji,
+      config.short_address,
+      false,
+      config.alias,
+    );
     let message = "";
     let count = 0;
     for (const line of lines) {

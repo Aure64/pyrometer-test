@@ -3,6 +3,8 @@ import { Events as E } from "./events";
 import { groupBy, sortBy, countBy, first, last } from "lodash";
 import { format as dtformat } from "date-fns";
 
+import type { TzAddressAliasMap } from "./config";
+
 const isBakerEvent = (e: eventTypes.Event): e is eventTypes.BakerEvent =>
   "baker" in e;
 
@@ -20,6 +22,7 @@ const format = (
   useEmoji = false,
   abbreviateAddress = false,
   linePerBaker = false,
+  addressAliases: TzAddressAliasMap = {},
 ): string[] => {
   const bakerEvents = events.filter(isBakerEvent);
   const otherEvents = events.filter(nonBakerEvent);
@@ -28,6 +31,7 @@ const format = (
     useEmoji,
     abbreviateAddress,
     linePerBaker,
+    addressAliases,
   );
   const formattedOtherEvents = otherEvents.map(toString);
   return [...formattedOtherEvents, ...formattedBakerEvents];
@@ -170,6 +174,7 @@ export const aggregateByBaker = (
   useEmoji = false,
   abbreviateAddress = false,
   linePerBaker = false,
+  addressAliases: TzAddressAliasMap = {},
 ): string[] => {
   const formatKind = useEmoji ? formatKindEmoji : formatKindText;
   const eventsByBaker = groupBy(events, "baker");
@@ -198,9 +203,11 @@ export const aggregateByBaker = (
       }`;
       formattedWithCounts.push(formattedKind);
     }
-    const formattedBaker = abbreviateAddress
-      ? abbreviateBakerAddress(baker)
-      : baker;
+
+    const formattedBaker =
+      addressAliases[baker] ||
+      (abbreviateAddress ? abbreviateBakerAddress(baker) : baker);
+
     if (linePerBaker) {
       const line = `${formattedBaker} ${formattedWithCounts.join(" ")}`;
       lines.push(line);
@@ -245,8 +252,15 @@ export const email = (
   events: eventTypes.Event[],
   useEmoji = false,
   abbreviateAddress = false,
+  addressAliases: TzAddressAliasMap = {},
 ): [string, string] => {
-  const lines = format(events, useEmoji, abbreviateAddress, true);
+  const lines = format(
+    events,
+    useEmoji,
+    abbreviateAddress,
+    true,
+    addressAliases,
+  );
 
   let subject;
   let text;

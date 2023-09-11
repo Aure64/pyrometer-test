@@ -51,6 +51,10 @@ type UserPref = {
 
 type Group = { key: string; label: string };
 
+const TZ_ADDRESS_ALIAS_KEY = "alias";
+
+export type TzAddressAliasMap = { [key: string]: string };
+
 const BAKER_GROUP: Group = { key: "baker_monitor", label: "Baker Monitor:" };
 
 const BAKERS: UserPref = {
@@ -991,6 +995,22 @@ const formatValidationErrors = (errors: Validator.ValidationErrors): string => {
   return formatted;
 };
 
+const createAliasMap = (configKey: string) => {
+  const defaultAliasMap =
+    (nconf.get(TZ_ADDRESS_ALIAS_KEY) as TzAddressAliasMap) || {};
+
+  const senderAliasMapPath = `${configKey}:${TZ_ADDRESS_ALIAS_KEY}`;
+  const senderAliasMap = nconf.get(senderAliasMapPath) || {};
+  nconf.set(senderAliasMapPath, { ...defaultAliasMap, ...senderAliasMap });
+};
+
+const findInvalidAddresses = (aliases: TzAddressAliasMap) => {
+  const invalidAliasedAddresses = Object.keys(aliases).filter(
+    (x) => validateAddress(x) !== TzValidationResult.VALID,
+  );
+  return invalidAliasedAddresses;
+};
+
 /**
  * Load config settings from argv and the file system.  File system will use the path from envPaths
  * unless overriden by argv.
@@ -1021,10 +1041,24 @@ export const load = async (
   const loadedConfig = nconf.get();
   if (validate) {
     const validation = new Validator(loadedConfig, makeConfigValidations());
-    if (validation.fails()) {
+    const aliasErrors: Validator.ValidationErrors = {};
+    for (const configKey of [
+      `${TZ_ADDRESS_ALIAS_KEY}`,
+      `${TELEGRAM_KEY}:${TZ_ADDRESS_ALIAS_KEY}`,
+    ]) {
+      const invalidAliasedAddresses = findInvalidAddresses(
+        nconf.get(configKey),
+      );
+
+      invalidAliasedAddresses.forEach(
+        (x) => (aliasErrors[`${configKey}:${x}`] = ["invalid tz address"]),
+      );
+    }
+
+    if (validation.fails() || Object.keys(aliasErrors).length > 0) {
       console.error("Invalid config");
       const errors = validation.errors.all();
-      console.log(formatValidationErrors(errors));
+      console.log(formatValidationErrors({ ...errors, ...aliasErrors }));
       process.exit(1);
     }
   }
@@ -1042,6 +1076,12 @@ export const load = async (
 
     return obj;
   };
+
+  createAliasMap(TELEGRAM_KEY);
+  createAliasMap(DESKTOP_KEY);
+  createAliasMap(SLACK_KEY);
+  createAliasMap(EMAIL_KEY);
+  createAliasMap(UI_GROUP.key);
 
   const config: Config = {
     get bakerMonitor() {

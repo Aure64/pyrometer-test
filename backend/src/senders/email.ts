@@ -5,6 +5,8 @@ import { Events, Event, Sender, FilteredSender } from "../events";
 
 import { email as formatEmail } from "../format";
 
+import type { TzAddressAliasMap } from "../config";
+
 export type Protocol = "PLAIN" | "SSL" | "STARTTLS";
 
 export type EmailConfig = {
@@ -18,6 +20,7 @@ export type EmailConfig = {
   from?: string;
   emoji: boolean;
   short_address: boolean;
+  alias: TzAddressAliasMap;
   exclude: Events[];
   bakers: string[] | undefined;
 };
@@ -55,6 +58,7 @@ export const create = (config: EmailConfig): Sender => {
       events,
       config.emoji,
       config.short_address,
+      config.alias,
     );
 
     const fromAddr =
