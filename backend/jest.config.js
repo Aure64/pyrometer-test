@@ -3,4 +3,5 @@ module.exports = {
   testEnvironment: "node",
   modulePathIgnorePatterns: ["/dist"],
   setupFiles: ["./setupJest.js"],
+  prettierPath: null,
 };
