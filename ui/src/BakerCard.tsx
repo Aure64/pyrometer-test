@@ -22,6 +22,9 @@ import {
   MdSwapHoriz,
   MdError,
 } from 'react-icons/md';
+
+import { GiReceiveMoney } from 'react-icons/gi';
+
 import type { Baker, BakerEvent, LevelEvents } from './api';
 import Card from './Card';
 import { ellipsifyMiddle, formatMutezAsTez } from './format';
@@ -184,7 +187,7 @@ export default ({
 
   return (
     <Card minHeight="248px">
-      <VStack w="100%">
+      <VStack w="100%" spacing={0}>
         <HStack
           w="100%"
           justifyContent="space-between"
@@ -259,7 +262,15 @@ export default ({
             )}
 
             {participation && (
-              <HStack w="100%" display="flex">
+              <HStack w="100%">
+                <Tooltip label="Expected endorsing rewards">
+                  <Box>
+                    <Icon
+                      color={`${rewardsRiskColor}.500`}
+                      as={GiReceiveMoney}
+                    />
+                  </Box>
+                </Tooltip>
                 <Tooltip label="Expected endorsing rewards">
                   <Text
                     fontSize="x-small"
