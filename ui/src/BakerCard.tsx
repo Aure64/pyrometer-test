@@ -169,131 +169,143 @@ export default ({
     : null;
   return (
     <Card minHeight="248px">
-      <HStack
-        w="100%"
-        justifyContent="space-between"
-        alignItems="flex-start"
-        spacing="10"
-      >
-        <VStack alignItems="flex-start" spacing={0} flexGrow={1}>
-          <HStack maxW={250}>
-            <Tooltip label={deactivationStatusText}>
-              <Box>
-                <Icon
-                  display="block"
-                  as={deactivationStatusIcon}
-                  color={deactivationStatusColor}
-                />
-              </Box>
-            </Tooltip>
-            <Tooltip label={address}>
-              <Link href={explorerUrl || undefined} isExternal>
-                <Text fontFamily="mono" fontSize="small" isTruncated>
-                  {addressAlias || ellipsifyMiddle(address, 12)}
-                </Text>
-              </Link>
-            </Tooltip>
-          </HStack>
-
-          {consensusKey && (
+      <VStack w="100%">
+        <HStack
+          w="100%"
+          justifyContent="space-between"
+          alignItems="flex-start"
+          spacing="10"
+        >
+          <VStack alignItems="flex-start" spacing={0} flexGrow={1}>
             <HStack maxW={250}>
-              <Tooltip label="Consensus key">
+              <Tooltip label={deactivationStatusText}>
                 <Box>
                   <Icon
-                    color={consensusKeyIconColor}
                     display="block"
-                    as={MdVpnKey}
+                    as={deactivationStatusIcon}
+                    color={deactivationStatusColor}
                   />
                 </Box>
               </Tooltip>
-              <Tooltip label={consensusKey.active}>
-                <Link href={consensusKey.explorerUrl || undefined} isExternal>
-                  <Text
-                    fontFamily="mono"
-                    fontSize="x-small"
-                    fontWeight={usesConsensusKey ? 'bold' : undefined}
-                    isTruncated
-                  >
-                    {consensusKeyAlias ||
-                      ellipsifyMiddle(consensusKey.active, 12)}
+              <Tooltip label={address}>
+                <Link href={explorerUrl || undefined} isExternal>
+                  <Text fontFamily="mono" fontSize="small" isTruncated>
+                    {addressAlias || ellipsifyMiddle(address, 12)}
                   </Text>
                 </Link>
               </Tooltip>
-              {consensusKey.pendings && consensusKey.pendings.length > 0 && (
-                <>
-                  <Tooltip
-                    label={`Pending consensus key ${consensusKey.pendings[0].pkh}`}
-                  >
-                    <Box>
-                      <Icon color="blue.500" display="block" as={MdSwapHoriz} />
-                    </Box>
-                  </Tooltip>
-                  <Tooltip label="Pending consensus key activation cycle">
-                    <Box fontSize="x-small">
-                      {consensusKey.pendings[0].cycle}
-                    </Box>
-                  </Tooltip>
-                </>
-              )}
             </HStack>
-          )}
 
-          {participation && (
-            <HStack w="100%" display="flex">
-              <Tooltip
-                label={`Missed slots: ${participation.missed_slots} of ${
-                  participation.remaining_allowed_missed_slots +
-                  participation.missed_slots
-                } allowed`}
-              >
-                <Box flexGrow={1} position="relative">
-                  <Box
-                    w="2px"
-                    h="100%"
-                    bg="white"
-                    opacity={0.8}
-                    position="absolute"
-                    left={`${cycleProgress}%`}
-                    zIndex={100}
-                  />
-                  <Progress
-                    value={participationReserve}
-                    colorScheme={rewardsRiskColor}
-                  />
-                </Box>
-              </Tooltip>
-              <Tooltip label="Expected endorsing rewards">
-                <Text
-                  fontSize="x-small"
-                  fontFamily="mono"
-                  fontWeight="bold"
-                  color={`${rewardsRiskColor}.500`}
-                >
-                  {formatMutezAsTez(participation.expected_endorsing_rewards)}
-                </Text>
-              </Tooltip>
-            </HStack>
-          )}
-        </VStack>
-        <VStack align="flex-end" spacing={0}>
-          <Tooltip label="Staking balance">
-            <Text fontSize="small" fontFamily="mono">
-              {formatMutezAsTez(stakingBalance)}
-            </Text>
-          </Tooltip>
-          <Tooltip label="Balance">
-            <Text fontSize="x-small" fontFamily="mono">
-              <Icon as={MdOutlineAccountBalanceWallet} />{' '}
-              {formatMutezAsTez(balance)}
-            </Text>
-          </Tooltip>
-          <Tooltip label="Frozen balance">
-            <Text fontSize="x-small" fontFamily="mono">
-              <Icon as={FaSnowflake} /> {formatMutezAsTez(frozenBalance)}
-            </Text>
-          </Tooltip>
-        </VStack>
-      </HStack>
+            {consensusKey && (
+              <HStack maxW={250}>
+                <Tooltip label="Consensus key">
+                  <Box>
+                    <Icon
+                      color={consensusKeyIconColor}
+                      display="block"
+                      as={MdVpnKey}
+                    />
+                  </Box>
+                </Tooltip>
+                <Tooltip label={consensusKey.active}>
+                  <Link href={consensusKey.explorerUrl || undefined} isExternal>
+                    <Text
+                      fontFamily="mono"
+                      fontSize="x-small"
+                      fontWeight={usesConsensusKey ? 'bold' : undefined}
+                      isTruncated
+                    >
+                      {consensusKeyAlias ||
+                        ellipsifyMiddle(consensusKey.active, 12)}
+                    </Text>
+                  </Link>
+                </Tooltip>
+                {consensusKey.pendings && consensusKey.pendings.length > 0 && (
+                  <>
+                    <Tooltip
+                      label={`Pending consensus key ${consensusKey.pendings[0].pkh}`}
+                    >
+                      <Box>
+                        <Icon
+                          color="blue.500"
+                          display="block"
+                          as={MdSwapHoriz}
+                        />
+                      </Box>
+                    </Tooltip>
+                    <Tooltip label="Pending consensus key activation cycle">
+                      <Box fontSize="x-small">
+                        {consensusKey.pendings[0].cycle}
+                      </Box>
+                    </Tooltip>
+                  </>
+                )}
+              </HStack>
+            )}
+
+            {participation && (
+              <HStack w="100%" display="flex">
+                <Tooltip label="Expected endorsing rewards">
+                  <Text
+                    fontSize="x-small"
+                    fontFamily="mono"
+                    fontWeight="bold"
+                    color={`${rewardsRiskColor}.500`}
+                  >
+                    {formatMutezAsTez(participation.expected_endorsing_rewards)}
+                  </Text>
+                </Tooltip>
+              </HStack>
+            )}
+          </VStack>
+          <VStack align="flex-end" spacing={0}>
+            <Tooltip label="Staking balance">
+              <Text fontSize="small" fontFamily="mono">
+                {formatMutezAsTez(stakingBalance)}
+              </Text>
+            </Tooltip>
+            <Tooltip label="Balance">
+              <Text fontSize="x-small" fontFamily="mono">
+                <Icon as={MdOutlineAccountBalanceWallet} />{' '}
+                {formatMutezAsTez(balance)}
+              </Text>
+            </Tooltip>
+            <Tooltip label="Frozen balance">
+              <Text fontSize="x-small" fontFamily="mono">
+                <Icon as={FaSnowflake} /> {formatMutezAsTez(frozenBalance)}
+              </Text>
+            </Tooltip>
+          </VStack>
+        </HStack>
+
+        {participation && (
+          <HStack w="100%" display="flex">
+            <Tooltip
+              label={`Missed slots: ${participation.missed_slots} of ${
+                participation.remaining_allowed_missed_slots +
+                participation.missed_slots
+              } allowed`}
+            >
+              <Box flexGrow={1} position="relative">
+                <Box
+                  w="2px"
+                  h="100%"
+                  bg="white"
+                  opacity={0.8}
+                  position="absolute"
+                  left={`${cycleProgress}%`}
+                  zIndex={100}
+                />
+                <Progress
+                  h={1}
+                  value={participationReserve}
+                  colorScheme={rewardsRiskColor}
+                />
+              </Box>
+            </Tooltip>
+          </HStack>
+        )}
+      </VStack>
 
       <VStack spacing={0} alignContent="stretch">
         {errors &&
