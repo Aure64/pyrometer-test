@@ -10,6 +10,7 @@ import {
   Tooltip,
   VStack,
   Progress,
+  Divider,
 } from '@chakra-ui/react';
 import React from 'react';
 import { FaSnowflake } from 'react-icons/fa';
