@@ -293,6 +293,8 @@ export default ({
           </VStack>
         </HStack>
 
+        {!participation && <Divider />}
+
         {participation && (
           <HStack w="100%" display="flex">
             <Tooltip

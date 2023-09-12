@@ -7,6 +7,7 @@ import {
   Text,
   Tooltip,
   VStack,
+  Divider,
 } from '@chakra-ui/react';
 import React from 'react';
 import type { TezosNode } from './api';
@@ -32,31 +33,34 @@ export default ({
   node: TezosNode;
 }) => (
   <Card>
-    <HStack w="100%" justifyContent="space-between">
-      <VStack align="flex-start" spacing={0}>
-        <HStack maxW={290}>
-          <SyncStatus synced={synced} peerCount={peerCount} />
-          <Tooltip label={url}>
-            <Text as="span" isTruncated>
-              {new URL(url).hostname}
-            </Text>
-          </Tooltip>
-        </HStack>
-        {!unableToReach && (
-          <Text fontSize="x-small" isTruncated>
-            {tezosVersion.chainName}
-          </Text>
-        )}
-        {!unableToReach && (
-          <Tooltip label={recentBlocks[0]?.protocol}>
+    <VStack w="100%">
+      <HStack w="100%" justifyContent="space-between">
+        <VStack align="flex-start" spacing={0}>
+          <HStack maxW={290}>
+            <SyncStatus synced={synced} peerCount={peerCount} />
+            <Tooltip label={url}>
+              <Text as="span" isTruncated>
+                {new URL(url).hostname}
+              </Text>
+            </Tooltip>
+          </HStack>
+          {!unableToReach && (
             <Text fontSize="x-small" isTruncated>
-              {takeStart(recentBlocks[0]?.protocol, 12)}
+              {tezosVersion.chainName}
             </Text>
-          </Tooltip>
-        )}
-      </VStack>
-      {!unableToReach && <PeerCount peerCount={peerCount} />}
-    </HStack>
+          )}
+          {!unableToReach && (
+            <Tooltip label={recentBlocks[0]?.protocol}>
+              <Text fontSize="x-small" isTruncated>
+                {takeStart(recentBlocks[0]?.protocol, 12)}
+              </Text>
+            </Tooltip>
+          )}
+        </VStack>
+        {!unableToReach && <PeerCount peerCount={peerCount} />}
+      </HStack>
+      <Divider />
+    </VStack>
     <Box>
       {error && (
         <Alert status="error">

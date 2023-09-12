@@ -20,7 +20,6 @@ export default ({
   >
     <VStack w="100%" align="flex-start">
       {children[0]}
-      <Divider />
       <Box w="100%">{children[1]}</Box>
       <Divider />
       <Box w="100%" fontSize="xs">
