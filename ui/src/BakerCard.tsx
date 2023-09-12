@@ -407,8 +407,8 @@ export default ({
         })}
 
         {recentEventPlaceholderCount > 0 &&
-          [...Array(recentEventPlaceholderCount)].map(() => (
-            <EventRowPlaceholder />
+          [...Array(recentEventPlaceholderCount)].map((_, i) => (
+            <EventRowPlaceholder key={`${i}`} />
           ))}
       </VStack>
       <Box>
