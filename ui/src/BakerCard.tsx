@@ -68,6 +68,18 @@ const isHealthy = (recentEvents: LevelEvents[]) =>
   recentEvents.length === 0 ||
   recentEvents.map((e) => e.events.some(isHealthyEvent)).some(identity);
 
+const EventRowPlaceholder = () => (
+  <Box
+    display="flex"
+    w="100%"
+    justifyContent="space-between"
+    alignItems="baseline"
+    opacity={0.05}
+  >
+    <code>...</code>
+  </Box>
+);
+
 export default ({
   baker: {
     address,
@@ -167,6 +179,9 @@ export default ({
   const consensusKeyAlias = consensusKey
     ? aliasMap.get(consensusKey.active)
     : null;
+
+  const recentEventPlaceholderCount = 5 - recentEvents.length;
+
   return (
     <Card minHeight="248px">
       <VStack w="100%">
@@ -376,6 +391,11 @@ export default ({
             </RelativeTimeRow>
           );
         })}
+
+        {recentEventPlaceholderCount > 0 &&
+          [...Array(recentEventPlaceholderCount)].map(() => (
+            <EventRowPlaceholder />
+          ))}
       </VStack>
       <Box>
         <HStack justifyContent="space-between">
