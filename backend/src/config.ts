@@ -1045,14 +1045,19 @@ export const load = async (
     for (const configKey of [
       `${TZ_ADDRESS_ALIAS_KEY}`,
       `${TELEGRAM_KEY}:${TZ_ADDRESS_ALIAS_KEY}`,
+      `${SLACK_KEY}:${TZ_ADDRESS_ALIAS_KEY}`,
+      `${EMAIL_KEY}:${TZ_ADDRESS_ALIAS_KEY}`,
+      `${DESKTOP_KEY}:${TZ_ADDRESS_ALIAS_KEY}`,
+      `${UI_GROUP.key}:${TZ_ADDRESS_ALIAS_KEY}`,
     ]) {
-      const invalidAliasedAddresses = findInvalidAddresses(
-        nconf.get(configKey),
-      );
+      const conf = nconf.get(configKey);
+      if (conf) {
+        const invalidAliasedAddresses = findInvalidAddresses(conf);
 
-      invalidAliasedAddresses.forEach(
-        (x) => (aliasErrors[`${configKey}:${x}`] = ["invalid tz address"]),
-      );
+        invalidAliasedAddresses.forEach(
+          (x) => (aliasErrors[`${configKey}:${x}`] = ["invalid tz address"]),
+        );
+      }
     }
 
     if (validation.fails() || Object.keys(aliasErrors).length > 0) {
