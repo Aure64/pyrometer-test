@@ -288,6 +288,30 @@ tz3R…CxD9 endorsed @346714[5-6]
 tz1a…wDjM endorsed @346714[5-6]
 ```
 
+### Address Aliases
+
+Notifications and UI can be confgiured to display an alias instead tz address:
+
+```toml
+[alias]
+tz3cqThj23Feu55KDynm7Vg81mCMpWDgzQZq = "TF baker 1"
+tz1S8MNvuFEUsWgjHvi3AxibRBf388NhT1q2 = "Binance"
+```
+
+Aliases can also be configured for a specific notification channel or UI (merged
+with global alias map):
+
+```toml
+[slack.alias]
+tz2W3WMS17G2yJzaPtU3kLoPnNrfW91QftbL = "some baker"
+
+[telegram.alias]
+tz2W3WMS17G2yJzaPtU3kLoPnNrfW91QftbL = "sm bkr"
+
+[ui.alias]
+tz2W3WMS17G2yJzaPtU3kLoPnNrfW91QftbL = "Some Baker"
+```
+
 ### Event Types
 
 - 🤒 baker unhealthy
