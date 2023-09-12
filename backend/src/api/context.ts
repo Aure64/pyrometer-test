@@ -1,6 +1,7 @@
 import { NodeInfoCollection } from "../nodeMonitor";
 import { BakerInfoCollection } from "../bakerMonitor";
 import client, { RpcClient, RpcClientConfig } from "../rpc/client";
+import type { TzAddressAliasMap } from "../config";
 
 export interface Context {
   nodeInfoCollection: NodeInfoCollection;
@@ -8,6 +9,7 @@ export interface Context {
   rpc: RpcClient;
   explorerUrl: string | undefined;
   showSystemInfo: boolean | undefined;
+  aliasMap: TzAddressAliasMap;
 }
 
 export const createContext = (
@@ -17,6 +19,7 @@ export const createContext = (
   rpcConfig: RpcClientConfig,
   explorerUrl: string | undefined,
   showSystemInfo: boolean | undefined,
+  aliasMap: TzAddressAliasMap,
 ) => {
   return {
     nodeInfoCollection,
@@ -24,5 +27,6 @@ export const createContext = (
     rpc: client(rpcUrl, rpcConfig),
     explorerUrl,
     showSystemInfo,
+    aliasMap,
   };
 };

@@ -329,10 +329,28 @@ const getProtocol = async (cycle: number, level: number, ctx: Context) => {
   return protocol;
 };
 
+export const TzAddressAlias = objectType({
+  name: "TzAddressAlias",
+  definition(t) {
+    t.nonNull.string("alias");
+    t.nonNull.string("address");
+  },
+});
+
 export const BakerQuery = extendType({
   type: "Query",
 
   definition(t) {
+    t.nonNull.list.nonNull.field("aliases", {
+      type: TzAddressAlias,
+      async resolve(_root, _args, { aliasMap }) {
+        return Object.entries(aliasMap).map(([k, v]) => ({
+          address: k,
+          alias: v,
+        }));
+      },
+    });
+
     t.nonNull.field("bakers", {
       type: Bakers,
 

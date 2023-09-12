@@ -86,9 +86,11 @@ export default ({
     lastProcessed,
   },
   errors,
+  aliasMap,
 }: {
   baker: Omit<Baker, 'headDistance' | 'atRiskThreshold'>;
   errors?: GraphQLError[];
+  aliasMap: Map<string, string>;
 }) => {
   const healthy = !deactivated && isHealthy(recentEvents);
 
@@ -161,6 +163,10 @@ export default ({
     (x) => (x?.extensions as any)?.error?.nodeErrors,
   );
 
+  const addressAlias = aliasMap.get(address);
+  const consensusKeyAlias = consensusKey
+    ? aliasMap.get(consensusKey.active)
+    : null;
   return (
     <Card minHeight="248px">
       <HStack w="100%" justifyContent="space-between" alignItems="flex-start">
@@ -178,7 +184,7 @@ export default ({
             <Tooltip label={address}>
               <Link href={explorerUrl || undefined} isExternal>
                 <Text fontFamily="mono" fontSize="small" isTruncated>
-                  {ellipsifyMiddle(address, 12)}
+                  {addressAlias || ellipsifyMiddle(address, 12)}
                 </Text>
               </Link>
             </Tooltip>
@@ -203,7 +209,8 @@ export default ({
                     fontWeight={usesConsensusKey ? 'bold' : undefined}
                     isTruncated
                   >
-                    {ellipsifyMiddle(consensusKey.active, 12)}
+                    {consensusKeyAlias ||
+                      ellipsifyMiddle(consensusKey.active, 12)}
                   </Text>
                 </Link>
               </Tooltip>

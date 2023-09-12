@@ -4,6 +4,7 @@ import {
   useGetBakersQuery,
   useGetNetworkInfoQuery,
   GetBakersQuery,
+  useAliasesQuery,
 } from './api';
 import BakerCard from './BakerCard';
 import { takeStart } from './format';
@@ -36,6 +37,12 @@ export default () => {
 
   const networkInfo = data?.networkInfo;
 
+  const { data: aliasesData } = useAliasesQuery();
+
+  const aliasMap = new Map(
+    aliasesData?.aliases.map((x) => [x.address, x.alias]),
+  );
+
   return (
     <PaginatedSection
       title="Bakers"
@@ -57,6 +64,7 @@ export default () => {
             key={baker.address}
             baker={baker}
             errors={errorsByItem[index]}
+            aliasMap={aliasMap}
           />
         ));
       }}

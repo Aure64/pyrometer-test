@@ -14,6 +14,8 @@ import { NodeInfoCollection } from "../nodeMonitor";
 import { BakerInfoCollection } from "bakerMonitor";
 import { RpcClientConfig } from "rpc/client";
 
+import type { TzAddressAliasMap } from "../config";
+
 export const app = express();
 
 const logFormat = process.env.NODE_ENV === "development" ? "dev" : "combined";
@@ -47,6 +49,7 @@ export type UIConfig = {
   explorer_url?: string;
   webroot?: string;
   show_system_info?: boolean;
+  alias: TzAddressAliasMap;
 };
 
 export const start = (
@@ -59,6 +62,7 @@ export const start = (
     explorer_url,
     webroot: configuredWebroot,
     show_system_info,
+    alias: aliasMap,
   }: UIConfig,
   rpcConfig: RpcClientConfig,
 ) => {
@@ -90,6 +94,7 @@ export const start = (
         rpcConfig,
         explorer_url,
         show_system_info,
+        aliasMap,
       ),
     }),
   );

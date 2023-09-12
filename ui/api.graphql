@@ -1,6 +1,5 @@
-query getNodes($offset: Int!, $limit: Int!)
-{
-  nodes (offset: $offset, limit: $limit) {
+query getNodes($offset: Int!, $limit: Int!) {
+  nodes(offset: $offset, limit: $limit) {
     items {
       url
       recentBlocks {
@@ -12,7 +11,7 @@ query getNodes($offset: Int!, $limit: Int!)
         payloadRound
       }
       tezosVersion {
-        version,
+        version
         commitHash
         chainName
       }
@@ -26,9 +25,8 @@ query getNodes($offset: Int!, $limit: Int!)
   }
 }
 
-query getBakers($offset: Int!, $limit: Int!)
-{
-  bakers (offset: $offset, limit: $limit) {
+query getBakers($offset: Int!, $limit: Int!) {
+  bakers(offset: $offset, limit: $limit) {
     items {
       address
       explorerUrl
@@ -79,11 +77,11 @@ query getBakers($offset: Int!, $limit: Int!)
 
 query getNetworkInfo {
   networkInfo {
-    chainName,
-    protocol,
-    level,
-    cycle,
-    cyclePosition,
+    chainName
+    protocol
+    level
+    cycle
+    cyclePosition
     blocksPerCycle
   }
 }
@@ -159,5 +157,12 @@ query getSystemInfo {
 query settings {
   settings {
     showSystemInfo
+  }
+}
+
+query aliases {
+  aliases {
+    alias
+    address
   }
 }
