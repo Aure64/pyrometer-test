@@ -169,8 +169,13 @@ export default ({
     : null;
   return (
     <Card minHeight="248px">
-      <HStack w="100%" justifyContent="space-between" alignItems="flex-start">
-        <VStack alignItems="flex-start" spacing={0}>
+      <HStack
+        w="100%"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        spacing="10"
+      >
+        <VStack alignItems="flex-start" spacing={0} flexGrow={1}>
           <HStack maxW={250}>
             <Tooltip label={deactivationStatusText}>
               <Box>
@@ -289,6 +294,7 @@ export default ({
           </Tooltip>
         </VStack>
       </HStack>
+
       <VStack spacing={0} alignContent="stretch">
         {errors &&
           Object.keys(
