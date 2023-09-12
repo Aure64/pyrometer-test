@@ -190,11 +190,11 @@ describe("format", () => {
 
   it("uses address aliases", async () => {
     expect(
-format.aggregateByBaker(events, true, true, false, {
-  [baker2]: "baker 2",
-  [baker5]: "baker 5" })).
-
-toMatchInlineSnapshot(`
+      format.aggregateByBaker(events, true, true, false, {
+        [baker2]: "baker 2",
+        [baker5]: "baker 5",
+      }),
+    ).toMatchInlineSnapshot(`
 [
   "tz1i…4yhk 🥖 @1000[1-4]²",
   "        . 👍 @1000[2-5]²",
