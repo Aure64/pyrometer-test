@@ -11,6 +11,7 @@ import {
   VStack,
   Progress,
   Divider,
+  Badge,
 } from '@chakra-ui/react';
 import React from 'react';
 import { FaSnowflake } from 'react-icons/fa';
@@ -82,6 +83,12 @@ const EventRowPlaceholder = () => (
   >
     <code>...</code>
   </Box>
+);
+
+const CycleBadge = ({ cycle }: { cycle: number }) => (
+  <Badge colorScheme="blue" fontSize="x-small" variant="subtle">
+    {cycle}
+  </Badge>
 );
 
 export default ({
@@ -240,24 +247,18 @@ export default ({
                   </Link>
                 </Tooltip>
                 {consensusKey.pendings && consensusKey.pendings.length > 0 && (
-                  <>
-                    <Tooltip
-                      label={`Pending consensus key ${consensusKey.pendings[0].pkh}`}
-                    >
-                      <Box>
-                        <Icon
-                          color="blue.500"
-                          display="block"
-                          as={MdSwapHoriz}
-                        />
-                      </Box>
-                    </Tooltip>
-                    <Tooltip label="Pending consensus key activation cycle">
-                      <Box fontSize="x-small">
-                        {consensusKey.pendings[0].cycle}
-                      </Box>
-                    </Tooltip>
-                  </>
+                  <Tooltip
+                    label={`Pending consensus key ${consensusKey.pendings[0].pkh} at cycle ${consensusKey.pendings[0].cycle}`}
+                  >
+                    <HStack>
+                      <Icon color="blue.500" display="block" as={MdSwapHoriz} />
+                      <CycleBadge cycle={consensusKey.pendings[0].cycle} />
+                      <Text fontSize="x-small">
+                        {aliasMap.get(consensusKey.pendings[0].pkh) ||
+                          ellipsifyMiddle(consensusKey.pendings[0].pkh, 4)}
+                      </Text>
+                    </HStack>
+                  </Tooltip>
                 )}
               </HStack>
             )}
@@ -413,7 +414,9 @@ export default ({
       </VStack>
       <Box>
         <HStack justifyContent="space-between">
-          <Box>Grace period end: cycle {gracePeriod}</Box>
+          <Box>
+            Grace period end: cycle <CycleBadge cycle={gracePeriod} />
+          </Box>
           <UpdatedAt updatedAt={updatedAt} />
         </HStack>
       </Box>
