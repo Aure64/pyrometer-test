@@ -1,5 +1,9 @@
+import { URL } from "node:url";
+
 import { Event, Events, RpcEvent, NodeEvent } from "./events";
 import { getLogger, Logger } from "loglevel";
+import { uniqBy } from "lodash";
+
 import { BlockHeader } from "./rpc/types";
 import { readJson } from "./fs-utils";
 
@@ -13,10 +17,15 @@ import { get as rpcFetch } from "./rpc/util";
 import * as service from "./service";
 import now from "./now";
 
-type URL = string;
+type URLstr = string;
+
+export type TezosNode = {
+  name: string;
+  url: URLstr;
+};
 
 export type NodeMonitorConfig = {
-  nodes: URL[];
+  nodes: TezosNode[];
   teztnets?: boolean;
   teztnets_config: string;
   low_peer_count: number;
@@ -35,7 +44,7 @@ export type EndpointsAvailability = {
 };
 
 export type NodeInfo = {
-  url: string;
+  node: TezosNode;
   head: string | undefined;
   endpoints: EndpointsAvailability;
   bootstrappedStatus: BootstrappedStatus | undefined;
@@ -65,7 +74,7 @@ export const create = async (
   }: NodeMonitorConfig,
   rpcConfig: RpcClientConfig,
 ): Promise<NodeMonitor> => {
-  const teztnetsNodes: string[] = [];
+  const teztnetsNodes: TezosNode[] = [];
   if (teztnets) {
     try {
       const read =
@@ -76,7 +85,9 @@ export const create = async (
       const testNets = await read(teztnetsConfig);
       for (const [networkName, data] of Object.entries<any>(testNets)) {
         if ("rpc_url" in data) {
-          teztnetsNodes.push(data.rpc_url);
+          const url = data.rpc_url as string;
+          const name = (data.human_name || new URL(url).hostname) as string;
+          teztnetsNodes.push({ url, name });
         } else {
           getLogger("nm").warn(
             `Network ${networkName} has no rpc URL, skipping`,
@@ -93,7 +104,7 @@ export const create = async (
   }
 
   //dedup
-  const nodeSet = [...new Set([...nodes, ...teztnetsNodes])];
+  const nodeSet = uniqBy([...nodes, ...teztnetsNodes], "url");
 
   const allSubs = nodeSet.map((node) =>
     subscribeToNode(node, rpcConfig, onEvent, lowPeerCount),
@@ -130,16 +141,16 @@ const initialEndpointAvailability = {
 };
 
 const subscribeToNode = (
-  node: string,
+  node: TezosNode,
   rpcConfig: RpcClientConfig,
   onEvent: (event: Event) => Promise<void>,
   lowPeerCount: number,
 ): Sub => {
-  const rpc = client(node, rpcConfig);
-
-  const log = getLogger(`nm|${node}`);
+  const rpc = client(node.url, rpcConfig);
+  const serviceName = `nm|${node.name}`;
+  const log = getLogger(serviceName);
   let nodeData: NodeInfo = {
-    url: node,
+    node,
     endpoints: initialEndpointAvailability,
     unableToReach: false,
     head: undefined,
@@ -174,7 +185,7 @@ const subscribeToNode = (
         events.push({
           kind: Events.RpcError,
           message,
-          node,
+          node: node.url,
           createdAt: now(),
         });
       } else {
@@ -193,7 +204,7 @@ const subscribeToNode = (
         log.debug("Adding reconnected event");
         events.push({
           kind: Events.RpcErrorResolved,
-          node,
+          node: node.url,
           createdAt: now(),
         });
       }
@@ -204,7 +215,7 @@ const subscribeToNode = (
         message: err.status
           ? `${node} returned ${err.status} ${err.statusText ?? ""}`
           : err.message,
-        node,
+        node: node.url,
         createdAt: now(),
       });
     }
@@ -222,7 +233,7 @@ const subscribeToNode = (
     previousEvents = publishedEvents;
   };
 
-  const srv = service.create(node, task, 30 * 1e3);
+  const srv = service.create(serviceName, task, 30 * 1e3);
 
   return {
     name: srv.name,
@@ -240,7 +251,7 @@ const updateNodeInfo = async ({
   endpoints,
   log,
 }: {
-  node: string;
+  node: TezosNode;
   rpc: RpcClient;
   endpoints: EndpointsAvailability;
   log?: Logger;
@@ -318,7 +329,7 @@ const updateNodeInfo = async ({
     }
   }
   return {
-    url: node,
+    node,
     endpoints: {
       status: hasStatusEndpoint,
       networkConnections: hasNetworkConnectionsEndpoint,
@@ -355,7 +366,7 @@ export const checkBlockInfo = ({
   const events: NodeEvent[] = [];
   type ValueOf<T> = T[keyof T];
   const newEvent = (kind: ValueOf<Pick<NodeEvent, "kind">>): NodeEvent => {
-    return { kind, node: nodeInfo.url, createdAt: now() };
+    return { kind, node: nodeInfo.node.url, createdAt: now() };
   };
 
   if (nodeInfo.bootstrappedStatus) {
@@ -393,7 +404,7 @@ export const checkBlockInfo = ({
         log.debug("Node previously had too few peers, not generating event");
       } else {
         log.debug(
-          `${nodeInfo.url} has low peer count: ${nodeInfo.peerCount}/${lowPeerCount}`,
+          `${nodeInfo.node.url} has low peer count: ${nodeInfo.peerCount}/${lowPeerCount}`,
         );
         events.push(newEvent(Events.NodeLowPeers));
       }
@@ -405,7 +416,7 @@ export const checkBlockInfo = ({
         previousNodeInfo.peerCount <= lowPeerCount
       ) {
         log.debug(
-          `${nodeInfo.url} low peer count resolved: ${nodeInfo.peerCount}/${lowPeerCount}`,
+          `${nodeInfo.node.url} low peer count resolved: ${nodeInfo.peerCount}/${lowPeerCount}`,
         );
         events.push(newEvent(Events.NodeLowPeersResolved));
       } else {

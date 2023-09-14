@@ -17,6 +17,7 @@ import { join as joinPath, normalize as normalizePath } from "path";
 import { setup as setupLogging } from "./logging";
 
 import { start as startAPIServer } from "./api/server";
+import { URL } from "url";
 
 type TzClientPkhListItem = { name: string; value: string };
 
@@ -161,15 +162,30 @@ const run = async (config: Config.Config) => {
   }
 
   if (tezosClientEndpoints.length > 0) {
-    bakerMonitorConfig.rpc =
-      tezosClientEndpoints[tezosClientEndpoints.length - 1];
-    info(`Using tezos client endpoint ${bakerMonitorConfig.rpc} for baker rpc`);
+    const rpcNode = Config.toNamedNode(tezosClientEndpoints[0]);
+    if (rpcNode) {
+      bakerMonitorConfig.rpc = rpcNode;
+      info(
+        `Using tezos client endpoint ${bakerMonitorConfig.rpc.url} for baker rpc`,
+      );
+    } else {
+      console.warn(
+        `Found tezos client endpoint ${tezosClientEndpoints[0]} but it doesn't appear to be a valid URL`,
+      );
+    }
   }
 
   const bakers = [...tezosClientBakers, ...bakerMonitorConfig.bakers];
   bakerMonitorConfig.bakers = bakers;
 
-  const nodes = [...tezosClientEndpoints, ...nodeMonitorConfig.nodes];
+  function notEmpty<TValue>(value: TValue | undefined | null): value is TValue {
+    return value !== null && value !== undefined;
+  }
+
+  const nodes = [
+    ...tezosClientEndpoints.map(Config.toNamedNode).filter(notEmpty),
+    ...nodeMonitorConfig.nodes,
+  ];
   //if there are bakers to monitor also monitor rpc node
   if (bakers.length > 0) {
     nodes.push(bakerMonitorConfig.rpc);
@@ -215,7 +231,7 @@ const run = async (config: Config.Config) => {
     ? startAPIServer(
         nodeMonitor,
         bakerMonitor,
-        bakerMonitorConfig.rpc,
+        bakerMonitorConfig.rpc.url,
         uiConfig,
         config.rpc,
       )

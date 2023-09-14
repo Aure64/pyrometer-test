@@ -13,7 +13,7 @@ const createNodeInfo = () => {
   };
 
   return {
-    url: "http://somenode",
+    node: { url: "http://somenode", name: "some node" },
     head: "some_block",
     peerCount: 20,
     endpoints: {
@@ -42,7 +42,7 @@ describe("checkBlockInfo", () => {
     expect(events).toEqual([
       {
         kind: Events.NodeBehind,
-        node: nodeInfo.url,
+        node: nodeInfo.node.url,
         createdAt,
       },
     ]);
@@ -59,7 +59,7 @@ describe("checkBlockInfo", () => {
       ...createNodeInfo(),
       head: "some other block",
       bootstrappedStatus,
-      url: nodeInfo.url,
+      url: nodeInfo.node.url,
     };
     const events = checkBlockInfo({
       nodeInfo,

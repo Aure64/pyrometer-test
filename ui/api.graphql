@@ -2,6 +2,7 @@ query getNodes($offset: Int!, $limit: Int!) {
   nodes(offset: $offset, limit: $limit) {
     items {
       url
+      name
       recentBlocks {
         protocol
         hash

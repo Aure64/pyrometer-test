@@ -36,11 +36,13 @@ import protocolM from "./bm-proto-m";
 import protocolN from "./bm-proto-n";
 import protocolO from "./bm-proto-o";
 
+import type { TezosNode } from "./nodeMonitor";
+
 const name = "bm";
 
 export type BakerMonitorConfig = {
   bakers: string[];
-  rpc: URL;
+  rpc: TezosNode;
   max_catchup_blocks: number;
   head_distance: number;
   missed_threshold: number;
@@ -87,7 +89,7 @@ export const create = async (
   storageDirectory: string,
   {
     bakers: configuredBakers,
-    rpc: rpcUrl,
+    rpc: rpcNode,
     max_catchup_blocks: catchupLimit,
     head_distance: headDistance,
     missed_threshold: missedEventsThreshold,
@@ -99,8 +101,8 @@ export const create = async (
   const MAX_HISTORY = Math.max(7, missedEventsThreshold);
 
   const log = getLogger(name);
-  // const rpc = new RpcClient(rpcUrl);
-  const rpc = RpcClient(rpcUrl, rpcConfig);
+
+  const rpc = RpcClient(rpcNode.url, rpcConfig);
 
   const chainId = await tryForever(
     () => rpc.getChainId(),

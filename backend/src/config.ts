@@ -16,7 +16,7 @@ import { DesktopConfig } from "./senders/desktop";
 import { WebhookConfig } from "./senders/http";
 import { NotificationsConfig } from "./channel";
 import { BakerMonitorConfig } from "./bakerMonitor";
-import { NodeMonitorConfig } from "./nodeMonitor";
+import { NodeMonitorConfig, TezosNode } from "./nodeMonitor";
 import { LoggingConfig } from "./logging";
 import { UIConfig } from "./api/server";
 import { RpcClientConfig } from "./rpc/client";
@@ -27,6 +27,7 @@ import Validator from "validatorjs";
 import { Events } from "./events";
 
 import setPath from "./setPath";
+import { URL } from "url";
 
 export type AutodetectConfig = { enabled: boolean };
 
@@ -111,7 +112,7 @@ const RPC: UserPref = {
   type: "string",
   group: BAKER_GROUP.label,
   isArray: false,
-  validationRule: "link",
+  validationRule: "named_node",
 };
 
 const LOG_GROUP: Group = { key: "log", label: "Logging:" };
@@ -165,7 +166,7 @@ const NODES: UserPref = {
   type: "string",
   group: NODE_MONITOR_GROUP.label,
   isArray: true,
-  validationRule: "link",
+  validationRule: "named_node",
 };
 
 const WITH_TEZTNETS: UserPref = {
@@ -943,6 +944,16 @@ const makeConfigValidations = (): Validator.Rules => {
     "The :attribute is not a valid link.",
   );
 
+  Validator.register(
+    "named_node",
+    //Validator.RegisterCallback type definition is incorrect (doesn't allow object)
+    //explicit any tricks TS
+    (value: any) => {
+      return !!toNamedNode(value);
+    },
+    "The :attribute should be either a valid URL or {url, name} object",
+  );
+
   const rules = userPrefs.reduce(
     (accumulator: Validator.Rules, userPref: UserPref) => {
       const validationRule = userPref.validationRule;
@@ -1009,6 +1020,20 @@ const findInvalidAddresses = (aliases: TzAddressAliasMap) => {
     (x) => validateAddress(x) !== TzValidationResult.VALID,
   );
   return invalidAliasedAddresses;
+};
+
+export const toNamedNode = (
+  configNode: string | { url: string } | TezosNode,
+): TezosNode | undefined => {
+  if (typeof configNode === "string") {
+    return { url: configNode, name: new URL(configNode).hostname };
+  } else if ("url" in configNode) {
+    if ("name" in configNode) {
+      return configNode;
+    } else {
+      return { url: configNode.url, name: new URL(configNode.url).hostname };
+    }
+  }
 };
 
 /**
@@ -1088,12 +1113,41 @@ export const load = async (
   createAliasMap(EMAIL_KEY);
   createAliasMap(UI_GROUP.key);
 
+  const createNodeMonitorConfig = () => {
+    const rawConfig = nconf.get(NODE_MONITOR_GROUP.key);
+    const configNodes = rawConfig.nodes || [];
+    const nodes: TezosNode[] = [];
+
+    for (const configNode of configNodes) {
+      const node = toNamedNode(configNode);
+      if (!node) {
+        console.error(
+          `Invalid config: ${NODE_MONITOR_GROUP.key}:nodes is neither string nor {url, name}`,
+          configNode,
+        );
+        process.exit(1);
+      }
+      nodes.push(node);
+    }
+    return { ...rawConfig, nodes } as NodeMonitorConfig;
+  };
+
+  const nodeMonitorConfig = createNodeMonitorConfig();
+
+  const createBakerMonitorConfig = () => {
+    const rawConfig = nconf.get(BAKER_GROUP.key);
+    const rpc = toNamedNode(rawConfig.rpc);
+    return { ...rawConfig, rpc } as BakerMonitorConfig;
+  };
+
+  const bakerMonitoConfig = createBakerMonitorConfig();
+
   const config: Config = {
     get bakerMonitor() {
-      return nconf.get(BAKER_GROUP.key) as BakerMonitorConfig;
+      return bakerMonitoConfig;
     },
     get nodeMonitor() {
-      return nconf.get(NODE_MONITOR_GROUP.key) as NodeMonitorConfig;
+      return nodeMonitorConfig;
     },
     get logging() {
       return nconf.get(LOG_GROUP.key) as LoggingConfig;

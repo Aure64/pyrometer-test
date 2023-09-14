@@ -39,6 +39,7 @@ export const TezosNode = objectType({
 
   definition(t) {
     t.nonNull.string("url");
+    t.nonNull.string("name");
     t.nonNull.list.field("recentBlocks", { type: nonNull(BlockInfo) });
     t.boolean("bootstrapped");
     t.string("synced");
@@ -98,7 +99,7 @@ export const TezosNodeQuery = extendType({
           .slice(args.offset, args.offset + args.limit)
           .map(
             ({
-              url,
+              node,
               history: recentBlocks,
               bootstrappedStatus,
               peerCount,
@@ -108,7 +109,8 @@ export const TezosNodeQuery = extendType({
               updatedAt,
             }) => {
               return {
-                url,
+                url: node.url,
+                name: node.name,
                 recentBlocks,
                 bootstrapped: bootstrappedStatus?.bootstrapped,
                 synced: bootstrappedStatus?.sync_state,

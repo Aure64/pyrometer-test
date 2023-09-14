@@ -21,6 +21,7 @@ import UpdatedAt from './UpdatedAt';
 export default ({
   node: {
     url,
+    name,
     synced,
     peerCount,
     recentBlocks,
@@ -40,7 +41,7 @@ export default ({
             <SyncStatus synced={synced} peerCount={peerCount} />
             <Tooltip label={url}>
               <Text as="span" isTruncated>
-                {new URL(url).hostname}
+                {name}
               </Text>
             </Tooltip>
           </HStack>
