@@ -1045,6 +1045,21 @@ export const load = async (
   validate = true,
 ): Promise<Config> => {
   nconf.argv(yargs.strict().options(yargOptions));
+
+  const cliOptions = nconf.get();
+  const nonConfigKeys = ["_", "$0"];
+  const cliAliases = userPrefs
+    .map(({ alias }) => alias)
+    .flatMap((x) => x)
+    .filter((x): x is string => !!x);
+
+  [...nonConfigKeys, ...cliAliases].forEach((cruft) => {
+    delete cliOptions[cruft];
+  });
+
+  nconf.remove("argv");
+  nconf.overrides(cliOptions);
+
   // user config file from argv overrides default location
   const cliConfigPath = nconf.get(CONFIG_FILE.key);
   const configPath = cliConfigPath || CONFIG_FILE.default;
@@ -1095,15 +1110,7 @@ export const load = async (
 
   const asObject = () => {
     const obj = nconf.get();
-    const nonConfigKeys = ["_", "$0", "type"];
-
-    const cliAliases = userPrefs
-      .map(({ alias }) => alias)
-      .flatMap((x) => x)
-      .filter((x): x is string => !!x);
-
-    [...nonConfigKeys, ...cliAliases].forEach((alias) => delete obj[alias]);
-
+    delete obj["type"];
     return obj;
   };
 
