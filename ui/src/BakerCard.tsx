@@ -85,11 +85,15 @@ const EventRowPlaceholder = () => (
   </Box>
 );
 
-const CycleBadge = ({ cycle }: { cycle: number }) => (
-  <Badge colorScheme="blue" fontSize="x-small" variant="subtle">
-    {cycle}
-  </Badge>
-);
+const CycleBadge = ({ cycle }: { cycle: number | undefined | null }) => {
+  return (
+    typeof cycle === 'number' && (
+      <Badge colorScheme="blue" fontSize="x-small" variant="subtle">
+        {cycle}
+      </Badge>
+    )
+  );
+};
 
 export default ({
   baker: {
