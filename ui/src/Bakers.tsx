@@ -80,9 +80,9 @@ export default () => {
                       networkInfo.blocksPerCycle
                     }
                     color="green.400"
-                    size="24px"
+                    size="30px"
                   >
-                    <CircularProgressLabel>
+                    <CircularProgressLabel fontSize="0.3em">
                       {networkInfo.cycle}
                     </CircularProgressLabel>
                   </CircularProgress>
