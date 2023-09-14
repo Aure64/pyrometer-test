@@ -17,7 +17,6 @@ import { join as joinPath, normalize as normalizePath } from "path";
 import { setup as setupLogging } from "./logging";
 
 import { start as startAPIServer } from "./api/server";
-import { URL } from "url";
 
 type TzClientPkhListItem = { name: string; value: string };
 
