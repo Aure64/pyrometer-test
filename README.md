@@ -312,6 +312,32 @@ tz2W3WMS17G2yJzaPtU3kLoPnNrfW91QftbL = "sm bkr"
 tz2W3WMS17G2yJzaPtU3kLoPnNrfW91QftbL = "Some Baker"
 ```
 
+### Node Names
+
+UI can be configured to display user-defined node name instead of hostname by
+defining each node in `nodes` array as an [inline
+table](https://toml.io/en/v1.0.0#inline-table) with `url` and `name` keys:
+
+```toml
+
+[node_monitor]
+nodes = [{url = "https://rpc.oxfordnet.teztnets.xyz", name = "Oxfordnet"}, {url = "https://rpc.ghostnet.teztnets.xyz", name = "Ghostnet"}]
+
+```
+
+or defining `nodes` as array of tables like so:
+
+```toml
+
+[[node_monitor.nodes]]
+url = "https://rpc.oxfordnet.teztnets.xyz"
+name = "Oxfordnet"
+
+[[node_monitor.nodes]]
+url = "https://rpc.ghostnet.teztnets.xyz"
+name = "Ghostnet"
+```
+
 ### Event Types
 
 - 🤒 baker unhealthy
