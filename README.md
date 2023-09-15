@@ -290,7 +290,7 @@ tz1a…wDjM endorsed @346714[5-6]
 
 ### Address Aliases
 
-Notifications and UI can be confgiured to display an alias instead tz address:
+Notifications and UI can be configured to display an alias instead tz address:
 
 ```toml
 [alias]
