@@ -107,7 +107,7 @@ export const TezosNodeQuery = extendType({
               error,
               unableToReach,
               updatedAt,
-            }) => {
+            }: any) => {
               return {
                 url: node.url,
                 name: node.name,

@@ -27,7 +27,7 @@ import block96849 from "./testFixtures/o/block96849";
 import { Events } from "./events";
 
 import { setLevel } from "loglevel";
-import { OperationWithLegacyAttestationName } from "rpc/types/gen/ProxfordSW2S/Block";
+import { OperationWithLegacyAttestationName } from "rpc/types/gen/ProxfordYmVf/Block";
 setLevel("SILENT");
 
 describe("checkBlockBakingRights", () => {
@@ -260,7 +260,7 @@ describe("checkBlockAccusationsForDoubleBake", () => {
 
 describe("checkBlockAccusationsForDoubleEndorsement", () => {
   const evidence: OperationWithLegacyAttestationName = {
-    protocol: "ProxfordSW2S7fvchT1Zgj2avb5UES194neRyYVXoaDGvF9egt8",
+    protocol: "ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH",
     chain_id: "NetXKMbjQL2SBox",
     hash: "ooDS6XHoTYeK9U7QnmueJQgpCvbwueBKoBBGNNHDr6pkhUMznKe",
     branch: "BLw6hXMmr3MGhWGhRymixheA6hr9MEV25raYxtFCZuH3fFEPwFH",

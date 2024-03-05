@@ -13,7 +13,10 @@ import {
   OperationO,
 } from "./rpc/types";
 
-import { OperationWithLegacyAttestationName } from "./rpc/types/gen/ProxfordSW2S/Block";
+import {
+  OperationWithLegacyAttestationName,
+  _018_Proxford$FrozenStaker,
+} from "./rpc/types/gen/ProxfordYmVf/Block";
 
 const name = "bm-proto-o";
 
@@ -48,32 +51,44 @@ export default async ({
 
   const events: BakerEvent[] = [];
 
-  const createEvent = (
-    baker: string,
-    kind:
-      | Events.Baked
-      | Events.MissedBake
-      | Events.MissedBonus
-      | Events.Endorsed
-      | Events.MissedEndorsement
-      | Events.DoubleBaked
-      | Events.DoubleEndorsed
-      | Events.DoublePreendorsed,
-    level = blockLevel,
-    slotCount?: number,
-  ): BakerEvent => {
-    const event: any = {
-      baker,
-      kind,
+  type CreateEventParams = { baker: string } & (
+    | {
+        kind:
+          | Events.Baked
+          | Events.MissedBake
+          | Events.MissedBonus
+          | Events.DoubleBaked
+          | Events.DoubleEndorsed
+          | Events.DoublePreendorsed;
+      }
+    | {
+        kind: Events.Endorsed | Events.MissedEndorsement;
+        level: number;
+        slotCount: number;
+      }
+  );
+
+  const createEvent = (params: CreateEventParams): BakerEvent => {
+    const event = {
+      baker: params.baker,
       createdAt: now(),
-      level,
       cycle: blockCycle,
       timestamp: blockTimestamp,
     };
-    if (kind === Events.Baked) event.priority = priority;
-    if (kind === Events.Endorsed || kind === Events.MissedEndorsement)
-      event.slotCount = slotCount;
-    return event;
+    switch (params.kind) {
+      case Events.Baked:
+        return { ...event, kind: params.kind, priority, level: blockLevel };
+      case Events.Endorsed:
+      case Events.MissedEndorsement:
+        return {
+          ...event,
+          kind: params.kind,
+          slotCount: params.slotCount,
+          level: params.level,
+        };
+      default:
+        return { ...event, kind: params.kind, level: blockLevel };
+    }
   };
 
   for (const baker of bakers) {
@@ -88,7 +103,7 @@ export default async ({
       blockPriority: priority,
     });
     if (bakingEvent) {
-      events.push(createEvent(baker, bakingEvent));
+      events.push(createEvent({ baker, kind: bakingEvent }));
     }
 
     const endorsingEvent = checkBlockEndorsingRights({
@@ -99,21 +114,23 @@ export default async ({
     });
     if (endorsingEvent) {
       const [kind, slotCount] = endorsingEvent;
-      events.push(createEvent(baker, kind, blockLevel - 1, slotCount));
+      events.push(
+        createEvent({ baker, kind, level: blockLevel - 1, slotCount }),
+      );
     }
     const doubleBakeEvent = await checkBlockAccusationsForDoubleBake(
       baker,
       anonymousOperations,
     );
     if (doubleBakeEvent) {
-      events.push(createEvent(baker, Events.DoubleBaked));
+      events.push(createEvent({ baker, kind: Events.DoubleBaked }));
     }
     const doubleEndorseEvent = await checkBlockAccusationsForDoubleEndorsement(
       baker,
       anonymousOperations,
     );
     if (doubleEndorseEvent) {
-      events.push(createEvent(baker, doubleEndorseEvent));
+      events.push(createEvent({ baker, kind: doubleEndorseEvent }));
     }
   }
   return events;
@@ -259,6 +276,14 @@ const isEndorsementByDelegate = (
   return false;
 };
 
+function getBaker(staker: _018_Proxford$FrozenStaker): string {
+  if ("delegate" in staker) {
+    return staker.delegate;
+  } else {
+    return staker.baker;
+  }
+}
+
 export const checkBlockAccusationsForDoubleEndorsement = async (
   baker: string,
   operations: OperationO[] | OperationWithLegacyAttestationName[],
@@ -280,7 +305,7 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
             if (
               balanceUpdate.kind === "freezer" &&
               balanceUpdate.category === "deposits" &&
-              balanceUpdate.staker.delegate === baker
+              getBaker(balanceUpdate.staker) === baker
             ) {
               log.info(`${baker} ${kind} at level ${level} round ${round}`);
               return kind === OpKind.DOUBLE_ENDORSEMENT_EVIDENCE
@@ -319,7 +344,7 @@ export const checkBlockAccusationsForDoubleBake = async (
             if (
               balanceUpdate.kind === "freezer" &&
               balanceUpdate.category === "deposits" &&
-              balanceUpdate.staker.delegate === baker
+              getBaker(balanceUpdate.staker) === baker
             ) {
               log.info(
                 `${baker} double baked level ${level}, round ${payload_round}`,

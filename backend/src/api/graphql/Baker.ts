@@ -364,7 +364,7 @@ export const BakerQuery = extendType({
         const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
         const bakerInfo =
           bakersFilter && bakersFilter.length > 0
-            ? bakerMonitorInfo.bakerInfo.filter((x) =>
+            ? bakerMonitorInfo.bakerInfo.filter((x: any) =>
                 bakersFilter.includes(x.address),
               )
             : bakerMonitorInfo.bakerInfo;
@@ -374,12 +374,12 @@ export const BakerQuery = extendType({
             sortWeights[bakersFilter[i]] = i;
           }
           bakerInfo.sort(
-            (a, b) => sortWeights[a.address] - sortWeights[b.address],
+            (a: any, b: any) => sortWeights[a.address] - sortWeights[b.address],
           );
         }
         const bakers = bakerInfo
           .slice(offset, offset + limit)
-          .map(async (bakerInfo) => {
+          .map(async (bakerInfo: any) => {
             const grouped = groupBy(await bakerInfo.recentEvents(), "level");
             const recentEvents = Object.entries(grouped).map(
               ([levelStr, events]) => {

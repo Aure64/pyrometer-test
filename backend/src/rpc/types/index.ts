@@ -3,9 +3,9 @@ export { TezosVersion } from "./gen/TezosVersion";
 export { BootstrappedStatus } from "./gen/BootstrappedStatus";
 
 import { Participation as ParticipationI } from "./gen/Psithaca2MLR/Participation";
-import { Participation as ParticipationO } from "./gen/ProxfordSW2S/Participation";
+import { Participation as ParticipationO } from "./gen/ProxfordYmVf/Participation";
 
-import { ConsensusKey as ConsensusKeyO } from "./gen/ProxfordSW2S/ConsensusKey";
+import { ConsensusKey as ConsensusKeyO } from "./gen/ProxfordYmVf/ConsensusKey";
 
 import { Delegate as DelegateH } from "./gen/Delegate";
 import { Delegate as DelegateI } from "./gen/Delegate";
@@ -14,7 +14,7 @@ import { Delegate as DelegateK } from "./gen/PtKathmankSp/Delegate";
 import { Delegate as DelegateL } from "./gen/PtLimaPtLMwf/Delegate";
 import { Delegate as DelegateM } from "./gen/PtMumbai2Tms/Delegate";
 import { Delegate as DelegateN } from "./gen/PtNairobiyss/Delegate";
-import { Delegate as DelegateO } from "./gen/ProxfordSW2S/Delegate";
+import { Delegate as DelegateO } from "./gen/ProxfordYmVf/Delegate";
 
 import { ShellHeader as BlockHeaderH } from "./gen/PtHangz2aRng/BlockHeader";
 import { ShellHeader as BlockHeaderI } from "./gen/Psithaca2MLR/BlockHeader";
@@ -23,7 +23,7 @@ import { ShellHeader as BlockHeaderK } from "./gen/PtKathmankSp/BlockHeader";
 import { ShellHeader as BlockHeaderL } from "./gen/PtLimaPtLMwf/BlockHeader";
 import { ShellHeader as BlockHeaderM } from "./gen/PtMumbai2Tms/BlockHeader";
 import { ShellHeader as BlockHeaderN } from "./gen/PtNairobiyss/BlockHeader";
-import { ShellHeader as BlockHeaderO } from "./gen/ProxfordSW2S/BlockHeader";
+import { ShellHeader as BlockHeaderO } from "./gen/ProxfordYmVf/BlockHeader";
 
 import { EndorsingRights as EndorsingRightsH } from "./gen/PtHangz2aRng/EndorsingRights";
 import { EndorsingRights as EndorsingRightsI } from "./gen/Psithaca2MLR/EndorsingRights";
@@ -32,7 +32,7 @@ import { EndorsingRights as EndorsingRightsK } from "./gen/PtKathmankSp/Endorsin
 import { EndorsingRights as EndorsingRightsL } from "./gen/PtLimaPtLMwf/EndorsingRights";
 import { EndorsingRights as EndorsingRightsM } from "./gen/PtMumbai2Tms/EndorsingRights";
 import { EndorsingRights as EndorsingRightsN } from "./gen/PtNairobiyss/EndorsingRights";
-import { EndorsingRights as EndorsingRightsO } from "./gen/ProxfordSW2S/EndorsingRights";
+import { EndorsingRights as EndorsingRightsO } from "./gen/ProxfordYmVf/EndorsingRights";
 
 import { Constants as ConstantsH } from "./gen/PtHangz2aRng/Constants";
 import { Constants as ConstantsI } from "./gen/Psithaca2MLR/Constants";
@@ -41,7 +41,7 @@ import { Constants as ConstantsK } from "./gen/PtKathmankSp/Constants";
 import { Constants as ConstantsL } from "./gen/PtLimaPtLMwf/Constants";
 import { Constants as ConstantsM } from "./gen/PtMumbai2Tms/Constants";
 import { Constants as ConstantsN } from "./gen/PtNairobiyss/Constants";
-import { Constants as ConstantsO } from "./gen/ProxfordSW2S/Constants";
+import { Constants as ConstantsO } from "./gen/ProxfordYmVf/Constants";
 
 import { BakingRights as BakingRightsH } from "./gen/PtHangz2aRng/BakingRights";
 import { BakingRights as BakingRightsI } from "./gen/Psithaca2MLR/BakingRights";
@@ -50,7 +50,7 @@ import { BakingRights as BakingRightsK } from "./gen/PtKathmankSp/BakingRights";
 import { BakingRights as BakingRightsL } from "./gen/PtLimaPtLMwf/BakingRights";
 import { BakingRights as BakingRightsM } from "./gen/PtMumbai2Tms/BakingRights";
 import { BakingRights as BakingRightsN } from "./gen/PtNairobiyss/BakingRights";
-import { BakingRights as BakingRightsO } from "./gen/ProxfordSW2S/BakingRights";
+import { BakingRights as BakingRightsO } from "./gen/ProxfordYmVf/BakingRights";
 
 import { Block as BlockH } from "./gen/PtHangz2aRng/Block";
 import { Block as BlockI } from "./gen/Psithaca2MLR/Block";
@@ -59,7 +59,7 @@ import { Block as BlockK } from "./gen/PtKathmankSp/Block";
 import { Block as BlockL } from "./gen/PtLimaPtLMwf/Block";
 import { Block as BlockM } from "./gen/PtMumbai2Tms/Block";
 import { Block as BlockN } from "./gen/PtNairobiyss/Block";
-import { Block as BlockO } from "./gen/ProxfordSW2S/Block";
+import { Block as BlockO } from "./gen/ProxfordYmVf/Block";
 
 import { Operation as OperationH } from "./gen/PtHangz2aRng/Block";
 import { Operation as OperationI } from "./gen/Psithaca2MLR/Block";
@@ -68,7 +68,7 @@ import { Operation as OperationK } from "./gen/PtKathmankSp/Block";
 import { Operation as OperationL } from "./gen/PtLimaPtLMwf/Block";
 import { Operation as OperationM } from "./gen/PtMumbai2Tms/Block";
 import { Operation as OperationN } from "./gen/PtNairobiyss/Block";
-import { Operation as OperationO } from "./gen/ProxfordSW2S/Block";
+import { Operation as OperationO } from "./gen/ProxfordYmVf/Block";
 
 import {
   DoubleBakingEvidence1 as DoubleBakingEvidenceH,
@@ -116,7 +116,7 @@ import {
   DoubleBakingEvidence1 as DoubleBakingEvidenceO,
   DoubleEndorsementEvidence1 as DoubleEndorsementEvidenceO,
   Endorsement1 as EndorsementWithSlotO,
-} from "./gen/ProxfordSW2S/Block";
+} from "./gen/ProxfordYmVf/Block";
 
 export { ParticipationI, ParticipationO };
 
