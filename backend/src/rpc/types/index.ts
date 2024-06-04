@@ -4,8 +4,10 @@ export { BootstrappedStatus } from "./gen/BootstrappedStatus";
 
 import { Participation as ParticipationI } from "./gen/Psithaca2MLR/Participation";
 import { Participation as ParticipationO } from "./gen/ProxfordYmVf/Participation";
+import { Participation as ParticipationP } from "./gen/PtParisBxoLz/Participation";
 
 import { ConsensusKey as ConsensusKeyO } from "./gen/ProxfordYmVf/ConsensusKey";
+import { ConsensusKey as ConsensusKeyP } from "./gen/PtParisBxoLz/ConsensusKey";
 
 import { Delegate as DelegateH } from "./gen/Delegate";
 import { Delegate as DelegateI } from "./gen/Delegate";
@@ -15,6 +17,7 @@ import { Delegate as DelegateL } from "./gen/PtLimaPtLMwf/Delegate";
 import { Delegate as DelegateM } from "./gen/PtMumbai2Tms/Delegate";
 import { Delegate as DelegateN } from "./gen/PtNairobiyss/Delegate";
 import { Delegate as DelegateO } from "./gen/ProxfordYmVf/Delegate";
+import { Delegate as DelegateP } from "./gen/PtParisBxoLz/Delegate";
 
 import { ShellHeader as BlockHeaderH } from "./gen/PtHangz2aRng/BlockHeader";
 import { ShellHeader as BlockHeaderI } from "./gen/Psithaca2MLR/BlockHeader";
@@ -24,6 +27,7 @@ import { ShellHeader as BlockHeaderL } from "./gen/PtLimaPtLMwf/BlockHeader";
 import { ShellHeader as BlockHeaderM } from "./gen/PtMumbai2Tms/BlockHeader";
 import { ShellHeader as BlockHeaderN } from "./gen/PtNairobiyss/BlockHeader";
 import { ShellHeader as BlockHeaderO } from "./gen/ProxfordYmVf/BlockHeader";
+import { ShellHeader as BlockHeaderP } from "./gen/PtParisBxoLz/BlockHeader";
 
 import { EndorsingRights as EndorsingRightsH } from "./gen/PtHangz2aRng/EndorsingRights";
 import { EndorsingRights as EndorsingRightsI } from "./gen/Psithaca2MLR/EndorsingRights";
@@ -33,6 +37,7 @@ import { EndorsingRights as EndorsingRightsL } from "./gen/PtLimaPtLMwf/Endorsin
 import { EndorsingRights as EndorsingRightsM } from "./gen/PtMumbai2Tms/EndorsingRights";
 import { EndorsingRights as EndorsingRightsN } from "./gen/PtNairobiyss/EndorsingRights";
 import { EndorsingRights as EndorsingRightsO } from "./gen/ProxfordYmVf/EndorsingRights";
+import { EndorsingRights as EndorsingRightsP } from "./gen/PtParisBxoLz/EndorsingRights";
 
 import { Constants as ConstantsH } from "./gen/PtHangz2aRng/Constants";
 import { Constants as ConstantsI } from "./gen/Psithaca2MLR/Constants";
@@ -42,6 +47,7 @@ import { Constants as ConstantsL } from "./gen/PtLimaPtLMwf/Constants";
 import { Constants as ConstantsM } from "./gen/PtMumbai2Tms/Constants";
 import { Constants as ConstantsN } from "./gen/PtNairobiyss/Constants";
 import { Constants as ConstantsO } from "./gen/ProxfordYmVf/Constants";
+import { Constants as ConstantsP } from "./gen/PtParisBxoLz/Constants";
 
 import { BakingRights as BakingRightsH } from "./gen/PtHangz2aRng/BakingRights";
 import { BakingRights as BakingRightsI } from "./gen/Psithaca2MLR/BakingRights";
@@ -51,6 +57,7 @@ import { BakingRights as BakingRightsL } from "./gen/PtLimaPtLMwf/BakingRights";
 import { BakingRights as BakingRightsM } from "./gen/PtMumbai2Tms/BakingRights";
 import { BakingRights as BakingRightsN } from "./gen/PtNairobiyss/BakingRights";
 import { BakingRights as BakingRightsO } from "./gen/ProxfordYmVf/BakingRights";
+import { BakingRights as BakingRightsP } from "./gen/PtParisBxoLz/BakingRights";
 
 import { Block as BlockH } from "./gen/PtHangz2aRng/Block";
 import { Block as BlockI } from "./gen/Psithaca2MLR/Block";
@@ -60,6 +67,7 @@ import { Block as BlockL } from "./gen/PtLimaPtLMwf/Block";
 import { Block as BlockM } from "./gen/PtMumbai2Tms/Block";
 import { Block as BlockN } from "./gen/PtNairobiyss/Block";
 import { Block as BlockO } from "./gen/ProxfordYmVf/Block";
+import { Block as BlockP } from "./gen/PtParisBxoLz/Block";
 
 import { Operation as OperationH } from "./gen/PtHangz2aRng/Block";
 import { Operation as OperationI } from "./gen/Psithaca2MLR/Block";
@@ -69,6 +77,7 @@ import { Operation as OperationL } from "./gen/PtLimaPtLMwf/Block";
 import { Operation as OperationM } from "./gen/PtMumbai2Tms/Block";
 import { Operation as OperationN } from "./gen/PtNairobiyss/Block";
 import { Operation as OperationO } from "./gen/ProxfordYmVf/Block";
+import { Operation as OperationP } from "./gen/PtParisBxoLz/Block";
 
 import {
   DoubleBakingEvidence1 as DoubleBakingEvidenceH,
@@ -118,18 +127,24 @@ import {
   Endorsement1 as EndorsementWithSlotO,
 } from "./gen/ProxfordYmVf/Block";
 
-export { ParticipationI, ParticipationO };
+import {
+  DoubleBakingEvidence1 as DoubleBakingEvidenceP,
+  DoubleEndorsementEvidence1 as DoubleEndorsementEvidenceP,
+  Endorsement1 as EndorsementWithSlotP,
+} from "./gen/PtParisBxoLz/Block";
 
-export type Participation = ParticipationI | ParticipationO;
+export { ParticipationI, ParticipationO, ParticipationP };
+
+export type Participation = ParticipationI | ParticipationO | ParticipationP;
 
 export type ConsensusKeyM = {
   active: string;
   pendings?: { cycle: number; pkh: string }[];
 };
 
-export { ConsensusKeyO };
+export { ConsensusKeyO, ConsensusKeyP };
 
-export type ConsensusKey = ConsensusKeyM | ConsensusKeyO;
+export type ConsensusKey = ConsensusKeyM | ConsensusKeyO | ConsensusKeyP;
 
 export {
   DelegateH,
@@ -140,6 +155,7 @@ export {
   DelegateM,
   DelegateN,
   DelegateO,
+  DelegateP,
 };
 export type Delegate =
   | DelegateH
@@ -149,9 +165,10 @@ export type Delegate =
   | DelegateL
   | DelegateM
   | DelegateN
-  | DelegateO;
+  | DelegateO
+  | DelegateP;
 
-export { BlockH, BlockI, BlockJ, BlockK, BlockL, BlockM, BlockN, BlockO };
+export { BlockH, BlockI, BlockJ, BlockK, BlockL, BlockM, BlockN, BlockO, BlockP };
 export type Block =
   | BlockH
   | BlockI
@@ -160,7 +177,8 @@ export type Block =
   | BlockL
   | BlockM
   | BlockN
-  | BlockO;
+  | BlockO
+  | BlockP;
 
 export {
   BlockHeaderH,
@@ -171,6 +189,7 @@ export {
   BlockHeaderM,
   BlockHeaderN,
   BlockHeaderO,
+  BlockHeaderP,
 };
 export type BlockHeader =
   | BlockHeaderH
@@ -180,7 +199,8 @@ export type BlockHeader =
   | BlockHeaderL
   | BlockHeaderM
   | BlockHeaderN
-  | BlockHeaderO;
+  | BlockHeaderO
+  | BlockHeaderP;
 
 export type EndorsingRightH = EndorsingRightsH[number];
 export type EndorsingRightI = EndorsingRightsI[number];
@@ -190,6 +210,7 @@ export type EndorsingRightL = EndorsingRightsL[number];
 export type EndorsingRightM = EndorsingRightsM[number];
 export type EndorsingRightN = EndorsingRightsN[number];
 export type EndorsingRightO = EndorsingRightsO[number];
+export type EndorsingRightP = EndorsingRightsP[number];
 export type {
   EndorsingRightsH,
   EndorsingRightsI,
@@ -199,6 +220,7 @@ export type {
   EndorsingRightsM,
   EndorsingRightsN,
   EndorsingRightsO,
+  EndorsingRightsP,
 };
 export type EndorsingRight =
   | EndorsingRightH
@@ -208,7 +230,8 @@ export type EndorsingRight =
   | EndorsingRightL
   | EndorsingRightM
   | EndorsingRightN
-  | EndorsingRightO;
+  | EndorsingRightO
+  | EndorsingRightP;
 export type EndorsingRights =
   | EndorsingRightsH
   | EndorsingRightsI
@@ -217,7 +240,8 @@ export type EndorsingRights =
   | EndorsingRightsL
   | EndorsingRightsM
   | EndorsingRightsN
-  | EndorsingRightsO;
+  | EndorsingRightsO
+  | EndorsingRightsP;
 
 export type BakingRightH = BakingRightsH[number];
 export type BakingRightI = BakingRightsI[number];
@@ -227,6 +251,7 @@ export type BakingRightL = BakingRightsL[number];
 export type BakingRightM = BakingRightsM[number];
 export type BakingRightN = BakingRightsN[number];
 export type BakingRightO = BakingRightsO[number];
+export type BakingRightP = BakingRightsP[number];
 export type {
   BakingRightsH,
   BakingRightsI,
@@ -236,6 +261,7 @@ export type {
   BakingRightsM,
   BakingRightsN,
   BakingRightsO,
+  BakingRightsP,
 };
 export type BakingRights =
   | BakingRightsH
@@ -245,7 +271,8 @@ export type BakingRights =
   | BakingRightsL
   | BakingRightsM
   | BakingRightsN
-  | BakingRightsO;
+  | BakingRightsO
+  | BakingRightsP;
 export type BakingRight =
   | BakingRightH
   | BakingRightI
@@ -254,7 +281,8 @@ export type BakingRight =
   | BakingRightL
   | BakingRightM
   | BakingRightN
-  | BakingRightO;
+  | BakingRightO
+  | BakingRightP;
 
 export type Constants =
   | ConstantsH
@@ -264,7 +292,8 @@ export type Constants =
   | ConstantsL
   | ConstantsM
   | ConstantsN
-  | ConstantsO;
+  | ConstantsO
+  | ConstantsP;
 
 export type {
   OperationH,
@@ -275,6 +304,7 @@ export type {
   OperationM,
   OperationN,
   OperationO,
+  OperationP,
 };
 export type OperationEntry =
   | OperationH
@@ -284,7 +314,8 @@ export type OperationEntry =
   | OperationL
   | OperationM
   | OperationN
-  | OperationO;
+  | OperationO
+  | OperationP
 
 export type DoubleBakingEvidence =
   | DoubleBakingEvidenceH
@@ -294,7 +325,8 @@ export type DoubleBakingEvidence =
   | DoubleBakingEvidenceL
   | DoubleBakingEvidenceM
   | DoubleBakingEvidenceN
-  | DoubleBakingEvidenceO;
+  | DoubleBakingEvidenceO
+  | DoubleBakingEvidenceP;
 
 export type { DoubleBakingEvidenceH };
 export type { DoubleBakingEvidenceI };
@@ -304,6 +336,7 @@ export type { DoubleBakingEvidenceL };
 export type { DoubleBakingEvidenceM };
 export type { DoubleBakingEvidenceN };
 export type { DoubleBakingEvidenceO };
+export type { DoubleBakingEvidenceP };
 
 export type DoubleEndorsementEvidence =
   | DoubleEndorsementEvidenceH
@@ -313,7 +346,8 @@ export type DoubleEndorsementEvidence =
   | DoubleEndorsementEvidenceL
   | DoubleEndorsementEvidenceM
   | DoubleEndorsementEvidenceN
-  | DoubleEndorsementEvidenceO;
+  | DoubleEndorsementEvidenceO
+  | DoubleEndorsementEvidenceP
 
 export {
   DoubleEndorsementEvidenceH,
@@ -324,6 +358,7 @@ export {
   DoubleEndorsementEvidenceM,
   DoubleEndorsementEvidenceN,
   DoubleEndorsementEvidenceO,
+  DoubleEndorsementEvidenceP,
 };
 
 export type EndorsementWithSlot =
@@ -334,7 +369,8 @@ export type EndorsementWithSlot =
   | EndorsementWithSlotL
   | EndorsementWithSlotM
   | EndorsementWithSlotN
-  | EndorsementWithSlotO;
+  | EndorsementWithSlotO
+  | EndorsementWithSlotP;
 
 export {
   EndorsementWithSlotH,
@@ -345,6 +381,7 @@ export {
   EndorsementWithSlotM,
   EndorsementWithSlotN,
   EndorsementWithSlotO,
+  EndorsementWithSlotP,
 };
 
 export enum OpKind {

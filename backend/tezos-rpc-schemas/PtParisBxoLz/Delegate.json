@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "full_balance": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "current_frozen_deposits": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "frozen_deposits": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "staking_balance": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "frozen_deposits_limit": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "delegated_contracts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/_019_PtParisB$contract_id"
+      }
+    },
+    "delegated_balance": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "min_delegated_in_current_cycle": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "$ref": "#/definitions/_019_PtParisB$mutez"
+        },
+        "level": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "description": "The level of the block relative to genesis. This is also the Shell's notion of level.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "level_position": {
+              "description": "The level of the block relative to the successor of the genesis block. More precisely, it is the position of the block relative to the block that starts the \"Alpha family\" of protocols, which includes all protocols except Genesis (that is, from 001 onwards).",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "cycle": {
+              "description": "The current cycle's number. Note that cycles are a protocol-specific notion. As a result, the cycle number starts at 0 with the first block of the Alpha family of protocols.",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "cycle_position": {
+              "description": "The current level of the block relative to the first block of the current cycle.",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "expected_commitment": {
+              "description": "Tells whether the baker of this block has to commit a seed nonce hash.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "expected_commitment",
+            "cycle_position",
+            "cycle",
+            "level_position",
+            "level"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": false
+    },
+    "deactivated": {
+      "type": "boolean"
+    },
+    "grace_period": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "pending_denunciations": {
+      "type": "boolean"
+    },
+    "total_delegated_stake": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "staking_denominator": {
+      "$ref": "#/definitions/_019_PtParisB$mutez"
+    },
+    "voting_power": {
+      "$ref": "#/definitions/int64"
+    },
+    "current_ballot": {
+      "type": "string",
+      "enum": [
+        "nay",
+        "yay",
+        "pass"
+      ]
+    },
+    "current_proposals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Protocol_hash"
+      }
+    },
+    "remaining_proposals": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "active_consensus_key": {
+      "$ref": "#/definitions/Signature$Public_key_hash"
+    },
+    "pending_consensus_keys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "pkh": {
+            "$ref": "#/definitions/Signature$Public_key_hash"
+          }
+        },
+        "required": [
+          "pkh",
+          "cycle"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "active_consensus_key",
+    "staking_denominator",
+    "total_delegated_stake",
+    "pending_denunciations",
+    "grace_period",
+    "deactivated",
+    "min_delegated_in_current_cycle",
+    "delegated_balance",
+    "delegated_contracts",
+    "staking_balance",
+    "frozen_deposits",
+    "current_frozen_deposits",
+    "full_balance"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "_019_PtParisB$contract_id": {
+      "$ref": "#/definitions/unistring"
+    },
+    "_019_PtParisB$mutez": {
+      "$ref": "#/definitions/positive_bignum"
+    },
+    "Protocol_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Signature$Public_key_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "int64": {
+      "title": "64 bit integers",
+      "description": "Decimal representation of 64 bit integers",
+      "type": "string"
+    },
+    "positive_bignum": {
+      "title": "Positive big number",
+      "description": "Decimal representation of a positive big number",
+      "type": "string"
+    },
+    "unistring": {
+      "type": "string"
+    }
+  }
+}

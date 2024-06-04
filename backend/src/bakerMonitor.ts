@@ -35,6 +35,7 @@ import protocolL from "./bm-proto-l";
 import protocolM from "./bm-proto-m";
 import protocolN from "./bm-proto-n";
 import protocolO from "./bm-proto-o";
+import protocolP from "./bm-proto-p";
 
 import type { TezosNode } from "./nodeMonitor";
 
@@ -190,7 +191,13 @@ export const create = async (
   const setPosition = async (value: ChainPositionInfo) =>
     await store.put(CHAIN_POSITION_KEY, value);
 
-  const atRiskThreshold = constants.preserved_cycles - 1;
+  let atRiskThreshold: number;
+  
+  if ("preserved_cycles" in constants) {
+    atRiskThreshold = constants.preserved_cycles;
+  } else {
+    atRiskThreshold = constants.consensus_rights_delay;
+  }
 
   const missedCounts = new Map<TzAddress, number>();
 
@@ -319,6 +326,14 @@ export const create = async (
 
           case "ProxfordYmVfjWnRcgjWH36fW6PArwqykTFzotUxRs6gmTcZDuH":
             events = await protocolO({
+              bakers,
+              block,
+              rpc: rpc,
+            });
+            break;
+
+          case "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ":
+            events = await protocolP({
               bakers,
               block,
               rpc: rpc,

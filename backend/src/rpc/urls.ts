@@ -29,7 +29,7 @@ export const E_ENDORSING_RIGHTS = (
   block: string,
   params?: Record<string, string>,
 ) => {
-  const path = `/chains/main/blocks/${block}/helpers/endorsing_rights`;
+  const path = `/chains/main/blocks/${block}/helpers/attestation_rights`;
   return `${path}?${new URLSearchParams(params).toString()}`;
 };
 
