@@ -346,7 +346,7 @@ export type Sapling$Transaction$Nullifier = string;
 export type _019_PtParisB$LazyStorageDiff = (BigMap | SaplingState)[];
 export type Operation =
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -355,7 +355,7 @@ export type Operation =
       metadata: "too large";
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -363,7 +363,7 @@ export type Operation =
       signature?: _019_PtParisB$ContractId;
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -371,7 +371,7 @@ export type Operation =
       signature?: _019_PtParisB$ContractId;
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -733,7 +733,7 @@ export type _019_PtParisB$OperationMetadataWithLegacyAttestationName$Alpha$Balan
   )[];
 export type OperationWithLegacyAttestationName =
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -742,7 +742,7 @@ export type OperationWithLegacyAttestationName =
       metadata: "too large";
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -750,7 +750,7 @@ export type OperationWithLegacyAttestationName =
       signature?: _019_PtParisB$ContractId;
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -758,7 +758,7 @@ export type OperationWithLegacyAttestationName =
       signature?: _019_PtParisB$ContractId;
     }
   | {
-      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+      protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
       chain_id: _019_PtParisB$ContractId;
       hash: _019_PtParisB$ContractId;
       branch: _019_PtParisB$ContractId;
@@ -851,7 +851,7 @@ export type Dissection3 = {
 export type None5 = null;
 
 export interface BlockInfoEncodingV1 {
-  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
   chain_id: _019_PtParisB$ContractId;
   hash: _019_PtParisB$ContractId;
   header: ShellHeader;
@@ -879,8 +879,8 @@ export interface ShellHeader {
   signature: _019_PtParisB$ContractId;
 }
 export interface BlockHeaderMetadata {
-  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
-  next_protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
+  next_protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
   test_chain_status: TestChainStatus;
   max_operations_ttl: number;
   max_operation_data_length: number;
@@ -3763,7 +3763,7 @@ export interface Backtracked22 {
   paid_storage_size_diff?: BigNumber;
 }
 export interface BlockInfoEncodingV0 {
-  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
   chain_id: _019_PtParisB$ContractId;
   hash: _019_PtParisB$ContractId;
   header: ShellHeader;
@@ -3771,8 +3771,8 @@ export interface BlockInfoEncodingV0 {
   operations: OperationWithLegacyAttestationName[][];
 }
 export interface BlockHeaderMetadataWithLegacyAttestationName {
-  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
-  next_protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
+  next_protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
   test_chain_status: TestChainStatus;
   max_operations_ttl: number;
   max_operation_data_length: number;

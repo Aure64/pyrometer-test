@@ -340,6 +340,14 @@ export const create = async (
             });
             break;
 
+          case "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi":
+            events = await protocolP({
+              bakers,
+              block,
+              rpc: rpc,
+            });
+            break;
+
           default:
             console.warn(`Unknown protocol at level ${blockLevel}`);
             events = [];

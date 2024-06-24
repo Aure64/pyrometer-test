@@ -29,7 +29,7 @@ export type PerBlockVotePass1 = "pass";
  * Block header's shell-related content. It contains information such as the block level, its predecessor and timestamp.
  */
 export interface ShellHeader {
-  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ";
+  protocol: "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ" | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
   chain_id: ChainId;
   hash: ChainId;
   level: number;
