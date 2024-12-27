@@ -36,6 +36,7 @@ import protocolM from "./bm-proto-m";
 import protocolN from "./bm-proto-n";
 import protocolO from "./bm-proto-o";
 import protocolP from "./bm-proto-p";
+import protocolQ from "./bm-proto-q";
 
 import type { TezosNode } from "./nodeMonitor";
 
@@ -342,6 +343,14 @@ export const create = async (
 
           case "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi":
             events = await protocolP({
+              bakers,
+              block,
+              rpc: rpc,
+            });
+            break;
+          
+          case "PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg":
+            events = await protocolQ({
               bakers,
               block,
               rpc: rpc,

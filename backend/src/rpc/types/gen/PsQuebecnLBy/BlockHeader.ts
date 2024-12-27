@@ -10,14 +10,14 @@ export type ChainId = string;
  * The fitness, or score, of a block, that allow the Tezos to decide which chain is the best. A fitness value is a list of byte sequences. They are compared as follows: shortest lists are smaller; lists of the same length are compared according to the lexicographical order.
  */
 export type BlockFitness = string[];
-export type _019_PtParisB$LiquidityBakingVote =
+export type _021_PsQuebec$LiquidityBakingVote =
   | PerBlockVoteOn
   | PerBlockVoteOff
   | PerBlockVotePass;
 export type PerBlockVoteOn = "on";
 export type PerBlockVoteOff = "off";
 export type PerBlockVotePass = "pass";
-export type _019_PtParisB$AdaptiveIssuanceVote =
+export type _021_PsQuebec$AdaptiveIssuanceVote =
   | PerBlockVoteOn1
   | PerBlockVoteOff1
   | PerBlockVotePass1;
@@ -29,9 +29,7 @@ export type PerBlockVotePass1 = "pass";
  * Block header's shell-related content. It contains information such as the block level, its predecessor and timestamp.
  */
 export interface ShellHeader {
-  protocol:
-    | "PtParisBxoLz5gzMmn3d9WBQNoPSZakgnkMC2VNuQ3KXfUtUQeZ"
-    | "PsParisCZo7KAh1Z1smVd9ZMZ1HHn5gkzbM94V3PLCpknFWhUAi";
+  protocol: "PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg";
   chain_id: ChainId;
   hash: ChainId;
   level: number;
@@ -46,7 +44,7 @@ export interface ShellHeader {
   payload_round: number;
   proof_of_work_nonce: string;
   seed_nonce_hash?: ChainId;
-  liquidity_baking_toggle_vote: _019_PtParisB$LiquidityBakingVote;
-  adaptive_issuance_vote: _019_PtParisB$AdaptiveIssuanceVote;
+  liquidity_baking_toggle_vote: _021_PsQuebec$LiquidityBakingVote;
+  adaptive_issuance_vote: _021_PsQuebec$AdaptiveIssuanceVote;
   signature: ChainId;
 }
