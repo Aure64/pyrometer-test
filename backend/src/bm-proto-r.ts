@@ -13,11 +13,7 @@ import {
   OperationR,
 } from "./rpc/types";
 
-import {
-  Operation,
-  OperationWithLegacyAttestationName,
-  _019_PtParisB$FrozenStaker,
-} from "./rpc/types/gen/PtParisBxoLz/Block";
+import { _022_PsRiotum$FrozenStaker } from "rpc/types/gen/PsRiotumaAMo/Block";
 
 const name = "bm-proto-r";
 
@@ -54,19 +50,19 @@ export default async ({
 
   type CreateEventParams = { baker: string } & (
     | {
-        kind:
-          | Events.Baked
-          | Events.MissedBake
-          | Events.MissedBonus
-          | Events.DoubleBaked
-          | Events.DoubleEndorsed
-          | Events.DoublePreendorsed;
-      }
+      kind:
+      | Events.Baked
+      | Events.MissedBake
+      | Events.MissedBonus
+      | Events.DoubleBaked
+      | Events.DoubleEndorsed
+      | Events.DoublePreendorsed;
+    }
     | {
-        kind: Events.Endorsed | Events.MissedEndorsement;
-        level: number;
-        slotCount: number;
-      }
+      kind: Events.Endorsed | Events.MissedEndorsement;
+      level: number;
+      slotCount: number;
+    }
   );
 
   const createEvent = (params: CreateEventParams): BakerEvent => {
@@ -212,7 +208,7 @@ export const checkBlockBakingRights = ({
 
 type CheckBlockEndorsingRightsArgs = {
   baker: string;
-  endorsementOperations: OperationR[] | OperationWithLegacyAttestationName[];
+  endorsementOperations: OperationR[];
   level: number;
   endorsingRights: EndorsingRightsR;
 };
@@ -259,13 +255,12 @@ export const checkBlockEndorsingRights = ({
 };
 
 const isEndorsementByDelegate = (
-  operation: OperationR | OperationWithLegacyAttestationName,
+  operation: OperationR,
   delegate: string,
 ): boolean => {
   for (const contentsItem of operation.contents) {
     if (
-      (contentsItem.kind === OpKind.ENDORSEMENT ||
-        contentsItem.kind === OpKind.ATTESTATION) &&
+      (contentsItem.kind === OpKind.ATTESTATION || contentsItem.kind === OpKind.ATTESTATION_WITH_DAL) &&
       "metadata" in contentsItem
     ) {
       if (contentsItem.metadata.delegate === delegate) {
@@ -277,7 +272,7 @@ const isEndorsementByDelegate = (
   return false;
 };
 
-function getBaker(staker: _019_PtParisB$FrozenStaker): string {
+function getBaker(staker: _022_PsRiotum$FrozenStaker): string {
   if ("delegate" in staker) {
     return staker.delegate;
   } else if ("baker_own_stake" in staker) {
@@ -289,15 +284,13 @@ function getBaker(staker: _019_PtParisB$FrozenStaker): string {
 
 export const checkBlockAccusationsForDoubleEndorsement = async (
   baker: string,
-  operations: OperationR[] | OperationWithLegacyAttestationName[],
+  operations: OperationR[],
 ): Promise<Events.DoubleEndorsed | Events.DoublePreendorsed | null> => {
   const log = getLogger(name);
   for (const operation of operations) {
     for (const contentsItem of operation.contents) {
       if (
-        contentsItem.kind === OpKind.DOUBLE_ENDORSEMENT_EVIDENCE ||
         contentsItem.kind === OpKind.DOUBLE_ATTESTATION_EVIDENCE ||
-        contentsItem.kind === OpKind.DOUBLE_PREENDORSEMENT_EVIDENCE ||
         contentsItem.kind === OpKind.DOUBLE_PREATTESTATION_EVIDENCE
       ) {
         const { kind } = contentsItem;
@@ -311,7 +304,7 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
               getBaker(balanceUpdate.staker) === baker
             ) {
               log.info(`${baker} ${kind} at level ${level} round ${round}`);
-              return kind === OpKind.DOUBLE_ENDORSEMENT_EVIDENCE
+              return kind === OpKind.DOUBLE_ATTESTATION_EVIDENCE
                 ? Events.DoubleEndorsed
                 : Events.DoublePreendorsed;
             }
@@ -334,7 +327,7 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
 
 export const checkBlockAccusationsForDoubleBake = async (
   baker: string,
-  operations: OperationR[] | OperationWithLegacyAttestationName[],
+  operations: OperationR[],
 ): Promise<boolean> => {
   const log = getLogger(name);
   for (const operation of operations) {
