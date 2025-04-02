@@ -37,6 +37,7 @@ import protocolN from "./bm-proto-n";
 import protocolO from "./bm-proto-o";
 import protocolP from "./bm-proto-p";
 import protocolQ from "./bm-proto-q";
+import protocolR from "./bm-proto-r";
 
 import type { TezosNode } from "./nodeMonitor";
 
@@ -356,6 +357,14 @@ export const create = async (
               rpc: rpc,
             });
             break;
+
+            case "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7":
+              events = await protocolR({
+                bakers,
+                block,
+                rpc: rpc,
+              });
+              break;
 
           default:
             console.warn(`Unknown protocol at level ${blockLevel}`);
