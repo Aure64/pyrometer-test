@@ -27,6 +27,9 @@ jobs:
         run: |
           yarn --cwd backend install --frozen-lockfile
           yarn --cwd backend build
+      - name: Validate Baker octezVersion field exists
+        run: |
+          grep -n "octezVersion" backend/dist/api/graphql/Baker.js
 
       - name: UI install + build
         run: |
