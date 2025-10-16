@@ -1,0 +1,856 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "proof_of_work_nonce_size": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "nonce_length": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "max_anon_ops_per_block": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "max_operation_data_length": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "max_proposals_per_delegate": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "max_micheline_node_count": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "max_micheline_bytes_limit": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "max_allowed_global_constants_depth": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "cache_layout_size": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "michelson_maximum_type_size": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "denunciation_period": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "slashing_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "smart_rollup_max_wrapped_proof_binary_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_message_size_limit": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_max_number_of_messages_per_level": {
+      "$ref": "#/definitions/positive_bignum"
+    },
+    "consensus_rights_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "blocks_preservation_cycles": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "delegate_parameters_activation_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "tolerated_inactivity_period": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "blocks_per_cycle": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "blocks_per_commitment": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "nonce_revelation_threshold": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "cycles_per_voting_period": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "hard_gas_limit_per_operation": {
+      "$ref": "#/definitions/bignum"
+    },
+    "hard_gas_limit_per_block": {
+      "$ref": "#/definitions/bignum"
+    },
+    "proof_of_work_threshold": {
+      "$ref": "#/definitions/int64"
+    },
+    "minimal_stake": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "minimal_frozen_stake": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "vdf_difficulty": {
+      "$ref": "#/definitions/int64"
+    },
+    "origination_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "issuance_weights": {
+      "type": "object",
+      "properties": {
+        "base_total_issued_per_minute": {
+          "$ref": "#/definitions/_023_PtSeouLo$mutez"
+        },
+        "baking_reward_fixed_portion_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "baking_reward_bonus_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "attesting_reward_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "seed_nonce_revelation_tip_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "vdf_revelation_tip_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "dal_rewards_weight": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        }
+      },
+      "required": [
+        "dal_rewards_weight",
+        "vdf_revelation_tip_weight",
+        "seed_nonce_revelation_tip_weight",
+        "attesting_reward_weight",
+        "baking_reward_bonus_weight",
+        "baking_reward_fixed_portion_weight",
+        "base_total_issued_per_minute"
+      ],
+      "additionalProperties": false
+    },
+    "cost_per_byte": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "hard_storage_limit_per_operation": {
+      "$ref": "#/definitions/bignum"
+    },
+    "quorum_min": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "quorum_max": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "min_proposal_quorum": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "liquidity_baking_subsidy": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "liquidity_baking_toggle_ema_threshold": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "max_operations_time_to_live": {
+      "type": "integer",
+      "minimum": -32768,
+      "maximum": 32767
+    },
+    "minimal_block_delay": {
+      "$ref": "#/definitions/int64"
+    },
+    "delay_increment_per_round": {
+      "$ref": "#/definitions/int64"
+    },
+    "consensus_committee_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "consensus_threshold_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "minimal_participation_ratio": {
+      "type": "object",
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "denominator",
+        "numerator"
+      ],
+      "additionalProperties": false
+    },
+    "limit_of_delegation_over_baking": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "percentage_of_frozen_deposits_slashed_per_double_baking": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "max_slashing_per_block": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "max_slashing_threshold": {
+      "type": "object",
+      "properties": {
+        "numerator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "denominator": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "denominator",
+        "numerator"
+      ],
+      "additionalProperties": false
+    },
+    "testnet_dictator": {
+      "$ref": "#/definitions/Signature$Public_key_hash"
+    },
+    "initial_seed": {
+      "$ref": "#/definitions/random"
+    },
+    "cache_script_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "cache_stake_distribution_cycles": {
+      "type": "integer",
+      "minimum": -128,
+      "maximum": 127
+    },
+    "cache_sampler_state_cycles": {
+      "type": "integer",
+      "minimum": -128,
+      "maximum": 127
+    },
+    "dal_parametric": {
+      "type": "object",
+      "properties": {
+        "feature_enable": {
+          "type": "boolean"
+        },
+        "incentives_enable": {
+          "type": "boolean"
+        },
+        "number_of_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "attestation_lag": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "attestation_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "minimal_participation_ratio": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "rewards_ratio": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "traps_fraction": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "redundancy_factor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "slot_size": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "number_of_shards": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "number_of_shards",
+        "slot_size",
+        "page_size",
+        "redundancy_factor",
+        "traps_fraction",
+        "rewards_ratio",
+        "minimal_participation_ratio",
+        "attestation_threshold",
+        "attestation_lag",
+        "number_of_slots",
+        "incentives_enable",
+        "feature_enable"
+      ],
+      "additionalProperties": false
+    },
+    "smart_rollup_arith_pvm_enable": {
+      "type": "boolean"
+    },
+    "smart_rollup_origination_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_challenge_window_in_blocks": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_stake_amount": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "smart_rollup_commitment_period_in_blocks": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_max_lookahead_in_blocks": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "smart_rollup_max_active_outbox_levels": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "smart_rollup_max_outbox_messages_per_level": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_number_of_sections_in_dissection": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "smart_rollup_timeout_period_in_blocks": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_max_number_of_cemented_commitments": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_max_number_of_parallel_games": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "smart_rollup_reveal_activation_level": {
+      "type": "object",
+      "properties": {
+        "raw_data": {
+          "type": "object",
+          "properties": {
+            "Blake2B": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            }
+          },
+          "required": [
+            "Blake2B"
+          ],
+          "additionalProperties": false
+        },
+        "metadata": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "dal_page": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "dal_parameters": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "dal_attested_slots_validity_lag": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        }
+      },
+      "required": [
+        "dal_attested_slots_validity_lag",
+        "dal_parameters",
+        "dal_page",
+        "metadata",
+        "raw_data"
+      ],
+      "additionalProperties": false
+    },
+    "smart_rollup_private_enable": {
+      "type": "boolean"
+    },
+    "smart_rollup_riscv_pvm_enable": {
+      "type": "boolean"
+    },
+    "zk_rollup_enable": {
+      "type": "boolean"
+    },
+    "zk_rollup_origination_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "zk_rollup_min_pending_to_process": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "zk_rollup_max_ticket_payload_size": {
+      "type": "integer",
+      "minimum": -1073741824,
+      "maximum": 1073741823
+    },
+    "global_limit_of_staking_over_baking": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "edge_of_staking_over_delegation": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "adaptive_rewards_params": {
+      "type": "object",
+      "properties": {
+        "issuance_ratio_final_min": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "issuance_ratio_final_max": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "issuance_ratio_initial_min": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "issuance_ratio_initial_max": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "initial_period": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "transition_period": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "max_bonus": {
+          "$ref": "#/definitions/int64"
+        },
+        "growth_rate": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "center_dz": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        },
+        "radius_dz": {
+          "type": "object",
+          "properties": {
+            "numerator": {
+              "$ref": "#/definitions/bignum"
+            },
+            "denominator": {
+              "$ref": "#/definitions/bignum"
+            }
+          },
+          "required": [
+            "denominator",
+            "numerator"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "radius_dz",
+        "center_dz",
+        "growth_rate",
+        "max_bonus",
+        "transition_period",
+        "initial_period",
+        "issuance_ratio_initial_max",
+        "issuance_ratio_initial_min",
+        "issuance_ratio_final_max",
+        "issuance_ratio_final_min"
+      ],
+      "additionalProperties": false
+    },
+    "direct_ticket_spending_enable": {
+      "type": "boolean"
+    },
+    "aggregate_attestation": {
+      "type": "boolean"
+    },
+    "allow_tz4_delegate_enable": {
+      "type": "boolean"
+    },
+    "all_bakers_attest_activation_level": {
+      "oneOf": [
+        {
+          "title": "Some",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        {
+          "title": "None",
+          "type": "null"
+        }
+      ]
+    },
+    "issuance_modification_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "consensus_key_activation_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "unstake_finalization_delay": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    }
+  },
+  "required": [
+    "unstake_finalization_delay",
+    "consensus_key_activation_delay",
+    "issuance_modification_delay",
+    "all_bakers_attest_activation_level",
+    "allow_tz4_delegate_enable",
+    "aggregate_attestation",
+    "direct_ticket_spending_enable",
+    "adaptive_rewards_params",
+    "edge_of_staking_over_delegation",
+    "global_limit_of_staking_over_baking",
+    "zk_rollup_max_ticket_payload_size",
+    "zk_rollup_min_pending_to_process",
+    "zk_rollup_origination_size",
+    "zk_rollup_enable",
+    "smart_rollup_riscv_pvm_enable",
+    "smart_rollup_private_enable",
+    "smart_rollup_reveal_activation_level",
+    "smart_rollup_max_number_of_parallel_games",
+    "smart_rollup_max_number_of_cemented_commitments",
+    "smart_rollup_timeout_period_in_blocks",
+    "smart_rollup_number_of_sections_in_dissection",
+    "smart_rollup_max_outbox_messages_per_level",
+    "smart_rollup_max_active_outbox_levels",
+    "smart_rollup_max_lookahead_in_blocks",
+    "smart_rollup_commitment_period_in_blocks",
+    "smart_rollup_stake_amount",
+    "smart_rollup_challenge_window_in_blocks",
+    "smart_rollup_origination_size",
+    "smart_rollup_arith_pvm_enable",
+    "dal_parametric",
+    "cache_sampler_state_cycles",
+    "cache_stake_distribution_cycles",
+    "cache_script_size",
+    "max_slashing_threshold",
+    "max_slashing_per_block",
+    "percentage_of_frozen_deposits_slashed_per_double_baking",
+    "limit_of_delegation_over_baking",
+    "minimal_participation_ratio",
+    "consensus_threshold_size",
+    "consensus_committee_size",
+    "delay_increment_per_round",
+    "minimal_block_delay",
+    "max_operations_time_to_live",
+    "liquidity_baking_toggle_ema_threshold",
+    "liquidity_baking_subsidy",
+    "min_proposal_quorum",
+    "quorum_max",
+    "quorum_min",
+    "hard_storage_limit_per_operation",
+    "cost_per_byte",
+    "issuance_weights",
+    "origination_size",
+    "vdf_difficulty",
+    "minimal_frozen_stake",
+    "minimal_stake",
+    "proof_of_work_threshold",
+    "hard_gas_limit_per_block",
+    "hard_gas_limit_per_operation",
+    "cycles_per_voting_period",
+    "nonce_revelation_threshold",
+    "blocks_per_commitment",
+    "blocks_per_cycle",
+    "tolerated_inactivity_period",
+    "delegate_parameters_activation_delay",
+    "blocks_preservation_cycles",
+    "consensus_rights_delay",
+    "smart_rollup_max_number_of_messages_per_level",
+    "smart_rollup_message_size_limit",
+    "smart_rollup_max_wrapped_proof_binary_size",
+    "slashing_delay",
+    "denunciation_period",
+    "michelson_maximum_type_size",
+    "cache_layout_size",
+    "max_allowed_global_constants_depth",
+    "max_micheline_bytes_limit",
+    "max_micheline_node_count",
+    "max_proposals_per_delegate",
+    "max_operation_data_length",
+    "max_anon_ops_per_block",
+    "nonce_length",
+    "proof_of_work_nonce_size"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "_023_PtSeouLo$mutez": {
+      "$ref": "#/definitions/positive_bignum"
+    },
+    "Signature$Public_key_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "bignum": {
+      "title": "Big number",
+      "description": "Decimal representation of a big number",
+      "type": "string"
+    },
+    "int64": {
+      "title": "64 bit integers",
+      "description": "Decimal representation of 64 bit integers",
+      "type": "string"
+    },
+    "positive_bignum": {
+      "title": "Positive big number",
+      "description": "Decimal representation of a positive big number",
+      "type": "string"
+    },
+    "random": {
+      "$ref": "#/definitions/unistring"
+    },
+    "unistring": {
+      "type": "string"
+    }
+  }
+}

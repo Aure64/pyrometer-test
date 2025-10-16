@@ -1,0 +1,189 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.checkBlockAccusationsForDoubleBake = exports.checkBlockAccusationsForDoubleEndorsement = exports.checkBlockEndorsingRights = exports.checkBlockBakingRights = void 0;
+const loglevel_1 = require("loglevel");
+const events_1 = require("./events");
+const now_1 = __importDefault(require("./now"));
+const types_1 = require("./rpc/types");
+const name = "bm-proto-s";
+const EMPTY_LIST = Object.freeze([]);
+exports.default = async ({ bakers, block, rpc, }) => {
+    const metadata = block.metadata;
+    const blockLevel = metadata.level_info.level;
+    const blockCycle = metadata.level_info.cycle;
+    const blockId = `${blockLevel}`;
+    const { header } = block;
+    const priority = header.payload_round;
+    const blockTimestamp = new Date(header.timestamp);
+    const [bakingRights, endorsingRights] = (await rpc.getRights(blockLevel, priority));
+    const events = [];
+    const createEvent = (params) => {
+        const event = {
+            baker: params.baker,
+            createdAt: (0, now_1.default)(),
+            cycle: blockCycle,
+            timestamp: blockTimestamp,
+        };
+        switch (params.kind) {
+            case events_1.Events.Baked:
+                return { ...event, kind: params.kind, priority, level: blockLevel };
+            case events_1.Events.Endorsed:
+            case events_1.Events.MissedEndorsement:
+                return {
+                    ...event,
+                    kind: params.kind,
+                    slotCount: params.slotCount,
+                    level: params.level,
+                };
+            default:
+                return { ...event, kind: params.kind, level: blockLevel };
+        }
+    };
+    for (const baker of bakers) {
+        const endorsementOperations = block.operations[0];
+        const anonymousOperations = block.operations[2];
+        const bakingEvent = (0, exports.checkBlockBakingRights)({
+            baker,
+            bakingRights: bakingRights,
+            blockBaker: metadata.baker,
+            blockProposer: metadata.proposer,
+            blockId,
+            blockPriority: priority,
+        });
+        if (bakingEvent) {
+            events.push(createEvent({ baker, kind: bakingEvent }));
+        }
+        const endorsingEvent = (0, exports.checkBlockEndorsingRights)({
+            baker,
+            level: blockLevel - 1,
+            endorsementOperations,
+            endorsingRights,
+        });
+        if (endorsingEvent) {
+            const [kind, slotCount] = endorsingEvent;
+            events.push(createEvent({ baker, kind, level: blockLevel - 1, slotCount }));
+        }
+        const doubleBakeEvent = await (0, exports.checkBlockAccusationsForDoubleBake)(baker, anonymousOperations);
+        if (doubleBakeEvent) {
+            events.push(createEvent({ baker, kind: events_1.Events.DoubleBaked }));
+        }
+        const doubleEndorseEvent = await (0, exports.checkBlockAccusationsForDoubleEndorsement)(baker, anonymousOperations);
+        if (doubleEndorseEvent) {
+            events.push(createEvent({ baker, kind: doubleEndorseEvent }));
+        }
+    }
+    return events;
+};
+const checkBlockBakingRights = ({ baker, blockBaker, blockProposer, bakingRights, blockId, blockPriority, }) => {
+    const log = (0, loglevel_1.getLogger)(name);
+    const bakerRight = bakingRights.find((br) => br.delegate == baker);
+    if (!bakerRight) {
+        log.debug(`No baking slot at block ${blockId} for ${baker}`);
+        return null;
+    }
+    const blockRight = bakingRights.find((br) => br.round == blockPriority);
+    if (!blockRight) {
+        log.error(`No rights found block ${blockId} at round ${blockPriority}`, bakingRights);
+        return null;
+    }
+    if (blockProposer === baker && blockBaker !== baker) {
+        log.info(`${baker} proposed block at level ${blockRight.level}, but didn't bake it`);
+        return events_1.Events.MissedBonus;
+    }
+    if (bakerRight.round < blockRight.round) {
+        log.info(`${baker} had baking slot for round ${bakerRight.round}, but missed it (block baked at round ${blockPriority})`);
+        return events_1.Events.MissedBake;
+    }
+    if (blockRight.delegate === baker &&
+        blockRight.round === bakerRight.round &&
+        blockBaker === baker) {
+        log.info(`${baker} baked block ${blockId} at round ${blockPriority} of level ${blockRight.level}`);
+        return events_1.Events.Baked;
+    }
+    return null;
+};
+exports.checkBlockBakingRights = checkBlockBakingRights;
+const checkBlockEndorsingRights = ({ baker, endorsementOperations, level, endorsingRights, }) => {
+    const log = (0, loglevel_1.getLogger)(name);
+    const levelRights = endorsingRights.find((right) => right.level === level);
+    if (!levelRights) {
+        log.warn(`did not find rights for level ${level} in`, endorsingRights);
+        return null;
+    }
+    const endorsingRight = levelRights.delegates.find((d) => d.delegate === baker);
+    if (endorsingRight) {
+        const slotCount = endorsingRight.attestation_power;
+        log.debug(`found ${slotCount} endorsement slots for baker ${baker} at level ${level}`);
+        const didEndorse = endorsementOperations.find((op) => isEndorsementByDelegate(op, baker)) !==
+            undefined;
+        if (didEndorse) {
+            log.debug(`Successful endorse for baker ${baker}`);
+            return [events_1.Events.Endorsed, slotCount];
+        }
+        else {
+            log.debug(`Missed endorse for baker ${baker} at level ${level}`);
+            return [events_1.Events.MissedEndorsement, slotCount];
+        }
+    }
+    log.debug(`No endorse event for baker ${baker}`);
+    return null;
+};
+exports.checkBlockEndorsingRights = checkBlockEndorsingRights;
+const isEndorsementByDelegate = (operation, delegate) => {
+    for (const contentsItem of operation.contents) {
+        if ((contentsItem.kind === types_1.OpKind.ATTESTATION ||
+            contentsItem.kind === types_1.OpKind.ATTESTATION_WITH_DAL) &&
+            "metadata" in contentsItem) {
+            if (contentsItem.metadata.delegate === delegate) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+const checkBlockAccusationsForDoubleEndorsement = async (baker, operations) => {
+    const log = (0, loglevel_1.getLogger)(name);
+    for (const operation of operations) {
+        for (const contentsItem of operation.contents) {
+            const k = contentsItem.kind;
+            if (k === types_1.OpKind.DOUBLE_ATTESTATION_EVIDENCE ||
+                k === types_1.OpKind.DOUBLE_CONSENSUS_OPERATION_EVIDENCE) {
+                const { kind } = contentsItem;
+                const { level, round } = contentsItem.op1.operations || contentsItem.op1;
+                if ("metadata" in contentsItem) {
+                    const punished = contentsItem.metadata?.punished_delegate;
+                    if (punished === baker) {
+                        log.info(`${baker} ${kind} at level ${level} round ${round}`);
+                        return kind === types_1.OpKind.DOUBLE_ATTESTATION_EVIDENCE
+                            ? events_1.Events.DoubleEndorsed
+                            : events_1.Events.DoublePreendorsed;
+                    }
+                }
+            }
+        }
+    }
+    return null;
+};
+exports.checkBlockAccusationsForDoubleEndorsement = checkBlockAccusationsForDoubleEndorsement;
+const checkBlockAccusationsForDoubleBake = async (baker, operations) => {
+    const log = (0, loglevel_1.getLogger)(name);
+    for (const operation of operations) {
+        for (const contentsItem of operation.contents) {
+            if (contentsItem.kind === types_1.OpKind.DOUBLE_BAKING_EVIDENCE) {
+                const { level, payload_round } = contentsItem.bh1;
+                if ("metadata" in contentsItem) {
+                    const punished = contentsItem.metadata?.punished_delegate;
+                    if (punished === baker) {
+                        log.info(`${baker} double baked level ${level}, round ${payload_round}`);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    return false;
+};
+exports.checkBlockAccusationsForDoubleBake = checkBlockAccusationsForDoubleBake;

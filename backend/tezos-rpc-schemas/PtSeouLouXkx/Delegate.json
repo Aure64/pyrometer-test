@@ -1,0 +1,547 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "deactivated": {
+      "type": "boolean"
+    },
+    "is_forbidden": {
+      "type": "boolean"
+    },
+    "participation": {
+      "type": "object",
+      "properties": {
+        "expected_cycle_activity": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "minimal_cycle_activity": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "missed_slots": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "missed_levels": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "remaining_allowed_missed_slots": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "expected_attesting_rewards": {
+          "$ref": "#/definitions/_023_PtSeouLo$mutez"
+        }
+      },
+      "required": [
+        "expected_attesting_rewards",
+        "remaining_allowed_missed_slots",
+        "missed_levels",
+        "missed_slots",
+        "minimal_cycle_activity",
+        "expected_cycle_activity"
+      ],
+      "additionalProperties": false
+    },
+    "dal_participation": {
+      "type": "object",
+      "properties": {
+        "expected_assigned_shards_per_slot": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "delegate_attested_dal_slots": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "delegate_attestable_dal_slots": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        },
+        "expected_dal_rewards": {
+          "$ref": "#/definitions/_023_PtSeouLo$mutez"
+        },
+        "sufficient_dal_participation": {
+          "type": "boolean"
+        },
+        "denounced": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "denounced",
+        "sufficient_dal_participation",
+        "expected_dal_rewards",
+        "delegate_attestable_dal_slots",
+        "delegate_attested_dal_slots",
+        "expected_assigned_shards_per_slot"
+      ],
+      "additionalProperties": false
+    },
+    "grace_period": {
+      "type": "integer",
+      "minimum": -2147483648,
+      "maximum": 2147483647
+    },
+    "active_staking_parameters": {
+      "type": "object",
+      "properties": {
+        "limit_of_staking_over_baking_millionth": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        },
+        "edge_of_baking_over_staking_billionth": {
+          "type": "integer",
+          "minimum": -2147483648,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "edge_of_baking_over_staking_billionth",
+        "limit_of_staking_over_baking_millionth"
+      ],
+      "additionalProperties": false
+    },
+    "pending_staking_parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "limit_of_staking_over_baking_millionth": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              },
+              "edge_of_baking_over_staking_billionth": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              }
+            },
+            "required": [
+              "edge_of_baking_over_staking_billionth",
+              "limit_of_staking_over_baking_millionth"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "parameters",
+          "cycle"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "baking_power": {
+      "$ref": "#/definitions/int64"
+    },
+    "total_staked": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "total_delegated": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "min_delegated_in_current_cycle": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "$ref": "#/definitions/_023_PtSeouLo$mutez"
+        },
+        "level": {
+          "type": "object",
+          "properties": {
+            "level": {
+              "description": "The level of the block relative to genesis. This is also the Shell's notion of level.",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "level_position": {
+              "description": "The level of the block relative to the successor of the genesis block. More precisely, it is the position of the block relative to the block that starts the \"Alpha family\" of protocols, which includes all protocols except Genesis (that is, from 001 onwards).",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "cycle": {
+              "description": "The current cycle's number. Note that cycles are a protocol-specific notion. As a result, the cycle number starts at 0 with the first block of the Alpha family of protocols.",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "cycle_position": {
+              "description": "The current level of the block relative to the first block of the current cycle.",
+              "type": "integer",
+              "minimum": -2147483648,
+              "maximum": 2147483647
+            },
+            "expected_commitment": {
+              "description": "Tells whether the baker of this block has to commit a seed nonce hash.",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "expected_commitment",
+            "cycle_position",
+            "cycle",
+            "level_position",
+            "level"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "additionalProperties": false
+    },
+    "own_full_balance": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "own_staked": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "own_delegated": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "external_staked": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "external_delegated": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "total_unstaked_per_cycle": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "deposit": {
+            "$ref": "#/definitions/_023_PtSeouLo$mutez"
+          }
+        },
+        "required": [
+          "deposit",
+          "cycle"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "denunciations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operation_hash": {
+            "$ref": "#/definitions/Operation_hash"
+          },
+          "rewarded": {
+            "$ref": "#/definitions/Signature$Public_key_hash"
+          },
+          "misbehaviour": {
+            "type": "object",
+            "properties": {
+              "level": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 2147483647
+              },
+              "round": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "attestation",
+                  "block",
+                  "preattestation"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "round",
+              "level"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "misbehaviour",
+          "rewarded",
+          "operation_hash"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "estimated_shared_pending_slashed_amount": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "staking_denominator": {
+      "$ref": "#/definitions/_023_PtSeouLo$mutez"
+    },
+    "current_voting_power": {
+      "$ref": "#/definitions/int64"
+    },
+    "voting_power": {
+      "$ref": "#/definitions/int64"
+    },
+    "voting_info": {
+      "type": "object",
+      "properties": {
+        "voting_power": {
+          "$ref": "#/definitions/int64"
+        },
+        "current_ballot": {
+          "type": "string",
+          "enum": [
+            "nay",
+            "yay",
+            "pass"
+          ]
+        },
+        "current_proposals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Protocol_hash"
+          }
+        },
+        "remaining_proposals": {
+          "type": "integer",
+          "minimum": -1073741824,
+          "maximum": 1073741823
+        }
+      },
+      "additionalProperties": false
+    },
+    "consensus_key": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "type": "object",
+          "properties": {
+            "pkh": {
+              "$ref": "#/definitions/Signature$Public_key_hash"
+            },
+            "pk": {
+              "$ref": "#/definitions/Signature$Public_key"
+            }
+          },
+          "required": [
+            "pk",
+            "pkh"
+          ],
+          "additionalProperties": false
+        },
+        "pendings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cycle": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              },
+              "pkh": {
+                "$ref": "#/definitions/Signature$Public_key_hash"
+              },
+              "pk": {
+                "$ref": "#/definitions/Signature$Public_key"
+              }
+            },
+            "required": [
+              "pk",
+              "pkh",
+              "cycle"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "active"
+      ],
+      "additionalProperties": false
+    },
+    "companion_key": {
+      "type": "object",
+      "properties": {
+        "active": {
+          "oneOf": [
+            {
+              "title": "Some",
+              "type": "object",
+              "properties": {
+                "pkh": {
+                  "$ref": "#/definitions/Bls12_381$Public_key_hash"
+                },
+                "pk": {
+                  "$ref": "#/definitions/Bls12_381$Public_key"
+                }
+              },
+              "required": [
+                "pk",
+                "pkh"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "title": "None",
+              "type": "null"
+            }
+          ]
+        },
+        "pendings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "cycle": {
+                "type": "integer",
+                "minimum": -2147483648,
+                "maximum": 2147483647
+              },
+              "pkh": {
+                "$ref": "#/definitions/Bls12_381$Public_key_hash"
+              },
+              "pk": {
+                "$ref": "#/definitions/Bls12_381$Public_key"
+              }
+            },
+            "required": [
+              "pk",
+              "pkh",
+              "cycle"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "active"
+      ],
+      "additionalProperties": false
+    },
+    "stakers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "staker": {
+            "$ref": "#/definitions/_023_PtSeouLo$contract_id$implicit"
+          },
+          "frozen_deposits": {
+            "$ref": "#/definitions/_023_PtSeouLo$mutez"
+          }
+        },
+        "required": [
+          "frozen_deposits",
+          "staker"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "delegators": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/_023_PtSeouLo$contract_id"
+      }
+    }
+  },
+  "required": [
+    "delegators",
+    "stakers",
+    "companion_key",
+    "consensus_key",
+    "voting_info",
+    "voting_power",
+    "current_voting_power",
+    "staking_denominator",
+    "estimated_shared_pending_slashed_amount",
+    "denunciations",
+    "total_unstaked_per_cycle",
+    "external_delegated",
+    "external_staked",
+    "own_delegated",
+    "own_staked",
+    "own_full_balance",
+    "min_delegated_in_current_cycle",
+    "total_delegated",
+    "total_staked",
+    "baking_power",
+    "pending_staking_parameters",
+    "active_staking_parameters",
+    "grace_period",
+    "participation",
+    "is_forbidden",
+    "deactivated"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "_023_PtSeouLo$contract_id": {
+      "$ref": "#/definitions/unistring"
+    },
+    "_023_PtSeouLo$contract_id$implicit": {
+      "$ref": "#/definitions/unistring"
+    },
+    "_023_PtSeouLo$mutez": {
+      "$ref": "#/definitions/positive_bignum"
+    },
+    "Bls12_381$Public_key": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Bls12_381$Public_key_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Operation_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Protocol_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Signature$Public_key": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Signature$Public_key_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "int64": {
+      "title": "64 bit integers",
+      "description": "Decimal representation of 64 bit integers",
+      "type": "string"
+    },
+    "positive_bignum": {
+      "title": "Positive big number",
+      "description": "Decimal representation of a positive big number",
+      "type": "string"
+    },
+    "unistring": {
+      "type": "string"
+    }
+  }
+}

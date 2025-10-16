@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "active": {
+      "type": "object",
+      "properties": {
+        "pkh": {
+          "$ref": "#/definitions/Signature$Public_key_hash"
+        },
+        "pk": {
+          "$ref": "#/definitions/Signature$Public_key"
+        }
+      },
+      "required": [
+        "pk",
+        "pkh"
+      ],
+      "additionalProperties": false
+    },
+    "pendings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "cycle": {
+            "type": "integer",
+            "minimum": -2147483648,
+            "maximum": 2147483647
+          },
+          "pkh": {
+            "$ref": "#/definitions/Signature$Public_key_hash"
+          },
+          "pk": {
+            "$ref": "#/definitions/Signature$Public_key"
+          }
+        },
+        "required": [
+          "pk",
+          "pkh",
+          "cycle"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "active"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "Signature$Public_key": {
+      "$ref": "#/definitions/unistring"
+    },
+    "Signature$Public_key_hash": {
+      "$ref": "#/definitions/unistring"
+    },
+    "unistring": {
+      "type": "string"
+    }
+  }
+}

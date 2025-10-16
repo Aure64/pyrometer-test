@@ -1,0 +1,26 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OpKind = void 0;
+var OpKind;
+(function (OpKind) {
+    OpKind["ORIGINATION"] = "origination";
+    OpKind["DELEGATION"] = "delegation";
+    OpKind["REVEAL"] = "reveal";
+    OpKind["TRANSACTION"] = "transaction";
+    OpKind["ACTIVATION"] = "activate_account";
+    OpKind["ENDORSEMENT"] = "endorsement";
+    OpKind["ATTESTATION"] = "attestation";
+    OpKind["ATTESTATION_WITH_DAL"] = "attestation_with_dal";
+    OpKind["ENDORSEMENT_WITH_SLOT"] = "endorsement_with_slot";
+    OpKind["SEED_NONCE_REVELATION"] = "seed_nonce_revelation";
+    OpKind["DOUBLE_ENDORSEMENT_EVIDENCE"] = "double_endorsement_evidence";
+    OpKind["DOUBLE_ATTESTATION_EVIDENCE"] = "double_attestation_evidence";
+    OpKind["DOUBLE_PREENDORSEMENT_EVIDENCE"] = "double_preendorsement_evidence";
+    OpKind["DOUBLE_PREATTESTATION_EVIDENCE"] = "double_preattestation_evidence";
+    OpKind["DOUBLE_BAKING_EVIDENCE"] = "double_baking_evidence";
+    OpKind["PROPOSALS"] = "proposals";
+    OpKind["BALLOT"] = "ballot";
+    OpKind["FAILING_NOOP"] = "failing_noop";
+    OpKind["DOUBLE_CONSENSUS_OPERATION_EVIDENCE"] = "double_consensus_operation_evidence";
+    OpKind["ATTESTATIONS_AGGREGATE"] = "attestations_aggregate";
+})(OpKind || (exports.OpKind = OpKind = {}));
