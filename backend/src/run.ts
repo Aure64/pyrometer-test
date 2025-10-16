@@ -233,6 +233,7 @@ const run = async (config: Config.Config) => {
         bakerMonitorConfig.rpc.url,
         uiConfig,
         config.rpc,
+        config.tzkt,
       )
     : null;
 

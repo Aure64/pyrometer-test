@@ -48,6 +48,7 @@ query getBakers($offset: Int!, $limit: Int!) {
       }
       gracePeriod
       atRisk
+      octezVersion
       participation {
         expected_cycle_activity
         minimal_cycle_activity

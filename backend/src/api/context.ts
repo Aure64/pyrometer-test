@@ -1,6 +1,7 @@
 import { NodeInfoCollection } from "../nodeMonitor";
 import { BakerInfoCollection } from "../bakerMonitor";
 import client, { RpcClient, RpcClientConfig } from "../rpc/client";
+import { createTzktClient, TzktClient } from "../tzkt/client";
 import type { TzAddressAliasMap } from "../config";
 
 export interface Context {
@@ -10,6 +11,7 @@ export interface Context {
   explorerUrl: string | undefined;
   showSystemInfo: boolean | undefined;
   aliasMap: TzAddressAliasMap;
+  tzkt: TzktClient;
 }
 
 export const createContext = (
@@ -20,6 +22,7 @@ export const createContext = (
   explorerUrl: string | undefined,
   showSystemInfo: boolean | undefined,
   aliasMap: TzAddressAliasMap,
+  tzktConfig: { enabled: boolean; base_url: string },
 ) => {
   return {
     nodeInfoCollection,
@@ -28,5 +31,6 @@ export const createContext = (
     explorerUrl,
     showSystemInfo,
     aliasMap,
+    tzkt: createTzktClient(tzktConfig),
   };
 };

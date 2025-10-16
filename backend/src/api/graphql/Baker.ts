@@ -142,6 +142,16 @@ export const Baker = objectType({
     t.nonNull.int("blocksPerCycle");
     t.nonNull.int("atRiskThreshold");
     t.nonNull.list.field("recentEvents", { type: nonNull(LevelEvents) });
+    t.field("octezVersion", {
+      type: "String",
+      async resolve(parent, _args, ctx) {
+        try {
+          return await ctx.tzkt.getOctezVersionForBaker(parent.address);
+        } catch (_err) {
+          return null;
+        }
+      },
+    });
     t.field("balance", {
       type: "String",
       async resolve(parent, _args, ctx) {

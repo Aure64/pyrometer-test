@@ -13,6 +13,7 @@ import { getLogger } from "loglevel";
 import { NodeInfoCollection } from "../nodeMonitor";
 import { BakerInfoCollection } from "bakerMonitor";
 import { RpcClientConfig } from "rpc/client";
+import type { Config } from "../config";
 
 import type { TzAddressAliasMap } from "../config";
 
@@ -65,6 +66,7 @@ export const start = (
     alias: aliasMap,
   }: UIConfig,
   rpcConfig: RpcClientConfig,
+  tzktConfig?: Config["tzkt"],
 ) => {
   console.error("show_system_info", show_system_info);
 
@@ -95,6 +97,7 @@ export const start = (
         explorer_url,
         show_system_info,
         aliasMap,
+        tzktConfig || { enabled: false, base_url: "https://api.tzkt.io" },
       ),
     }),
   );

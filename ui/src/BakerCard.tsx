@@ -111,6 +111,7 @@ export default ({
     consensusKey,
     blocksPerCycle,
     lastProcessed,
+    octezVersion,
   },
   errors,
   aliasMap,
@@ -224,6 +225,13 @@ export default ({
                   </Text>
                 </Link>
               </Tooltip>
+              {octezVersion && (
+                <Tooltip label="Octez version (from TzKT)">
+                  <Badge colorScheme="purple" fontSize="x-small">
+                    {octezVersion}
+                  </Badge>
+                </Tooltip>
+              )}
             </HStack>
 
             {consensusKey && (
