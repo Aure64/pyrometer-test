@@ -194,12 +194,9 @@ export const create = async (
   const setPosition = async (value: ChainPositionInfo) =>
     await store.put(CHAIN_POSITION_KEY, value);
 
-  // Ajustement Seoul: utiliser tolerated_inactivity_period si disponible,
-  // sinon preserved_cycles (anciens protocoles), sinon consensus_rights_delay en dernier recours
   let atRiskThreshold: number;
+  
   if ("tolerated_inactivity_period" in constants) {
-    // sous Seoul, la période de tolérance d'inactivité (en cycles) reflète mieux le risque réel
-    // on retire 1 cycle pour ne pas marquer "à risque" trop tôt dans le cycle courant
     const tip = (constants as any).tolerated_inactivity_period as number;
     atRiskThreshold = Math.max(1, tip - 1);
   } else if ("preserved_cycles" in constants) {
@@ -277,8 +274,6 @@ export const create = async (
         }
 
         let events: BakerEvent[];
-
-        const protocolStr = (block as any).protocol as string;
 
         switch (block.protocol) {
           case "PtHangz2aRngywmSRGGvrcTyMbbdpWdpFKuS4uMWxg2RaH9i1qx":
@@ -375,19 +370,20 @@ export const create = async (
               });
               break;
 
-          // Seoul (023 / V15)
-          case "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh":
-            events = await protocolS({
-              bakers,
-              // @ts-ignore types Union; bloc Seoul
-              block: block as any,
-              rpc: rpc,
-            });
+          default: {
+            const proto = (block as any).protocol as string;
+            if (proto === "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh") {
+              events = await protocolS({
+                bakers,
+                block: block as any,
+                rpc: rpc,
+              });
+            } else {
+              console.warn(`Unknown protocol at level ${blockLevel}`);
+              events = [];
+            }
             break;
-
-          default:
-            console.warn(`Unknown protocol at level ${blockLevel}`);
-            events = [];
+          }
         }
 
         const bakerHealthEvents: BakerHealthEvent[] = [];

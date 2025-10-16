@@ -21,7 +21,7 @@ export const E_BAKING_RIGHTS = (
   block: string,
   params?: Record<string, string>,
 ) => {
-  const path = `chains/main/blocks/${block}/helpers/baking_rights`;
+  const path = `/chains/main/blocks/${block}/helpers/baking_rights`;
   return `${path}?${new URLSearchParams(params).toString()}`;
 };
 
@@ -29,11 +29,11 @@ export const E_ENDORSING_RIGHTS = (
   block: string,
   params?: Record<string, string>,
 ) => {
-  const path = `chains/main/blocks/${block}/helpers/attestation_rights`;
+  const path = `/chains/main/blocks/${block}/helpers/attestation_rights`;
   return `${path}?${new URLSearchParams(params).toString()}`;
 };
 
-export const E_CHAIN_ID = "chains/main/chain_id";
+export const E_CHAIN_ID = "/chains/main/chain_id";
 
 export const E_DELEGATES_PKH = (block: string, pkh: string) =>
   `chains/main/blocks/${block}/context/delegates/${pkh}`;

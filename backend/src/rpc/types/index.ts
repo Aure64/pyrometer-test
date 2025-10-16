@@ -434,6 +434,7 @@ export type { DoubleBakingEvidenceO };
 export type { DoubleBakingEvidenceP };
 export type { DoubleBakingEvidenceQ };
 export type { DoubleBakingEvidenceR };
+export type { DoubleBakingEvidenceS };
 
 export type DoubleEndorsementEvidence =
   | DoubleEndorsementEvidenceH
@@ -461,6 +462,7 @@ export {
   DoubleEndorsementEvidenceP,
   DoubleEndorsementEvidenceQ,
   DoubleEndorsementEvidenceR,
+  DoubleEndorsementEvidenceS,
 };
 
 export type EndorsementWithSlot =
@@ -511,8 +513,6 @@ export enum OpKind {
   PROPOSALS = "proposals",
   BALLOT = "ballot",
   FAILING_NOOP = "failing_noop",
-  DOUBLE_CONSENSUS_OPERATION_EVIDENCE = "double_consensus_operation_evidence",
-  ATTESTATIONS_AGGREGATE = "attestations_aggregate",
 }
 
 export type TzAddress = string;
