@@ -1,0 +1,16 @@
+[Unit]
+Description=Pyrometer
+After=network-online.target
+
+[Service]
+Type=simple
+User=pyrometer
+Group=pyrometer
+ExecStart=/usr/bin/pyrometer run -c /etc/pyrometer.toml -d /var/lib/pyrometer
+WorkingDirectory=/
+Restart=on-failure
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+

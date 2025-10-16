@@ -1,0 +1,6 @@
+dist /opt/pyrometer
+ui /opt/pyrometer
+package.json /opt/pyrometer
+node_modules /opt/pyrometer
+pyrometer.service etc/systemd/system
+

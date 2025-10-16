@@ -1,0 +1,14 @@
+Source: pyrometer
+Section: utils
+Priority: optional
+Maintainer: Pyrometer Maintainers <maintainers@example.com>
+Standards-Version: 4.5.0
+Build-Depends: debhelper (>= 12)
+
+Package: pyrometer
+Architecture: all
+Depends: nodejs (>= 16), adduser, ${misc:Depends}
+Description: Pyrometer - Tezos baker & node monitoring tool
+ Pyrometer monitors Tezos bakers and nodes, and provides a status UI and
+ notification channels.
+
