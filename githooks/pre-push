@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+PROJECT_ROOT_DIR=$(git rev-parse --show-toplevel)
+echo "project root: $PROJECT_ROOT_DIR"
+(cd $PROJECT_ROOT_DIR/backend && \
+     yarn && \
+     yarn generate:gql && \
+     yarn lint && \
+     yarn test)
+
+(cd $PROJECT_ROOT_DIR/ui && \
+     yarn && \
+     yarn generate:gql && \
+     yarn lint)

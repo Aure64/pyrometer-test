@@ -60,10 +60,7 @@ export default ({
   let renderedItems = null;
   if (data) {
     totalCount = getCount(data);
-    renderedItems = render(
-      data,
-      (error?.graphQLErrors as unknown as GraphQLErrors) || undefined,
-    );
+    renderedItems = render(data, error?.graphQLErrors);
   }
 
   const setAndSaveOffset = (newOffset: number) => {

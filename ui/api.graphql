@@ -1,0 +1,169 @@
+query getNodes($offset: Int!, $limit: Int!) {
+  nodes(offset: $offset, limit: $limit) {
+    items {
+      url
+      name
+      recentBlocks {
+        protocol
+        hash
+        level
+        timestamp
+        priority
+        payloadRound
+      }
+      tezosVersion {
+        version
+        commitHash
+        chainName
+      }
+      error
+      unableToReach
+      synced
+      updatedAt
+      peerCount
+    }
+    totalCount
+  }
+}
+
+query getBakers($offset: Int!, $limit: Int!) {
+  bakers(offset: $offset, limit: $limit) {
+    items {
+      address
+      explorerUrl
+      balance
+      frozenBalance
+      stakingBalance
+      deactivated
+      recentEvents {
+        level
+        explorerUrl
+        cycle
+        timestamp
+        events {
+          kind
+          priority
+          slotCount
+        }
+      }
+      gracePeriod
+      atRisk
+      participation {
+        expected_cycle_activity
+        minimal_cycle_activity
+        missed_slots
+        missed_levels
+        remaining_allowed_missed_slots
+        expected_endorsing_rewards
+      }
+      consensusKey {
+        active
+        explorerUrl
+        pendings {
+          pkh
+          cycle
+        }
+      }
+      lastProcessed {
+        cyclePosition
+        cycle
+        level
+      }
+      blocksPerCycle
+      updatedAt
+    }
+    totalCount
+  }
+}
+
+query getNetworkInfo {
+  networkInfo {
+    chainName
+    protocol
+    level
+    cycle
+    cyclePosition
+    blocksPerCycle
+  }
+}
+
+query getSystemInfo {
+  pyrometer {
+    version
+    processes {
+      cpu
+      mem
+      memRss
+      memVsz
+      pid
+      started
+      command
+      name
+      params
+      user
+      path
+    }
+  }
+  sysInfo {
+    cpu {
+      cores
+      brand
+      model
+      family
+      manufacturer
+    }
+    currentLoad {
+      avgLoad
+    }
+    cpuTemperature {
+      cores
+      main
+      max
+      socket
+      chipset
+    }
+    fullLoad
+    mem {
+      total
+      active
+      swaptotal
+      swapused
+    }
+    osInfo {
+      arch
+      build
+      codename
+      codepage
+      distro
+      fqdn
+      hostname
+      hypervizor
+      kernel
+      platform
+      release
+      servicepack
+    }
+    fsSize {
+      available
+      used
+      use
+      fs
+      mount
+      size
+      type
+    }
+  }
+}
+
+query settings {
+  settings {
+    showSystemInfo
+  }
+}
+
+query aliases {
+  aliases {
+    alias
+    address
+  }
+}

@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+CMD=$1
+VERSION="${2:-$VERSION}"
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+echo "Current branch: $CURRENT_BRANCH"
+
+if [ "$CURRENT_BRANCH" != "main" ]
+then
+    echo "WARNING: not on branch 'main'"
+    if [ "$PYRODEV_ALLOW_BRANCH_VER" != "1" ]
+    then
+        echo "set PYRODEV_ALLOW_BRANCH_VER=1 to allow versions from non-main branches"
+        exit 1
+    fi
+fi
+
+BRANCH=${3-$CURRENT_BRANCH}
+ROOT_DIR=$(git rev-parse --show-toplevel)
+WORK_DIR=$ROOT_DIR/__versh
+mkdir -p $WORK_DIR
+NAME=pyrometer
+WORK_DIR_REPO=$WORK_DIR/${NAME}-${VERSION}
+BUILDREPO=${NAME}-${VERSION}-buildsrc
+GITLAB_DOCKER_REGISTRY=registry.gitlab.com
+DOCKER_REPO=tezos-kiln
+DOCKER_REPO_NAME_VER=$DOCKER_REPO/$NAME:$VERSION
+GITLAB_DOCKER_IMAGE=$GITLAB_DOCKER_REGISTRY/$DOCKER_REPO/$NAME
+GITLAB_DOCKER_IMAGE_TAG=$GITLAB_DOCKER_IMAGE:$VERSION
+GITLAB_DOCKER_IMAGE_LATEST=$GITLAB_DOCKER_IMAGE:latest
+LOCAL_DOCKER_REGISTRY=127.0.0.1:5000
+
+mk-work-copy() {
+    git clone -c advice.detachedHead=false $ROOT_DIR $WORK_DIR_REPO
+}
+
+create() {
+    git pull || :
+    git tag | grep "^$VERSION\$"
+    if [ $? -eq 0 ]; then
+        echo "Git tag for version $VERSION already exists"
+        exit 1
+    fi
+    (: \ && mk-work-copy \
+         && cd $WORK_DIR_REPO \
+         && git checkout $BRANCH \
+         && githooks/pre-push \
+         && cd ./backend \
+         && npm version $VERSION \
+         && git commit -m "set version to $VERSION" ./package.json \
+         && git tag -a $VERSION -m "version $VERSION"
+    )
+}
+
+checkout() {
+    mk-work-copy
+    (cd $WORK_DIR_REPO && git checkout $VERSION)
+}
+
+do-in-build-repo() {
+    (: \
+         && cd $WORK_DIR \
+         && git clone -c advice.detachedHead=false \
+                --branch $VERSION $WORK_DIR_REPO $BUILDREPO \
+         && cd ./$BUILDREPO \
+         && echo "About to run in $PWD: $@" \
+         && "$@" \
+         && echo "Cleaning up $PWD" \
+         && cd $WORK_DIR \
+         && rm -rf ./$BUILDREPO
+    )
+}
+
+PLATFORM="linux/amd64,linux/arm64"
+
+build-docker-to-registry() {
+    docker buildx create --name pyrometer-multiarch-builder --driver-opt network=host || :
+    docker buildx use pyrometer-multiarch-builder
+    docker buildx inspect --bootstrap
+    do-in-build-repo -build-docker-to-registry $1
+}
+
+-build-docker-to-registry() {
+    docker buildx build \
+           --platform $PLATFORM \
+           -t $1/$DOCKER_REPO_NAME_VER --push .
+}
+
+build-docker() {
+    build-docker-to-registry $LOCAL_DOCKER_REGISTRY
+}
+
+build-deb() {
+    do-in-build-repo -build-deb-in-docker
+}
+
+-build-deb-in-docker() {
+    (: \
+         && docker build -t $NAME:$VERSION . \
+         && docker build --build-arg VERSION=$VERSION -t $NAME-builddeb:$VERSION -f builddeb.dockerfile . \
+         && docker run --rm -it -v $WORK_DIR:/out $NAME-builddeb:$VERSION /bin/bash -c "cp /build/*.deb /out" \
+         && ls -lhs $WORK_DIR/*.deb
+    )
+}
+
+build() {
+    build-docker
+    build-deb
+}
+
+publish-version() {
+    git pull --tags $WORK_DIR_REPO
+    #xargs trims whitespace from grep output
+    TAG_BRANCH=$(git branch --contains tags/$VERSION \
+                     | grep -v HEAD | tr -d "*" | xargs)
+    echo "tag branch: $TAG_BRANCH"
+    (: \
+         && git push origin $TAG_BRANCH --no-verify \
+         && git push origin $VERSION --no-verify)
+}
+
+publish-docker-image() {
+    #docker push $GITLAB_DOCKER_IMAGE_TAG
+    build-docker-to-registry $GITLAB_DOCKER_REGISTRY
+}
+
+publish-deb() {
+    debfile="${NAME}_${VERSION}_all.deb"
+    glab api projects/:id/packages/generic/pyrometer/$VERSION/$debfile -X PUT --input $WORK_DIR/$debfile
+}
+
+-publish-npm() {
+    (: \
+         && cd ./backend \
+         && npm publish --tag=dev)
+}
+
+publish-npm() {
+    do-in-build-repo -publish-npm
+}
+
+publish() {
+    (: \
+         && publish-version \
+         && publish-docker-image \
+         && publish-npm \
+         && publish-deb)
+}
+
+release() {
+    docker buildx imagetools create $GITLAB_DOCKER_IMAGE_TAG --tag $GITLAB_DOCKER_IMAGE_LATEST
+    NPM_NAME=$(cd $ROOT_DIR/backend && npm run --silent name)
+    (cd $ROOT_DIR/backend \
+         && npm dist-tag add $NPM_NAME@$VERSION latest \
+         && npm dist-tag remove $NPM_NAME@$VERSION dev)}
+
+start-local-registry() {
+    docker run -d -p 5000:5000 --restart=always --name registry registry:2
+}
+
+main() {
+    if [ -z "$CMD" ]
+    then
+        echo "Command is not specified"
+        exit 1
+    fi
+
+    if [ $CMD = "clean" ]
+    then
+        echo "Clean: removing $WORK_DIR"
+        rm -rf $WORK_DIR
+        exit 0
+    fi
+
+    if [ -z "$VERSION" ]
+    then
+        echo "Version is not specified"
+        exit 1
+    fi
+
+    case $CMD in
+
+        start-local-registry)
+            echo "Starting local Docker registry"
+            start-local-registry
+            ;;
+
+        create)
+            echo "Creating version $VERSION"
+            create
+            ;;
+
+        checkout)
+            echo "Checkout version $VERSION"
+            checkout
+            ;;
+
+        build-docker)
+            echo "Build docker images for $VERSION"
+            build-docker
+            ;;
+
+       build-deb)
+            echo "Build .deb for $VERSION"
+            build-deb
+            ;;
+
+        build)
+            echo "Build version $VERSION"
+            build
+            ;;
+
+        publish-docker-image)
+            echo "Publish docker image version $VERSION"
+            publish-docker-image
+            ;;
+
+        publish-npm)
+            echo "Publish npm package version $VERSION"
+            publish-npm
+            ;;
+
+        publish-deb)
+            echo "Publish deb version $VERSION"
+            publish-deb
+            ;;
+
+        publish-version)
+            echo "Publish source version $VERSION"
+            publish-version
+            ;;
+
+        publish)
+            echo "Publish version $VERSION"
+            publish
+            ;;
+
+
+        release)
+            echo "Release version $VERSION"
+            release
+            ;;
+
+        *)
+            echo "unknown command $CMD"
+            ;;
+    esac
+}
+
+main
