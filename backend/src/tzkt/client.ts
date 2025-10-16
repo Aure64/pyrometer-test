@@ -1,6 +1,6 @@
 import { getLogger } from "loglevel";
 import { LRUCache } from "lru-cache";
-import fetch from "node-fetch";
+import { fetchTimeout } from "../rpc/util";
 
 export type TzktConfig = { enabled: boolean; base_url: string };
 
@@ -23,10 +23,11 @@ export const createTzktClient = ({ enabled, base_url }: TzktConfig): TzktClient 
         pkh,
       )}&limit=1&sort.desc=level&select=level,timestamp,software`;
       const t0 = Date.now();
-      const res = await fetch(url, { timeout: 3000 });
+      const res = await fetchTimeout(url, 3000);
       const dt = Date.now() - t0;
       log.debug(`|> ${url} in ${dt} ms`);
       if (!res.ok) {
+        log.warn(`TzKT API failed for ${pkh}: ${res.status} ${res.statusText}`);
         cache.set(key, "", { ttl: 60e3 });
         return null;
       }
@@ -34,10 +35,11 @@ export const createTzktClient = ({ enabled, base_url }: TzktConfig): TzktClient 
         software?: { version?: string } | null;
       }>;
       const version = json?.[0]?.software?.version || "";
+      log.debug(`TzKT octez version for ${pkh}: ${version || 'none'}`);
       cache.set(key, version);
       return version || null;
     } catch (err) {
-      log.debug("tzkt error", err);
+      log.warn(`TzKT error for ${pkh}:`, err);
       cache.set(key, "", { ttl: 60e3 });
       return null;
     }
