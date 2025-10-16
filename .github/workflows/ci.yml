@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*", "*seoul*"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 16
+        uses: actions/setup-node@v4
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Backend install + build
+        run: |
+          yarn --cwd backend install --frozen-lockfile
+          yarn --cwd backend build
+
+      - name: UI install + build
+        run: |
+          yarn --cwd ui install --frozen-lockfile
+          yarn --cwd ui build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            backend/dist/**
+            ui/dist/**
+
+  package-deb:
+    name: Build .deb (if packaging files present)
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect packaging files
+        id: detect
+        run: |
+          if [ -f backend/debian/control ] && [ -f builddeb.dockerfile ]; then
+            echo "present=true" >> $GITHUB_OUTPUT
+          else
+            echo "present=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Docker Buildx
+        if: steps.detect.outputs.present == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build runtime image (tagged with package version)
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          VERSION=$(node -p "require('./backend/package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          docker build -t pyrometer:$VERSION -f Dockerfile .
+
+      - name: Build .deb with builddeb.dockerfile
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          docker build -t pyrometer-deb:$VERSION \
+            --build-arg VERSION=$VERSION \
+            -f builddeb.dockerfile .
+
+      - name: Extract .deb artifact
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          cid=$(docker create pyrometer-deb:$VERSION)
+          mkdir -p deb
+          docker cp "$cid":/build/. ./deb/
+          docker rm "$cid"
+          ls -la deb
+
+      - name: Upload .deb artifact
+        if: steps.detect.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb
+          path: deb/*.deb
+
+
