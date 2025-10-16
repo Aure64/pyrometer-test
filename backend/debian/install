@@ -3,4 +3,5 @@ ui /opt/pyrometer
 package.json /opt/pyrometer
 node_modules /opt/pyrometer
 debian/pyrometer.service lib/systemd/system
+pyrometer /usr/bin
 
