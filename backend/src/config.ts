@@ -776,6 +776,31 @@ const RPC_RETRY_ATTEMPTS: UserPref = {
   validationRule: ["numeric", "min:1"],
 };
 
+// TzKT integration (optional)
+const TZKT_GROUP: Group = { key: "tzkt", label: "TzKT:" };
+
+const TZKT_ENABLED: UserPref = {
+  key: `${TZKT_GROUP.key}:enabled`,
+  default: false,
+  description: "Enable optional TzKT lookups (octez version)",
+  alias: undefined,
+  type: "boolean",
+  group: TZKT_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+
+const TZKT_BASE_URL: UserPref = {
+  key: `${TZKT_GROUP.key}:base_url`,
+  default: "https://api.tzkt.io",
+  description: "Base URL for TzKT API",
+  alias: undefined,
+  type: "string",
+  group: TZKT_GROUP.label,
+  isArray: false,
+  validationRule: "link",
+};
+
 // list of all prefs that should be iterated to build yargs options and nconf defaults
 const userPrefs = [
   BAKERS,
@@ -841,6 +866,8 @@ const userPrefs = [
   AUTODETECT_ENABLED,
   RPC_RETRY_ATTEMPTS,
   RPC_RETRY_INTERVAL_MS,
+  TZKT_ENABLED,
+  TZKT_BASE_URL,
 ];
 
 /**
@@ -992,6 +1019,7 @@ export type Config = {
   ui: UIConfig;
   autodetect: AutodetectConfig;
   rpc: RpcClientConfig;
+  tzkt: { enabled: boolean; base_url: string };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   asObject: () => any;
 };
@@ -1205,6 +1233,9 @@ export const load = async (
     },
     get rpc() {
       return nconf.get(RPC_GROUP.key) as RpcClientConfig;
+    },
+    get tzkt() {
+      return nconf.get(TZKT_GROUP.key) as { enabled: boolean; base_url: string };
     },
     asObject,
   };
