@@ -34,15 +34,15 @@ const clearData = (dataDirectory: string) => {
 
 const main = async () => {
   // Try to get version from environment (set by Dockerfile) or from package.json
-  let version = process.env.npm_package_version;
+  let version: string = process.env.npm_package_version || "";
   if (!version) {
     try {
       // Try relative path (development)
-      version = require("../package.json").version;
+      version = require("../package.json").version || "unknown";
     } catch {
       try {
         // Try absolute path (installed package)
-        version = require("/opt/pyrometer/package.json").version;
+        version = require("/opt/pyrometer/package.json").version || "unknown";
       } catch {
         version = "unknown";
       }
