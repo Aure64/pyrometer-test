@@ -31,6 +31,7 @@ export type Baker = {
   gracePeriod?: Maybe<Scalars['Int']['output']>;
   headDistance: Scalars['Int']['output'];
   lastProcessed?: Maybe<LastProcessed>;
+  octezVersion?: Maybe<Scalars['String']['output']>;
   participation?: Maybe<Participation>;
   recentEvents: Array<LevelEvents>;
   stakingBalance?: Maybe<Scalars['String']['output']>;
@@ -284,7 +285,7 @@ export type GetBakersQueryVariables = Exact<{
 }>;
 
 
-export type GetBakersQuery = { __typename?: 'Query', bakers: { __typename?: 'Bakers', totalCount: number, items: Array<{ __typename?: 'Baker', address: string, explorerUrl?: string | null, balance?: string | null, frozenBalance?: string | null, stakingBalance?: string | null, deactivated?: boolean | null, gracePeriod?: number | null, atRisk?: boolean | null, blocksPerCycle: number, updatedAt: string, recentEvents: Array<{ __typename?: 'LevelEvents', level: number, explorerUrl?: string | null, cycle: number, timestamp: string, events: Array<{ __typename?: 'BakerEvent', kind: string, priority?: number | null, slotCount?: number | null }> }>, participation?: { __typename?: 'Participation', expected_cycle_activity: number, minimal_cycle_activity: number, missed_slots: number, missed_levels: number, remaining_allowed_missed_slots: number, expected_endorsing_rewards: string } | null, consensusKey?: { __typename?: 'ConsensusKey', active: string, explorerUrl?: string | null, pendings?: Array<{ __typename?: 'PendingConsensusKey', pkh: string, cycle: number }> | null } | null, lastProcessed?: { __typename?: 'LastProcessed', cyclePosition: number, cycle: number, level: number } | null }> } };
+export type GetBakersQuery = { __typename?: 'Query', bakers: { __typename?: 'Bakers', totalCount: number, items: Array<{ __typename?: 'Baker', address: string, explorerUrl?: string | null, balance?: string | null, frozenBalance?: string | null, stakingBalance?: string | null, deactivated?: boolean | null, gracePeriod?: number | null, atRisk?: boolean | null, octezVersion?: string | null, blocksPerCycle: number, updatedAt: string, recentEvents: Array<{ __typename?: 'LevelEvents', level: number, explorerUrl?: string | null, cycle: number, timestamp: string, events: Array<{ __typename?: 'BakerEvent', kind: string, priority?: number | null, slotCount?: number | null }> }>, participation?: { __typename?: 'Participation', expected_cycle_activity: number, minimal_cycle_activity: number, missed_slots: number, missed_levels: number, remaining_allowed_missed_slots: number, expected_endorsing_rewards: string } | null, consensusKey?: { __typename?: 'ConsensusKey', active: string, explorerUrl?: string | null, pendings?: Array<{ __typename?: 'PendingConsensusKey', pkh: string, cycle: number }> | null } | null, lastProcessed?: { __typename?: 'LastProcessed', cyclePosition: number, cycle: number, level: number } | null }> } };
 
 export type GetNetworkInfoQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -388,6 +389,7 @@ export const GetBakersDocument = gql`
       }
       gracePeriod
       atRisk
+      octezVersion
       participation {
         expected_cycle_activity
         minimal_cycle_activity

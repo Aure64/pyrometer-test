@@ -217,6 +217,7 @@ export interface NexusGenFieldTypes {
     gracePeriod: number | null; // Int
     headDistance: number; // Int!
     lastProcessed: NexusGenRootTypes['LastProcessed'] | null; // LastProcessed
+    octezVersion: string | null; // String
     participation: NexusGenRootTypes['Participation'] | null; // Participation
     recentEvents: NexusGenRootTypes['LevelEvents'][]; // [LevelEvents!]!
     stakingBalance: string | null; // String
@@ -408,6 +409,7 @@ export interface NexusGenFieldTypeNames {
     gracePeriod: 'Int'
     headDistance: 'Int'
     lastProcessed: 'LastProcessed'
+    octezVersion: 'String'
     participation: 'Participation'
     recentEvents: 'LevelEvents'
     stakingBalance: 'String'

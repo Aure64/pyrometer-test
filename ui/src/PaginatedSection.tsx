@@ -3,10 +3,11 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
-  HStack,
   Spinner,
   useDisclosure,
   VStack,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react';
 import React, { ReactElement } from 'react';
 import PageSizeDialog from './PageSizeDialog';
@@ -45,7 +46,7 @@ export default ({
   } = useDisclosure();
 
   const initialOffset = getInt(storageKeyOffset, '0');
-  const initialPageSize = getInt(storageKeyPageSize, '6');
+  const initialPageSize = getInt(storageKeyPageSize, '16');
 
   const [offset, setOffset] = React.useState(initialOffset);
   const [pageSize, setPageSize] = React.useState(initialPageSize);
@@ -130,10 +131,8 @@ export default ({
         />
       )}
 
-      <HStack shouldWrapChildren wrap="wrap" spacing="0">
-        {loading && <Spinner />}
-        {renderedItems}
-      </HStack>
+      {loading && <Spinner />}
+      <Wrap spacing={4}>{renderedItems}</Wrap>
     </VStack>
   );
 };

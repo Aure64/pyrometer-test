@@ -15,6 +15,7 @@ type Baker {
   gracePeriod: Int
   headDistance: Int!
   lastProcessed: LastProcessed
+  octezVersion: String
   participation: Participation
   recentEvents: [LevelEvents!]!
   stakingBalance: String

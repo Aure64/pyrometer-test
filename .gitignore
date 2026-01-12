@@ -3,3 +3,6 @@ __versh
 #Nexus
 schema.graphql
 nexus-typegen.ts
+
+# Asana tasks (never commit)
+asana-tasks-future-fixes.md

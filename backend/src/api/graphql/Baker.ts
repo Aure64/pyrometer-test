@@ -6,6 +6,10 @@ import {
   list,
   intArg,
   stringArg,
+  inputObjectType,
+  arg,
+  floatArg,
+  booleanArg,
 } from "nexus";
 import { Context } from "../context";
 
@@ -326,6 +330,8 @@ export const Bakers = objectType({
   },
 });
 
+// Filters removed - all filtering now done on frontend
+
 let cycleProtocol = { cycle: -1, protocol: "" };
 
 const getProtocol = async (cycle: number, level: number, ctx: Context) => {
@@ -372,12 +378,15 @@ export const BakerQuery = extendType({
 
       async resolve(_root, { offset, limit, bakers: bakersFilter }, ctx) {
         const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
-        const bakerInfo =
+        let bakerInfo =
           bakersFilter && bakersFilter.length > 0
             ? bakerMonitorInfo.bakerInfo.filter((x: any) =>
                 bakersFilter.includes(x.address),
               )
             : bakerMonitorInfo.bakerInfo;
+
+        // Filters removed - all filtering now done on frontend
+
         if (bakersFilter) {
           const sortWeights: { [key: string]: number } = {};
           for (let i = 0; i < bakersFilter.length; i++) {
