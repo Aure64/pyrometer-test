@@ -33,7 +33,24 @@ const clearData = (dataDirectory: string) => {
 };
 
 const main = async () => {
+  // Try to get version from environment (set by Dockerfile) or from package.json
+  let version = process.env.npm_package_version;
+  if (!version) {
+    try {
+      // Try relative path (development)
+      version = require("../package.json").version;
+    } catch {
+      try {
+        // Try absolute path (installed package)
+        version = require("/opt/pyrometer/package.json").version;
+      } catch {
+        version = "unknown";
+      }
+    }
+  }
+  
   yargs(process.argv.slice(2))
+    .version(version)
     .strict()
     .command("config", "Commands to view and manage configuration", (yargs) => {
       return yargs
