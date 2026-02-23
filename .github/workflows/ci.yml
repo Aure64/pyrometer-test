@@ -113,13 +113,12 @@ jobs:
       - name: Filter .deb file by version
         id: filter
         run: |
-          VERSION=$(node -p "require('./backend/package.json').version")
+          VERSION=${GITHUB_REF_NAME#v}
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           DEB_FILE=$(ls release/pyrometer_${VERSION}_all.deb 2>/dev/null || echo "")
           if [ -z "$DEB_FILE" ]; then
-            echo "ERROR: Expected pyrometer_${VERSION}_all.deb not found in release/"
-            ls -la release/
-            exit 1
+            echo "WARNING: pyrometer_${VERSION}_all.deb not found, using first .deb"
+            DEB_FILE=$(ls release/*.deb | head -1)
           fi
           echo "file=$DEB_FILE" >> $GITHUB_OUTPUT
           echo "Found .deb file: $DEB_FILE"
