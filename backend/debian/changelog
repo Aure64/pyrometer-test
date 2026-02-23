@@ -1,3 +1,14 @@
+pyrometer (0.14.0) unstable; urgency=medium
+
+  * Add Tallinn protocol (024) support.
+  * Add /health and /ready endpoints.
+  * Add dark mode and responsive card layout.
+  * Fix silent RPC errors, missing await, add retry backoff.
+  * Improve filter UX with real-time filtering.
+  * Add staleness indicator and smart polling.
+
+ -- Pyrometer Maintainers <maintainers@example.com>  Sun, 23 Feb 2026 16:00:00 +0000
+
 pyrometer (0.13.4) unstable; urgency=medium
 
   * Add frontend filtering system for bakers (status, balance, Octez version filters).
