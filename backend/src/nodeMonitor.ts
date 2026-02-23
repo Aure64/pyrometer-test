@@ -162,6 +162,7 @@ const subscribeToNode = (
     history: [],
   };
   let previousEvents: Set<string> = new Set();
+  let consecutiveFailures = 0;
 
   const task = async () => {
     let events: (NodeEvent | RpcEvent)[] = [];
@@ -175,6 +176,7 @@ const subscribeToNode = (
         log,
       });
       if (nodeInfo.unableToReach) {
+        consecutiveFailures++;
         log.debug("Unable to reach node");
         const err = nodeInfo.error;
         const message = err
@@ -188,7 +190,10 @@ const subscribeToNode = (
           node: node.url,
           createdAt: now(),
         });
+        const backoffMs = Math.min(5000 * consecutiveFailures, 60000);
+        await new Promise(resolve => setTimeout(resolve, backoffMs));
       } else {
+        consecutiveFailures = 0;
         events = checkBlockInfo({
           nodeInfo,
           previousNodeInfo,
@@ -209,6 +214,7 @@ const subscribeToNode = (
         });
       }
     } catch (err: any) {
+      consecutiveFailures++;
       log.warn(`Node subscription error: ${err.message}`);
       events.push({
         kind: Events.RpcError,
@@ -218,6 +224,8 @@ const subscribeToNode = (
         node: node.url,
         createdAt: now(),
       });
+      const backoffMs = Math.min(5000 * consecutiveFailures, 60000);
+      await new Promise(resolve => setTimeout(resolve, backoffMs));
     }
     const publishedEvents = new Set<string>();
     for (const event of events) {

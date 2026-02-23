@@ -3,7 +3,7 @@
 Pyrometer is a tool for monitoring events on
 [Tezos](https://tezos.com/) networks.
 
-Supports Seoul protocol (023 / V15) with Octez v23+.
+Supports Seoul (023) and Tallinn (024) protocols with Octez v24+.
 
 ## Design/Architechture
 
