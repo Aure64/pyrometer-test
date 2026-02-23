@@ -4,6 +4,7 @@ import express from "express";
 import { graphqlHTTP } from "express-graphql";
 import { schema } from "./schema";
 import { createContext } from "./context";
+import healthRouter from "./health";
 
 import morgan from "morgan";
 import cors from "cors";
@@ -69,6 +70,8 @@ export const start = (
   tzktConfig?: Config["tzkt"],
 ) => {
   console.error("show_system_info", show_system_info);
+
+  app.use(healthRouter);
 
   const webroot = configuredWebroot || join(__dirname, "../../ui");
   getLogger("api").info(`Serving web UI assets from ${webroot}`);

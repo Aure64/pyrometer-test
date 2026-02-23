@@ -27,6 +27,7 @@ import {
 import { Delegate } from "./rpc/types";
 import now from "./now";
 
+import { updateHealth } from "./api/health";
 import protocolH from "./bm-proto-h";
 import protocolI from "./bm-proto-i";
 import protocolJ from "./bm-proto-j";
@@ -473,11 +474,17 @@ export const create = async (
           blockCycle,
           cyclePosition,
         });
+        updateHealth({
+          lastBlockLevel: currentLevel,
+          lastBlockTimestamp: new Date(block.header.timestamp),
+          rpcReachable: true,
+        });
         currentLevel++;
         lastBlockCycle = blockCycle;
         await delay(1000);
       }
     } catch (err: any) {
+      updateHealth({ rpcReachable: false });
       if (err.name === "HttpRequestFailed") {
         log.warn("RPC Error:", err.message);
       } else {
