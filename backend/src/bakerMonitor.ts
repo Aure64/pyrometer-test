@@ -39,6 +39,7 @@ import protocolP from "./bm-proto-p";
 import protocolQ from "./bm-proto-q";
 import protocolR from "./bm-proto-r";
 import protocolS from "./bm-proto-s";
+import protocolT from "./bm-proto-t";
 
 import type { TezosNode } from "./nodeMonitor";
 
@@ -370,18 +371,25 @@ export const create = async (
               });
               break;
 
+          case "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh":
+            events = await protocolS({
+              bakers,
+              block: block as any,
+              rpc: rpc,
+            });
+            break;
+
+          case "PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu":
+            events = await protocolT({
+              bakers,
+              block: block as any,
+              rpc: rpc,
+            });
+            break;
+
           default: {
-            const proto = (block as any).protocol as string;
-            if (proto === "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh") {
-              events = await protocolS({
-                bakers,
-                block: block as any,
-                rpc: rpc,
-              });
-            } else {
-              console.warn(`Unknown protocol at level ${blockLevel}`);
-              events = [];
-            }
+            console.warn(`Unknown protocol at level ${blockLevel}`);
+            events = [];
             break;
           }
         }
