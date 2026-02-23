@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Box, Text, Tooltip } from '@chakra-ui/react';
+import { Box, Text, Tooltip, useColorModeValue } from '@chakra-ui/react';
 import { formatRelativeTime, timestampFormat } from './format';
 
 export default ({
@@ -12,6 +12,9 @@ export default ({
   highlight: boolean;
   timestamp: Date;
 }) => {
+  const highlightColor = useColorModeValue('black', 'white');
+  const normalColor = useColorModeValue('gray.600', 'gray.400');
+
   return (
     <Box
       display="flex"
@@ -19,7 +22,7 @@ export default ({
       justifyContent="space-between"
       alignItems="baseline"
       fontWeight={highlight ? 'bold' : 'normal'}
-      color={highlight ? 'black' : 'gray.600'}
+      color={highlight ? highlightColor : normalColor}
     >
       {children}
       <Tooltip label={timestampFormat.format(timestamp)}>

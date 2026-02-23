@@ -1,7 +1,14 @@
 import React from 'react';
 import App from './App';
 
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+
+const theme = extendTheme({
+  config: {
+    initialColorMode: 'dark',
+    useSystemColorMode: true,
+  },
+});
 
 import { createRoot } from 'react-dom/client';
 
@@ -22,7 +29,7 @@ const root = createRoot(document.getElementById('root')!);
 root.render(
   <React.StrictMode>
     <ApolloProvider client={apolloClient}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
     </ApolloProvider>

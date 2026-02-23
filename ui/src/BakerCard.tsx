@@ -12,6 +12,7 @@ import {
   Progress,
   Divider,
   Badge,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import React from 'react';
 import { FaSnowflake } from 'react-icons/fa';
@@ -120,6 +121,7 @@ const BakerCard = ({
   errors?: GraphQLError[];
   aliasMap: Map<string, string>;
 }) => {
+  const progressIndicatorBg = useColorModeValue('white', 'gray.700');
   const healthy = !deactivated && isHealthy(recentEvents);
 
   const deactivationStatusText =
@@ -332,7 +334,7 @@ const BakerCard = ({
                 <Box
                   w="2px"
                   h="100%"
-                  bg="white"
+                  bg={progressIndicatorBg}
                   opacity={0.8}
                   position="absolute"
                   left={`${cycleProgress}%`}
