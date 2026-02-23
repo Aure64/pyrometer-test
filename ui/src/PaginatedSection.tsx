@@ -3,6 +3,7 @@ import {
   AlertDescription,
   AlertIcon,
   AlertTitle,
+  Button,
   Spinner,
   useDisclosure,
   VStack,
@@ -28,6 +29,7 @@ export default ({
   renderSubHeader,
   getCount,
   render,
+  isVisible = true,
 }: {
   title: string;
   storageNs: string;
@@ -35,6 +37,7 @@ export default ({
   getCount: (data: any) => number;
   render: (data: any, errors?: GraphQLErrors) => JSX.Element[];
   renderSubHeader?: () => ReactElement;
+  isVisible?: boolean;
 }) => {
   const storageKeyOffset = `${storageNs}.offset`;
   const storageKeyPageSize = `${storageNs}.pageSize`;
@@ -51,8 +54,8 @@ export default ({
   const [offset, setOffset] = React.useState(initialOffset);
   const [pageSize, setPageSize] = React.useState(initialPageSize);
 
-  const { data, error, loading } = query({
-    pollInterval: 15e3,
+  const { data, error, loading, refetch } = query({
+    pollInterval: isVisible ? 15e3 : 0,
     variables: { offset, limit: pageSize },
     errorPolicy: 'all',
   });
@@ -96,6 +99,9 @@ export default ({
           <AlertIcon />
           <AlertTitle mr={2}>Network Error</AlertTitle>
           <AlertDescription>{error.networkError.message}</AlertDescription>
+          <Button size="sm" ml={4} onClick={() => refetch()}>
+            Retry
+          </Button>
         </Alert>
       )}
       {error &&
@@ -107,6 +113,9 @@ export default ({
               <AlertIcon />
               <AlertTitle mr={2}>Error</AlertTitle>
               <AlertDescription>{error.message}</AlertDescription>
+              <Button size="sm" ml={4} onClick={() => refetch()}>
+                Retry
+              </Button>
             </Alert>
           ))}
 

@@ -31,11 +31,11 @@ const InfoItem = ({
   </Tooltip>
 );
 
-export default () => {
+export default ({ isVisible = true }: { isVisible?: boolean }) => {
   const [filters, setFilters] = useState<BakerFilters | null>(null);
-  
+
   const { data } = useGetNetworkInfoQuery({
-    pollInterval: 15e3,
+    pollInterval: isVisible ? 15e3 : 0,
   });
 
   const networkInfo = data?.networkInfo;
@@ -114,6 +114,7 @@ export default () => {
         title="Bakers"
         storageNs="bakers"
         query={useGetBakersQuery}
+        isVisible={isVisible}
         getCount={(data: GetBakersQuery) => data.bakers.totalCount}
         render={(
           { bakers: { items } }: GetBakersQuery,
@@ -130,6 +131,16 @@ export default () => {
                 (x) => x.path && x.path[2],
               )
             : {};
+          if (filteredBakerItems.length === 0 && items.length > 0) {
+            return [
+              <WrapItem key="empty-state" w="100%">
+                <Alert status="info" borderRadius="md" w="100%">
+                  <AlertIcon />
+                  <AlertDescription>No bakers match your filters. Try adjusting your criteria.</AlertDescription>
+                </Alert>
+              </WrapItem>
+            ];
+          }
           return filteredBakerItems.map((baker, index) => (
             <WrapItem key={baker.address}>
               <BakerCard
