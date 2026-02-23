@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -61,7 +61,8 @@ export default function FilterPanel({
   const [selectedBalanceRange, setSelectedBalanceRange] = useState<number | null>(null);
   const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
 
-  const applyFilters = () => {
+  // Propagate filter changes to parent in real-time
+  useEffect(() => {
     const filters: BakerFilters = {};
 
     // Status filter
@@ -86,13 +87,12 @@ export default function FilterPanel({
     }
 
     onFiltersChange(Object.keys(filters).length > 0 ? filters : null);
-  };
+  }, [selectedStatuses, selectedBalanceRange, selectedVersions, onFiltersChange]);
 
   const clearFilters = () => {
     setSelectedStatuses([]);
     setSelectedBalanceRange(null);
     setSelectedVersions([]);
-    onFiltersChange(null);
   };
 
   const hasActiveFilters =
@@ -253,13 +253,10 @@ export default function FilterPanel({
 
             <Divider />
 
-            {/* Apply Button */}
+            {/* Reset Button */}
             <HStack justify="flex-end">
               <Button size="sm" onClick={clearFilters} variant="ghost">
-                Clear
-              </Button>
-              <Button size="sm" onClick={applyFilters} colorScheme="blue">
-                Apply Filters
+                Reset
               </Button>
             </HStack>
           </VStack>

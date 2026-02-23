@@ -95,7 +95,7 @@ const CycleBadge = ({ cycle }: { cycle: number | undefined | null }) => {
   );
 };
 
-export default ({
+const BakerCard = ({
   baker: {
     address,
     explorerUrl,
@@ -435,3 +435,5 @@ export default ({
     </Card>
   );
 };
+
+export default React.memo(BakerCard);

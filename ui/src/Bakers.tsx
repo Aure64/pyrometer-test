@@ -1,5 +1,5 @@
 import { HStack, Text, Tooltip, Box, VStack, Progress, Alert, AlertIcon, AlertDescription, WrapItem } from '@chakra-ui/react';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import {
   useGetBakersQuery,
   useGetNetworkInfoQuery,
@@ -42,16 +42,71 @@ export default () => {
 
   const { data: aliasesData } = useAliasesQuery();
 
-  const aliasMap = new Map(
-    aliasesData?.aliases.map((x) => [x.address, x.alias]),
+  const aliasMap = useMemo(
+    () => new Map(aliasesData?.aliases.map((x) => [x.address, x.alias])),
+    [aliasesData],
   );
 
-  // Extract available versions from all bakers for filter options
+  // Track baker items from the render callback so we can extract versions
+  const [bakerItems, setBakerItems] = useState<GetBakersQuery['bakers']['items']>([]);
+
+  // Extract available versions dynamically from actual baker data
   const availableVersions = useMemo(() => {
-    // This will be populated from the actual baker data
-    // For now, we'll use common versions
-    return ['v19.0', 'v19.1', 'v20.0', 'v21.0', 'v22.0', 'v23.0', 'v23.1', 'v23.2'];
-  }, []);
+    if (!bakerItems || bakerItems.length === 0) return [];
+    const versions = new Set<string>();
+    bakerItems.forEach((b) => {
+      if (b.octezVersion) versions.add(b.octezVersion);
+    });
+    return Array.from(versions).sort();
+  }, [bakerItems]);
+
+  // Memoize the filtered baker items to avoid recomputing on every render
+  const filteredBakerItems = useMemo(() => {
+    if (!bakerItems || bakerItems.length === 0) return [];
+    if (!filters) return bakerItems;
+
+    return bakerItems.filter((baker) => {
+      // Staking Balance filter
+      if ((filters.minBalance !== undefined && filters.minBalance !== null) ||
+          (filters.maxBalance !== undefined && filters.maxBalance !== null)) {
+        if (baker.stakingBalance) {
+          const stakingBalanceTez = parseFloat(baker.stakingBalance) / 1e6;
+          if (filters.minBalance !== null && filters.minBalance !== undefined && stakingBalanceTez < filters.minBalance) {
+            return false;
+          }
+          if (filters.maxBalance !== null && filters.maxBalance !== undefined && stakingBalanceTez > filters.maxBalance) {
+            return false;
+          }
+        }
+      }
+
+      // Octez version filter
+      if (filters.octezVersions && filters.octezVersions.length > 0) {
+        if (!baker.octezVersion) return false;
+        const matchesVersion = filters.octezVersions.some((filterVer) => {
+          return baker.octezVersion?.startsWith(filterVer || '');
+        });
+        if (!matchesVersion) return false;
+      }
+
+      // Status filter
+      if (filters.status && filters.status.length > 0) {
+        const isHealthy = baker.recentEvents.some((e) =>
+          e.events?.some((evt) => evt.kind === 'endorsed' || evt.kind === 'baked')
+        );
+        const matchesStatus = filters.status.some((status) => {
+          if (status === 'deactivated' && baker.deactivated === true) return true;
+          if (status === 'atRisk' && baker.atRisk === true && !baker.deactivated) return true;
+          if (status === 'healthy' && !baker.deactivated && !baker.atRisk && isHealthy) return true;
+          if (status === 'unhealthy' && !baker.deactivated && !baker.atRisk && !isHealthy) return true;
+          return false;
+        });
+        if (!matchesStatus) return false;
+      }
+
+      return true;
+    });
+  }, [bakerItems, filters]);
 
   return (
     <VStack spacing={4} align="stretch">
@@ -64,52 +119,9 @@ export default () => {
           { bakers: { items } }: GetBakersQuery,
           errors?: GraphQLErrors,
         ) => {
-          // Apply ALL filters on frontend
-          let filteredItems = items;
-          
-          if (filters) {
-            filteredItems = items.filter((baker) => {
-              // Staking Balance filter
-              if ((filters.minBalance !== undefined && filters.minBalance !== null) || 
-                  (filters.maxBalance !== undefined && filters.maxBalance !== null)) {
-                // If staking balance not loaded yet, keep the baker
-                if (baker.stakingBalance) {
-                  const stakingBalanceTez = parseFloat(baker.stakingBalance) / 1e6;
-                  if (filters.minBalance !== null && filters.minBalance !== undefined && stakingBalanceTez < filters.minBalance) {
-                    return false;
-                  }
-                  if (filters.maxBalance !== null && filters.maxBalance !== undefined && stakingBalanceTez > filters.maxBalance) {
-                    return false;
-                  }
-                }
-              }
-
-              // Octez version filter
-              if (filters.octezVersions && filters.octezVersions.length > 0) {
-                if (!baker.octezVersion) return false;
-                const matchesVersion = filters.octezVersions.some((filterVer) => {
-                  return baker.octezVersion?.startsWith(filterVer || '');
-                });
-                if (!matchesVersion) return false;
-              }
-
-              // Status filter
-              if (filters.status && filters.status.length > 0) {
-                const isHealthy = baker.recentEvents.some((e) =>
-                  e.events?.some((evt) => evt.kind === 'endorsed' || evt.kind === 'baked')
-                );
-                const matchesStatus = filters.status.some((status) => {
-                  if (status === 'deactivated' && baker.deactivated === true) return true;
-                  if (status === 'atRisk' && baker.atRisk === true && !baker.deactivated) return true;
-                  if (status === 'healthy' && !baker.deactivated && !baker.atRisk && isHealthy) return true;
-                  if (status === 'unhealthy' && !baker.deactivated && !baker.atRisk && !isHealthy) return true;
-                  return false;
-                });
-                if (!matchesStatus) return false;
-              }
-
-              return true;
-            });
+          // Update baker items for version extraction and filtering (only when items change)
+          if (items !== bakerItems) {
+            setBakerItems(items);
           }
 
           const errorsByItem = errors
@@ -118,7 +130,7 @@ export default () => {
                 (x) => x.path && x.path[2],
               )
             : {};
-          return filteredItems.map((baker, index) => (
+          return filteredBakerItems.map((baker, index) => (
             <WrapItem key={baker.address}>
               <BakerCard
                 baker={baker}
