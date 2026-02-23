@@ -15,7 +15,9 @@ export default ({ updatedAt }: { updatedAt: string }) => {
   const staleColor = isStale ? 'orange.500' : 'gray.400';
 
   return (
-    <Tooltip label={isStale ? 'Last updated (data may be stale)' : 'Last updated'}>
+    <Tooltip
+      label={isStale ? 'Last updated (data may be stale)' : 'Last updated'}
+    >
       <HStack spacing={0.5}>
         <Icon as={MdUpdate} color={staleColor} />
         <Text color={staleColor} as="i" align="end">

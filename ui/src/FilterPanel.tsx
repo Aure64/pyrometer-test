@@ -58,7 +58,9 @@ export default function FilterPanel({
 }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const [selectedBalanceRange, setSelectedBalanceRange] = useState<number | null>(null);
+  const [selectedBalanceRange, setSelectedBalanceRange] = useState<
+    number | null
+  >(null);
   const [selectedVersions, setSelectedVersions] = useState<string[]>([]);
 
   // Propagate filter changes to parent in real-time
@@ -87,7 +89,12 @@ export default function FilterPanel({
     }
 
     onFiltersChange(Object.keys(filters).length > 0 ? filters : null);
-  }, [selectedStatuses, selectedBalanceRange, selectedVersions, onFiltersChange]);
+  }, [
+    selectedStatuses,
+    selectedBalanceRange,
+    selectedVersions,
+    onFiltersChange,
+  ]);
 
   const clearFilters = () => {
     setSelectedStatuses([]);
@@ -127,7 +134,13 @@ export default function FilterPanel({
           colorScheme={hasActiveFilters ? 'blue' : 'gray'}
           variant={hasActiveFilters ? 'solid' : 'outline'}
         >
-          Filters {hasActiveFilters && `(${selectedStatuses.length + (selectedBalanceRange !== null ? 1 : 0) + selectedVersions.length})`}
+          Filters{' '}
+          {hasActiveFilters &&
+            `(${
+              selectedStatuses.length +
+              (selectedBalanceRange !== null ? 1 : 0) +
+              selectedVersions.length
+            })`}
         </Button>
         {hasActiveFilters && (
           <Button
@@ -162,7 +175,10 @@ export default function FilterPanel({
                       isChecked={selectedStatuses.includes(option.value)}
                       onChange={(e) => {
                         if (e.target.checked) {
-                          setSelectedStatuses([...selectedStatuses, option.value]);
+                          setSelectedStatuses([
+                            ...selectedStatuses,
+                            option.value,
+                          ]);
                         } else {
                           setSelectedStatuses(
                             selectedStatuses.filter((s) => s !== option.value),
@@ -224,7 +240,9 @@ export default function FilterPanel({
                       <Button
                         size="sm"
                         variant={
-                          selectedVersions.includes(version) ? 'solid' : 'outline'
+                          selectedVersions.includes(version)
+                            ? 'solid'
+                            : 'outline'
                         }
                         colorScheme={
                           selectedVersions.includes(version) ? 'purple' : 'gray'
@@ -265,4 +283,3 @@ export default function FilterPanel({
     </Box>
   );
 }
-
