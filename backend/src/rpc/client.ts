@@ -360,6 +360,8 @@ export default (
           );
           fullBalanceFields = [...fullBalanceFields].reverse();
           return result;
+        } else {
+          throw err;
         }
       }
     },
@@ -380,6 +382,8 @@ export default (
           );
           frozenDepositsFields = [...frozenDepositsFields].reverse();
           return result;
+        } else {
+          throw err;
         }
       }
     },

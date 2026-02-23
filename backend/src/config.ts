@@ -196,9 +196,9 @@ const TEZTNETS_CONFIG: UserPref = {
 
 const LOW_PEER_COUNT: UserPref = {
   key: `${NODE_MONITOR_GROUP.key}:low_peer_count`,
-  default: undefined,
+  default: 10,
   sampleValue: 5,
-  description: "Low peer count thrashold",
+  description: "Low peer count threshold",
   alias: undefined,
   type: "number",
   group: NODE_MONITOR_GROUP.label,

@@ -69,7 +69,7 @@ export const start = (
   rpcConfig: RpcClientConfig,
   tzktConfig?: Config["tzkt"],
 ) => {
-  console.error("show_system_info", show_system_info);
+  getLogger("api").debug("show_system_info", show_system_info);
 
   app.use(healthRouter);
 

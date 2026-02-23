@@ -168,10 +168,11 @@ describe("channel", () => {
       { max_batch_size, ttl, interval },
     );
 
-    setTimeout(() => chan.stop(), interval * 5e3);
+    // Backoff after first failure is ~2000ms, so allow enough time for retry
+    setTimeout(() => chan.stop(), 4000);
 
     await chan.start();
 
     expect(batches).toEqual([[item1, item2, item3]]);
-  });
+  }, 10000);
 });

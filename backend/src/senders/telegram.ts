@@ -69,7 +69,7 @@ export const create = async (
     log.info(`Send any message to your bot in Telegram`);
     try {
       chatId = await listenForChatId(config.token);
-      setChatId(chatId);
+      await setChatId(chatId);
       log.info(`Fetched Telegram chat id: ${chatId}`);
     } catch (err) {
       log.error(

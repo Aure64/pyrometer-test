@@ -29,6 +29,8 @@ export const create = async (
   const readPosition = async () => (await store.get(name, -1)) as number;
   const writePosition = async (value: number) => await store.put(name, value);
 
+  let failCount = 0;
+
   const task = async () => {
     const batch: Event[] = [];
     let position = await readPosition();
@@ -48,8 +50,14 @@ export const create = async (
       try {
         await send(batch);
         await writePosition(position);
+        failCount = 0;
       } catch (err) {
-        log.error(`could not send`, err);
+        failCount++;
+        const backoffMs = Math.min(1000 * Math.pow(2, failCount), 60000);
+        log.warn(
+          `Notification send failed (attempt ${failCount}), backing off ${backoffMs}ms`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
       }
     }
   };

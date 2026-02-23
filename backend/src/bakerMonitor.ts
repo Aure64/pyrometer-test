@@ -131,7 +131,7 @@ export const create = async (
   const monitorAllActiveBakers = configuredBakers.some((x) => x === "*");
 
   if (monitorAllActiveBakers) {
-    console.log("Monitoring all active bakers");
+    log.info("Monitoring all active bakers");
   }
 
   const activeBakersCache = new LRUCache<number, TzAddress[]>({ max: 1 });
@@ -208,6 +208,8 @@ export const create = async (
   }
 
   const missedCounts = new Map<TzAddress, number>();
+
+  let rpcFailCount = 0;
 
   const task = async (isInterrupted: () => boolean) => {
     try {
@@ -479,17 +481,27 @@ export const create = async (
           lastBlockTimestamp: new Date(block.header.timestamp),
           rpcReachable: true,
         });
+        rpcFailCount = 0;
         currentLevel++;
         lastBlockCycle = blockCycle;
         await delay(1000);
       }
     } catch (err: any) {
       updateHealth({ rpcReachable: false });
+      rpcFailCount++;
+      const backoffMs = Math.min(5000 * Math.pow(2, rpcFailCount - 1), 60000);
       if (err.name === "HttpRequestFailed") {
-        log.warn("RPC Error:", err.message);
+        log.warn(
+          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          err.message,
+        );
       } else {
-        log.warn("RPC Error:", err);
+        log.warn(
+          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          err,
+        );
       }
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
     }
   };
 
