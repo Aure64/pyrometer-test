@@ -391,7 +391,7 @@ export const create = async (
             break;
 
           default: {
-            console.warn(`Unknown protocol at level ${blockLevel}`);
+            log.warn(`Unknown protocol at level ${blockLevel}`);
             events = [];
             break;
           }
