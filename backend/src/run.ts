@@ -17,6 +17,7 @@ import { join as joinPath, normalize as normalizePath } from "path";
 import { setup as setupLogging } from "./logging";
 
 import { start as startAPIServer } from "./api/server";
+import { ConfigManager } from "./configManager";
 
 type TzClientPkhListItem = { name: string; value: string };
 
@@ -204,6 +205,20 @@ const run = async (config: Config.Config) => {
     uiConfig = { ...config.ui, show_system_info: true };
   }
 
+
+  const overridesPath = joinPath(normalizePath(storageDir), "overrides.json");
+  const configManager = uiConfig.enabled
+    ? new ConfigManager(overridesPath, {
+        bakers: bakers,
+        aliases: uiConfig.alias || {},
+        settings: {
+          rpc: bakerMonitorConfig.rpc.url,
+          max_catchup_blocks: bakerMonitorConfig.max_catchup_blocks,
+          head_distance: bakerMonitorConfig.head_distance,
+          missed_threshold: bakerMonitorConfig.missed_threshold,
+        },
+      })
+    : null;
   const bakerMonitor =
     bakers.length > 0
       ? await BakerMonitor.create(
@@ -234,6 +249,7 @@ const run = async (config: Config.Config) => {
         uiConfig,
         config.rpc,
         config.tzkt,
+        configManager,
       )
     : null;
 
