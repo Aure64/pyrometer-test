@@ -52,6 +52,7 @@ export type UIConfig = {
   webroot?: string;
   show_system_info?: boolean;
   alias: TzAddressAliasMap;
+  admin_token?: string;
 };
 
 export const start = (
