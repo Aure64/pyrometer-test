@@ -359,7 +359,10 @@ export const BakerQuery = extendType({
   definition(t) {
     t.nonNull.list.nonNull.field("aliases", {
       type: TzAddressAlias,
-      async resolve(_root, _args, { aliasMap }) {
+      async resolve(_root, _args, ctx) {
+        const aliasMap = ctx.configManager
+          ? ctx.configManager.getAliases()
+          : ctx.aliasMap;
         return Object.entries(aliasMap).map(([k, v]) => ({
           address: k,
           alias: v,
