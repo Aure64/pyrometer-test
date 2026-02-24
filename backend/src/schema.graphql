@@ -2,6 +2,11 @@
 ### Do not make changes to this file directly
 
 
+type AuthResult {
+  message: String
+  success: Boolean!
+}
+
 type Baker {
   address: String!
   atRisk: Boolean
@@ -26,6 +31,20 @@ type BakerEvent {
   kind: String!
   priority: Int
   slotCount: Int
+}
+
+type BakerMonitorSettings {
+  headDistance: Int!
+  maxCatchupBlocks: Int!
+  missedThreshold: Int!
+  rpc: String!
+}
+
+input BakerMonitorSettingsInput {
+  head_distance: Int
+  max_catchup_blocks: Int
+  missed_threshold: Int
+  rpc: String
 }
 
 type Bakers {
@@ -106,6 +125,20 @@ type MemData {
   used: Float!
 }
 
+type Mutation {
+  addBaker(address: String!): MutationResult!
+  authenticate(token: String!): AuthResult!
+  removeAlias(address: String!): MutationResult!
+  removeBaker(address: String!): MutationResult!
+  setAlias(address: String!, alias: String!): MutationResult!
+  updateBakerMonitorSettings(input: BakerMonitorSettingsInput!): MutationResult!
+}
+
+type MutationResult {
+  message: String
+  success: Boolean!
+}
+
 type NetworkInfo {
   blocksPerCycle: Int!
   chainName: String!
@@ -170,7 +203,10 @@ type PyrometerInfo {
 
 type Query {
   aliases: [TzAddressAlias!]!
+  bakerMonitorSettings: BakerMonitorSettings!
   bakers(bakers: [String!], limit: Int!, offset: Int!): Bakers!
+  configuredBakers: [String!]!
+  isAdminConfigured: Boolean!
   networkInfo: NetworkInfo
   nodes(limit: Int!, offset: Int!): Nodes!
   pyrometer: PyrometerInfo!
