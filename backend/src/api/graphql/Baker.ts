@@ -381,7 +381,7 @@ export const BakerQuery = extendType({
 
       async resolve(_root, { offset, limit, bakers: bakersFilter }, ctx) {
         const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
-        let bakerInfo =
+        const bakerInfo =
           bakersFilter && bakersFilter.length > 0
             ? bakerMonitorInfo.bakerInfo.filter((x: any) =>
                 bakersFilter.includes(x.address),

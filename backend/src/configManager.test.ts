@@ -59,10 +59,7 @@ describe("ConfigManager", () => {
     });
 
     it("emits bakers-changed event", () => {
-      const cm = new ConfigManager(
-        overridesPath,
-        makeBaseline({ bakers: [] }),
-      );
+      const cm = new ConfigManager(overridesPath, makeBaseline({ bakers: [] }));
       const handler = jest.fn();
       cm.on("bakers-changed", handler);
       cm.addBaker("tz1new");

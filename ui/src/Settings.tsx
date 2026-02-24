@@ -291,9 +291,7 @@ export default function Settings() {
                       </Button>
                     </HStack>
                   ) : (
-                    <Text fontSize="sm">
-                      {aliasMap.get(address) || '-'}
-                    </Text>
+                    <Text fontSize="sm">{aliasMap.get(address) || '-'}</Text>
                   )}
                 </Td>
                 {isAuthenticated && (
@@ -334,8 +332,7 @@ export default function Settings() {
           <HStack mt={3} spacing={2}>
             <FormControl
               isInvalid={
-                newBakerAddress.length > 0 &&
-                !isValidTzAddress(newBakerAddress)
+                newBakerAddress.length > 0 && !isValidTzAddress(newBakerAddress)
               }
               maxW="400px"
             >
@@ -466,8 +463,7 @@ export default function Settings() {
           <ModalCloseButton />
           <ModalBody>
             <Text>
-              Are you sure you want to stop monitoring{' '}
-              <b>{deletingBaker}</b>?
+              Are you sure you want to stop monitoring <b>{deletingBaker}</b>?
             </Text>
           </ModalBody>
           <ModalFooter>

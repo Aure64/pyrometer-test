@@ -1,0 +1,4 @@
+node_modules
+dist
+nexus-typegen.ts
+src/rpc/types/gen

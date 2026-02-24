@@ -44,9 +44,7 @@ function App({}: AppProps) {
           </TabList>
           <IconButton
             aria-label="Toggle dark mode"
-            icon={
-              colorMode === 'dark' ? <MdLightMode /> : <MdDarkMode />
-            }
+            icon={colorMode === 'dark' ? <MdLightMode /> : <MdDarkMode />}
             onClick={toggleColorMode}
             variant="ghost"
             size="sm"

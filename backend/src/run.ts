@@ -205,7 +205,6 @@ const run = async (config: Config.Config) => {
     uiConfig = { ...config.ui, show_system_info: true };
   }
 
-
   const overridesPath = joinPath(normalizePath(storageDir), "overrides.json");
   const configManager = uiConfig.enabled
     ? new ConfigManager(overridesPath, {
