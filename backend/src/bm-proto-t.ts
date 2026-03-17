@@ -259,7 +259,7 @@ export const checkBlockAccusationsForDoubleEndorsement = async (
       const k = (contentsItem as any).kind;
       if (
         k === OpKind.DOUBLE_ATTESTATION_EVIDENCE ||
-        k === (OpKind as any).DOUBLE_CONSENSUS_OPERATION_EVIDENCE
+        k === OpKind.DOUBLE_CONSENSUS_OPERATION_EVIDENCE
       ) {
         const { kind } = contentsItem as any;
         const { level, round } = (contentsItem as any).op1.operations || (contentsItem as any).op1;
