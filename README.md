@@ -1,74 +1,108 @@
-# Overview
+# Pyrometer
 
-Pyrometer is a tool for monitoring events on
-[Tezos](https://tezos.com/) networks.
+Monitoring tool for [Tezos](https://tezos.com/) bakers and nodes.
 
 Supports Seoul (023) and Tallinn (024) protocols with Octez v24+.
 
-## Design/Architechture
+## Architecture
 
 - [Monitoring](./doc/monitoring.md)
 
-## Run on Ubuntu/Debian
+## Install
 
-- Install NodeJS 16 or later following instructions at
-  <https://github.com/nodesource/distributions>.
-
-- Download latest .deb from the Releases page.
-
-- Install:
+### Docker
 
 ```shell
-sudo dpkg -i pyrometer_0.8.0_all.deb
+docker pull ghcr.io/aure64/pyrometer-test:latest
+docker run ghcr.io/aure64/pyrometer-test:latest run -c /path/to/pyrometer.toml
 ```
 
-- If Pyrometer is installed on a machine where Tezos baker is [set up
-  with tezos-packaging](https://github.com/serokell/tezos-packaging/blob/master/docs/baking.md)
-  then status UI will be automatically enabled and available at
-  <http://localhost:2020>, configured to monitor local node and baker.
-  Otherwise edit config file `/etc/pyrometer.toml`
-  to specify bakers and nodes to monitor, for example:
+### Ubuntu/Debian (.deb)
+
+Install NodeJS 16+ following instructions at <https://github.com/nodesource/distributions>.
+
+Download the latest `.deb` from [Releases](https://github.com/Aure64/pyrometer-test/releases), then:
 
 ```shell
-sudo nano /etc/pyrometer.toml
+sudo dpkg -i pyrometer_<version>_all.deb
 ```
 
-- If desired, edit config file `/etc/pyrometer.toml` to configure notification
-  channels
+### macOS / Generic (tarball)
 
-- If config file was edited - restart pyrometer service:
+Requires Node.js >= 16.
+
+Download `pyrometer-<version>.tar.gz` from [Releases](https://github.com/Aure64/pyrometer-test/releases):
+
+```shell
+tar xzf pyrometer-<version>.tar.gz -C /usr/local/lib
+ln -sf /usr/local/lib/pyrometer/pyrometer /usr/local/bin/pyrometer
+```
+
+## Quick start
+
+Generate a minimal config file:
+
+```shell
+pyrometer config sample --minimal > /etc/pyrometer.toml
+```
+
+This produces a short config with the essential settings:
+
+```toml
+[baker_monitor]
+bakers = [ "tz1YOUR_BAKER_ADDRESS" ]
+rpc = "https://mainnet.api.tez.ie/"
+
+[ui]
+enabled = true
+port = 2020
+
+[log]
+level = "info"
+```
+
+Replace `tz1YOUR_BAKER_ADDRESS` with your baker's address, then start:
+
+```shell
+pyrometer run -c /etc/pyrometer.toml
+```
+
+On startup, Pyrometer logs the Web UI address (default: `http://localhost:2020`). Baker addresses can also be managed from the UI Settings page.
+
+If installed via `.deb`, use the systemd service instead:
 
 ```shell
 sudo systemctl restart pyrometer
-```
-
-- Check log output, e.g.:
-
-```shell
 journalctl -u pyrometer -f
 ```
 
-## Configuration (TOML)
+## Configuration
+
+The config file uses TOML. To generate a full config with all available options:
+
+```shell
+pyrometer config sample
+```
+
+All options can also be passed via CLI. Run `pyrometer run --help` for details.
+
+### Full example
 
 ```toml
-
 exclude = [
   "baked",
   "endorsed",
 ]
 
 [baker_monitor]
-bakers = ["tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9",
-"tz3bvNMQ95vfAYtG8193ymshqjSvmxiCUuR5"]
-
-## use special "wildcard" baker address to monitor all active bakers:
+bakers = ["tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9"]
+# monitor all active bakers:
 # bakers = ["*"]
-
 max_catchup_blocks = 120
 rpc = "https://mainnet.api.tez.ie/"
 
 [log]
-level = "debug"
+level = "info"
 
 [email]
 enabled = true
@@ -79,56 +113,40 @@ password = "bbb"
 to = [ "me@example.org" ]
 emoji = true
 short_address = true
-
 ```
-
-> All options can also be passed via CLI. Run `pyrometer run --help` for details.
 
 ### TzKT (optional)
 
-Enable displaying the baker's Octez version via the TzKT API.
+Displays the baker's Octez version via the TzKT API. Disabled by default; when disabled, no requests are made to TzKT.
 
 ```toml
 [tzkt]
-enabled = false
+enabled = true
 # base_url = "https://api.tzkt.io"
 ```
 
-CLI equivalents: `--tzkt:enabled=true` and `--tzkt:base_url=https://api.tzkt.io`.
+### Web UI
 
-Note: if disabled, no TzKT requests are made.
-
-### Status UI
-
-Pyrometer provides node and baker status web user interface. It is
-automatically enabled if local `baker` address alias found in local
-`tezos-client` configuration (as would be the case when Pyrometer is
-running on the same machine as baker [set up with
-tezos-packaging](https://github.com/serokell/tezos-packaging/blob/master/docs/baking.md)),
-otherwise it is disabled by default.
-
-To enable, add or edit `ui` section in the config file:
+Pyrometer includes a web interface for baker and node status. It is enabled by default on port 2020.
 
 ```toml
 [ui]
 enabled = true
 # port = 2020
 # host = "0.0.0.0"
-# explorer_url = "https://hangzhou.tzstats.com"
 explorer_url = "https://tzstats.com"
 show_system_info = true
 ```
 
-By default the status UI is served on port `2020` at `localhost`. Set `host = "0.0.0.0"` to access it from another machine.
+By default the UI listens on `localhost`. Set `host = "0.0.0.0"` to access it from another machine.
 
 [![Pyrometer UI screenshot](doc/pyrometer-0.2.0-ui-thumb.jpg)](doc/pyrometer-0.2.0-ui.png)
 
-When local baker setup is detected Pyrometer UI also
-displays system resources and process information. This can also be
-explicitely enabled (or disabled) by setting `show_system_info` to
-`true`.
+Setting `show_system_info = true` adds system resources and process information to the UI. This is auto-detected when a local tezos-client setup is found.
 
-If detecting the local baker setup is not desired, it can be turned off in config:
+### Autodetect
+
+Pyrometer can auto-detect baker addresses and RPC endpoints from a local `tezos-client` directory (useful when running alongside a baker [set up with tezos-packaging](https://github.com/serokell/tezos-packaging/blob/master/docs/baking.md)). This is enabled by default. To disable:
 
 ```toml
 [autodetect]
@@ -137,4 +155,4 @@ enabled = false
 
 ---
 
-Note: Docker and npm registry instructions are intentionally omitted for now. `.deb` packages and Releases are the recommended distribution.
+`.deb` packages, tarballs, and Docker images are on the [Releases](https://github.com/Aure64/pyrometer-test/releases) page and [GHCR](https://ghcr.io/aure64/pyrometer-test).
