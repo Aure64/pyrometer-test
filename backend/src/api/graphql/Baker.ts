@@ -359,7 +359,10 @@ export const BakerQuery = extendType({
   definition(t) {
     t.nonNull.list.nonNull.field("aliases", {
       type: TzAddressAlias,
-      async resolve(_root, _args, { aliasMap }) {
+      async resolve(_root, _args, ctx) {
+        const aliasMap = ctx.configManager
+          ? ctx.configManager.getAliases()
+          : ctx.aliasMap;
         return Object.entries(aliasMap).map(([k, v]) => ({
           address: k,
           alias: v,
@@ -378,7 +381,7 @@ export const BakerQuery = extendType({
 
       async resolve(_root, { offset, limit, bakers: bakersFilter }, ctx) {
         const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
-        let bakerInfo =
+        const bakerInfo =
           bakersFilter && bakersFilter.length > 0
             ? bakerMonitorInfo.bakerInfo.filter((x: any) =>
                 bakersFilter.includes(x.address),

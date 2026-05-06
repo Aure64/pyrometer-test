@@ -39,6 +39,7 @@ const proper_lockfile_1 = require("proper-lockfile");
 const path_1 = require("path");
 const logging_1 = require("./logging");
 const server_1 = require("./api/server");
+const configManager_1 = require("./configManager");
 const run = async (config) => {
     // Makes the script crash on unhandled rejections instead of silently ignoring them.
     process.on("unhandledRejection", (err) => {
@@ -180,6 +181,19 @@ const run = async (config) => {
         (0, loglevel_1.info)("Found local tezos setup, enabling system info ui");
         uiConfig = { ...config.ui, show_system_info: true };
     }
+    const overridesPath = (0, path_1.join)((0, path_1.normalize)(storageDir), "overrides.json");
+    const configManager = uiConfig.enabled
+        ? new configManager_1.ConfigManager(overridesPath, {
+            bakers: bakers,
+            aliases: uiConfig.alias || {},
+            settings: {
+                rpc: bakerMonitorConfig.rpc.url,
+                max_catchup_blocks: bakerMonitorConfig.max_catchup_blocks,
+                head_distance: bakerMonitorConfig.head_distance,
+                missed_threshold: bakerMonitorConfig.missed_threshold,
+            },
+        })
+        : null;
     const bakerMonitor = bakers.length > 0
         ? await BakerMonitor.create(storageDir, bakerMonitorConfig, config.rpc, uiConfig.enabled, onEvent)
         : null;
@@ -188,7 +202,7 @@ const run = async (config) => {
         : null;
     const gc = EventLog.gc(eventLog, channels);
     const apiServer = uiConfig.enabled
-        ? (0, server_1.start)(nodeMonitor, bakerMonitor, bakerMonitorConfig.rpc.url, uiConfig, config.rpc, config.tzkt)
+        ? (0, server_1.start)(nodeMonitor, bakerMonitor, bakerMonitorConfig.rpc.url, uiConfig, config.rpc, config.tzkt, configManager)
         : null;
     const stop = (event) => {
         (0, loglevel_1.info)(`Caught signal ${event}, shutting down...`);

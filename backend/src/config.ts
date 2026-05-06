@@ -739,6 +739,16 @@ const UI_SHOW_SYSTEM_INFO: UserPref = {
   validationRule: "boolean",
 };
 
+const UI_ADMIN_TOKEN: UserPref = {
+  key: `${UI_GROUP.key}:admin_token`,
+  default: undefined,
+  description: "Admin token for UI mutations",
+  type: "string" as const,
+  alias: undefined,
+  group: UI_GROUP.label,
+  isArray: false,
+};
+
 const AUTODETECT_GROUP: Group = { key: "autodetect", label: "Auto-detect:" };
 
 const AUTODETECT_ENABLED: UserPref = {
@@ -863,6 +873,7 @@ const userPrefs = [
   UI_WEBROOT,
   UI_EXPLORER_URL,
   UI_SHOW_SYSTEM_INFO,
+  UI_ADMIN_TOKEN,
   AUTODETECT_ENABLED,
   RPC_RETRY_ATTEMPTS,
   RPC_RETRY_INTERVAL_MS,

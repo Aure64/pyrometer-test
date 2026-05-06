@@ -589,6 +589,15 @@ const UI_SHOW_SYSTEM_INFO = {
     isArray: false,
     validationRule: "boolean",
 };
+const UI_ADMIN_TOKEN = {
+    key: `${UI_GROUP.key}:admin_token`,
+    default: undefined,
+    description: "Admin token for UI mutations",
+    type: "string",
+    alias: undefined,
+    group: UI_GROUP.label,
+    isArray: false,
+};
 const AUTODETECT_GROUP = { key: "autodetect", label: "Auto-detect:" };
 const AUTODETECT_ENABLED = {
     key: `${AUTODETECT_GROUP.key}:enabled`,
@@ -705,6 +714,7 @@ const userPrefs = [
     UI_WEBROOT,
     UI_EXPLORER_URL,
     UI_SHOW_SYSTEM_INFO,
+    UI_ADMIN_TOKEN,
     AUTODETECT_ENABLED,
     RPC_RETRY_ATTEMPTS,
     RPC_RETRY_INTERVAL_MS,

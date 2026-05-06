@@ -17,6 +17,7 @@ import { RpcClientConfig } from "rpc/client";
 import type { Config } from "../config";
 
 import type { TzAddressAliasMap } from "../config";
+import type { ConfigManager } from "../configManager";
 
 export const app = express();
 
@@ -36,12 +37,6 @@ app.use(
 );
 app.use(cors());
 
-const rootValue = {
-  hello: () => {
-    return "Hello world!";
-  },
-};
-
 type URL = string;
 
 export type UIConfig = {
@@ -52,6 +47,7 @@ export type UIConfig = {
   webroot?: string;
   show_system_info?: boolean;
   alias: TzAddressAliasMap;
+  admin_token?: string;
 };
 
 export const start = (
@@ -65,9 +61,11 @@ export const start = (
     webroot: configuredWebroot,
     show_system_info,
     alias: aliasMap,
+    admin_token,
   }: UIConfig,
   rpcConfig: RpcClientConfig,
   tzktConfig?: Config["tzkt"],
+  configManager?: ConfigManager | null,
 ) => {
   getLogger("api").debug("show_system_info", show_system_info);
 
@@ -79,9 +77,9 @@ export const start = (
 
   app.use(
     "/gql",
-    graphqlHTTP({
+    graphqlHTTP((req) => ({
       schema,
-      rootValue,
+      rootValue: { headers: { authorization: req.headers.authorization } },
       graphiql: true,
       context: createContext(
         nodeMonitor || { info: async () => [] },
@@ -101,8 +99,10 @@ export const start = (
         show_system_info,
         aliasMap,
         tzktConfig || { enabled: false, base_url: "https://api.tzkt.io" },
+        configManager || null,
+        admin_token,
       ),
-    }),
+    })),
   );
 
   return app.listen(port, host, () => {

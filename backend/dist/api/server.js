@@ -23,20 +23,15 @@ exports.app.use((0, morgan_1.default)(logFormat, process.env.NODE_ENV === "devel
         },
     }));
 exports.app.use((0, cors_1.default)());
-const rootValue = {
-    hello: () => {
-        return "Hello world!";
-    },
-};
-const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webroot: configuredWebroot, show_system_info, alias: aliasMap, }, rpcConfig, tzktConfig) => {
+const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webroot: configuredWebroot, show_system_info, alias: aliasMap, admin_token, }, rpcConfig, tzktConfig, configManager) => {
     (0, loglevel_1.getLogger)("api").debug("show_system_info", show_system_info);
     exports.app.use(health_1.default);
     const webroot = configuredWebroot || (0, path_1.join)(__dirname, "../../ui");
     (0, loglevel_1.getLogger)("api").info(`Serving web UI assets from ${webroot}`);
     exports.app.use(express_1.default.static(webroot));
-    exports.app.use("/gql", (0, express_graphql_1.graphqlHTTP)({
+    exports.app.use("/gql", (0, express_graphql_1.graphqlHTTP)((req) => ({
         schema: schema_1.schema,
-        rootValue,
+        rootValue: { headers: { authorization: req.headers.authorization } },
         graphiql: true,
         context: (0, context_1.createContext)(nodeMonitor || { info: async () => [] }, bakerMonitor || {
             info: async () => {
@@ -47,8 +42,8 @@ const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webro
                     atRiskThreshold: 1,
                 };
             },
-        }, rpc, rpcConfig, explorer_url, show_system_info, aliasMap, tzktConfig || { enabled: false, base_url: "https://api.tzkt.io" }),
-    }));
+        }, rpc, rpcConfig, explorer_url, show_system_info, aliasMap, tzktConfig || { enabled: false, base_url: "https://api.tzkt.io" }, configManager || null, admin_token),
+    })));
     return exports.app.listen(port, host, () => {
         const logger = (0, loglevel_1.getLogger)("api");
         logger.info(`Server started on ${host}:${port}`);

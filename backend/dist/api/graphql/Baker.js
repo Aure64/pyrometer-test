@@ -297,7 +297,10 @@ exports.BakerQuery = (0, nexus_1.extendType)({
     definition(t) {
         t.nonNull.list.nonNull.field("aliases", {
             type: exports.TzAddressAlias,
-            async resolve(_root, _args, { aliasMap }) {
+            async resolve(_root, _args, ctx) {
+                const aliasMap = ctx.configManager
+                    ? ctx.configManager.getAliases()
+                    : ctx.aliasMap;
                 return Object.entries(aliasMap).map(([k, v]) => ({
                     address: k,
                     alias: v,
@@ -313,7 +316,7 @@ exports.BakerQuery = (0, nexus_1.extendType)({
             },
             async resolve(_root, { offset, limit, bakers: bakersFilter }, ctx) {
                 const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
-                let bakerInfo = bakersFilter && bakersFilter.length > 0
+                const bakerInfo = bakersFilter && bakersFilter.length > 0
                     ? bakerMonitorInfo.bakerInfo.filter((x) => bakersFilter.includes(x.address))
                     : bakerMonitorInfo.bakerInfo;
                 // Filters removed - all filtering now done on frontend

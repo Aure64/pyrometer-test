@@ -14,6 +14,12 @@ declare global {
 }
 
 export interface NexusGenInputs {
+  BakerMonitorSettingsInput: { // input type
+    head_distance?: number | null; // Int
+    max_catchup_blocks?: number | null; // Int
+    missed_threshold?: number | null; // Int
+    rpc?: string | null; // String
+  }
 }
 
 export interface NexusGenEnums {
@@ -28,6 +34,10 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  AuthResult: { // root type
+    message?: string | null; // String
+    success: boolean; // Boolean!
+  }
   Baker: { // root type
     address: string; // String!
     atRiskThreshold: number; // Int!
@@ -42,6 +52,12 @@ export interface NexusGenObjects {
     kind: string; // String!
     priority?: number | null; // Int
     slotCount?: number | null; // Int
+  }
+  BakerMonitorSettings: { // root type
+    headDistance: number; // Int!
+    maxCatchupBlocks: number; // Int!
+    missedThreshold: number; // Int!
+    rpc: string; // String!
   }
   Bakers: { // root type
     items: NexusGenRootTypes['Baker'][]; // [Baker!]!
@@ -108,6 +124,11 @@ export interface NexusGenObjects {
     swapused: number; // Float!
     total: number; // Float!
     used: number; // Float!
+  }
+  Mutation: {};
+  MutationResult: { // root type
+    message?: string | null; // String
+    success: boolean; // Boolean!
   }
   NetworkInfo: { // root type
     blocksPerCycle: number; // Int!
@@ -204,6 +225,10 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
+  AuthResult: { // field return type
+    message: string | null; // String
+    success: boolean; // Boolean!
+  }
   Baker: { // field return type
     address: string; // String!
     atRisk: boolean | null; // Boolean
@@ -227,6 +252,12 @@ export interface NexusGenFieldTypes {
     kind: string; // String!
     priority: number | null; // Int
     slotCount: number | null; // Int
+  }
+  BakerMonitorSettings: { // field return type
+    headDistance: number; // Int!
+    maxCatchupBlocks: number; // Int!
+    missedThreshold: number; // Int!
+    rpc: string; // String!
   }
   Bakers: { // field return type
     items: NexusGenRootTypes['Baker'][]; // [Baker!]!
@@ -295,6 +326,18 @@ export interface NexusGenFieldTypes {
     total: number; // Float!
     used: number; // Float!
   }
+  Mutation: { // field return type
+    addBaker: NexusGenRootTypes['MutationResult']; // MutationResult!
+    authenticate: NexusGenRootTypes['AuthResult']; // AuthResult!
+    removeAlias: NexusGenRootTypes['MutationResult']; // MutationResult!
+    removeBaker: NexusGenRootTypes['MutationResult']; // MutationResult!
+    setAlias: NexusGenRootTypes['MutationResult']; // MutationResult!
+    updateBakerMonitorSettings: NexusGenRootTypes['MutationResult']; // MutationResult!
+  }
+  MutationResult: { // field return type
+    message: string | null; // String
+    success: boolean; // Boolean!
+  }
   NetworkInfo: { // field return type
     blocksPerCycle: number; // Int!
     chainName: string; // String!
@@ -352,7 +395,10 @@ export interface NexusGenFieldTypes {
   }
   Query: { // field return type
     aliases: NexusGenRootTypes['TzAddressAlias'][]; // [TzAddressAlias!]!
+    bakerMonitorSettings: NexusGenRootTypes['BakerMonitorSettings']; // BakerMonitorSettings!
     bakers: NexusGenRootTypes['Bakers']; // Bakers!
+    configuredBakers: string[]; // [String!]!
+    isAdminConfigured: boolean; // Boolean!
     networkInfo: NexusGenRootTypes['NetworkInfo'] | null; // NetworkInfo
     nodes: NexusGenRootTypes['Nodes']; // Nodes!
     pyrometer: NexusGenRootTypes['PyrometerInfo']; // PyrometerInfo!
@@ -396,6 +442,10 @@ export interface NexusGenFieldTypes {
 }
 
 export interface NexusGenFieldTypeNames {
+  AuthResult: { // field return type name
+    message: 'String'
+    success: 'Boolean'
+  }
   Baker: { // field return type name
     address: 'String'
     atRisk: 'Boolean'
@@ -419,6 +469,12 @@ export interface NexusGenFieldTypeNames {
     kind: 'String'
     priority: 'Int'
     slotCount: 'Int'
+  }
+  BakerMonitorSettings: { // field return type name
+    headDistance: 'Int'
+    maxCatchupBlocks: 'Int'
+    missedThreshold: 'Int'
+    rpc: 'String'
   }
   Bakers: { // field return type name
     items: 'Baker'
@@ -487,6 +543,18 @@ export interface NexusGenFieldTypeNames {
     total: 'Float'
     used: 'Float'
   }
+  Mutation: { // field return type name
+    addBaker: 'MutationResult'
+    authenticate: 'AuthResult'
+    removeAlias: 'MutationResult'
+    removeBaker: 'MutationResult'
+    setAlias: 'MutationResult'
+    updateBakerMonitorSettings: 'MutationResult'
+  }
+  MutationResult: { // field return type name
+    message: 'String'
+    success: 'Boolean'
+  }
   NetworkInfo: { // field return type name
     blocksPerCycle: 'Int'
     chainName: 'String'
@@ -544,7 +612,10 @@ export interface NexusGenFieldTypeNames {
   }
   Query: { // field return type name
     aliases: 'TzAddressAlias'
+    bakerMonitorSettings: 'BakerMonitorSettings'
     bakers: 'Bakers'
+    configuredBakers: 'String'
+    isAdminConfigured: 'Boolean'
     networkInfo: 'NetworkInfo'
     nodes: 'Nodes'
     pyrometer: 'PyrometerInfo'
@@ -588,6 +659,27 @@ export interface NexusGenFieldTypeNames {
 }
 
 export interface NexusGenArgTypes {
+  Mutation: {
+    addBaker: { // args
+      address: string; // String!
+    }
+    authenticate: { // args
+      token: string; // String!
+    }
+    removeAlias: { // args
+      address: string; // String!
+    }
+    removeBaker: { // args
+      address: string; // String!
+    }
+    setAlias: { // args
+      address: string; // String!
+      alias: string; // String!
+    }
+    updateBakerMonitorSettings: { // args
+      input: NexusGenInputs['BakerMonitorSettingsInput']; // BakerMonitorSettingsInput!
+    }
+  }
   Query: {
     bakers: { // args
       bakers?: string[] | null; // [String!]
@@ -609,7 +701,7 @@ export interface NexusGenTypeInterfaces {
 
 export type NexusGenObjectNames = keyof NexusGenObjects;
 
-export type NexusGenInputNames = never;
+export type NexusGenInputNames = keyof NexusGenInputs;
 
 export type NexusGenEnumNames = never;
 
