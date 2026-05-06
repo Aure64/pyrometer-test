@@ -913,7 +913,12 @@ const makeConfigDefaults = () => {
   return defaults;
 };
 
-export const makeSampleConfig = (): Record<string, string> => {
+export const makeSampleConfig = (
+  minimal = false,
+): Record<string, string> => {
+  if (minimal) {
+    return makeMinimalSampleConfig();
+  }
   const sampleConfig = userPrefs.reduce(
     (accumulator: Record<string, string>, userPref: UserPref) => {
       // ignore user prefs that are only supported by the command line
@@ -926,6 +931,28 @@ export const makeSampleConfig = (): Record<string, string> => {
       } else {
         return accumulator;
       }
+    },
+    {},
+  );
+  return sampleConfig;
+};
+
+const makeMinimalSampleConfig = (): Record<string, string> => {
+  const minimalPrefs: UserPref[] = [
+    { ...BAKERS, sampleValue: ["tz1YOUR_BAKER_ADDRESS"] },
+    RPC,
+    UI_ENABLED,
+    UI_PORT,
+    LOG_LEVEL,
+  ];
+
+  const sampleConfig = minimalPrefs.reduce(
+    (accumulator: Record<string, string>, userPref: UserPref) => {
+      const value =
+        userPref.sampleValue !== undefined
+          ? userPref.sampleValue
+          : userPref.default;
+      return setPath(userPref.key, accumulator, value);
     },
     {},
   );

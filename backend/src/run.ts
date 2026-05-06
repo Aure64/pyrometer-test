@@ -136,7 +136,7 @@ const run = async (config: Config.Config) => {
           }
         }
       } catch (err) {
-        info(`Could not read ${pkhFile}`);
+        debug(`Could not read ${pkhFile}`);
         debug(err);
       }
     }
@@ -154,7 +154,7 @@ const run = async (config: Config.Config) => {
           tezosClientEndpoints.push(tzClientConfig.endpoint);
         }
       } catch (err) {
-        info(`Could not read ${tzClientConfigFile}`);
+        debug(`Could not read ${tzClientConfigFile}`);
         debug(err);
       }
     }
@@ -176,6 +176,12 @@ const run = async (config: Config.Config) => {
 
   const bakers = [...tezosClientBakers, ...bakerMonitorConfig.bakers];
   bakerMonitorConfig.bakers = bakers;
+
+  if (bakers.length === 0 && bakerMonitorConfig.rpc) {
+    info(
+      "No bakers configured. Add baker addresses in your config file or use the UI Settings page.",
+    );
+  }
 
   function notEmpty<TValue>(value: TValue | undefined | null): value is TValue {
     return value !== null && value !== undefined;
@@ -275,6 +281,9 @@ const run = async (config: Config.Config) => {
   }
 
   info("Started");
+  if (uiConfig.enabled) {
+    info(`Web UI available at http://${uiConfig.host}:${uiConfig.port}`);
+  }
   await Promise.all(allTasks);
   debug(`Releasing file lock on ${pidFile}`);
   await pidFileLock();

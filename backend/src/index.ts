@@ -13,13 +13,23 @@ import run from "./run";
 /**
  * Calls makeConfigFile and writes the result to the specified path.
  */
-const writeSampleConfig = (path: string | null | undefined) => {
-  const sampleConfig = Config.makeSampleConfig();
-  const serialized = TOML.stringify(sampleConfig);
+const writeSampleConfig = (
+  path: string | null | undefined,
+  minimal: boolean,
+) => {
+  const sampleConfig = Config.makeSampleConfig(minimal);
+  const toml = TOML.stringify(sampleConfig);
+  const output = minimal
+    ? `# Pyrometer minimal config
+# Replace tz1YOUR_BAKER_ADDRESS with your baker's address.
+# For all options, run: pyrometer config sample
+
+${toml}`
+    : toml;
   if (path) {
-    FS.writeFileSync(path, serialized);
+    FS.writeFileSync(path, output);
   } else {
-    console.log(serialized);
+    console.log(output);
   }
 };
 
@@ -70,10 +80,17 @@ const main = async () => {
           "sample [path]",
           "Print sample config or write it to a file",
           (yargs) => {
-            return yargs.positional("path", { type: "string" });
+            return yargs
+              .positional("path", { type: "string" })
+              .option("minimal", {
+                type: "boolean",
+                description:
+                  "Output a minimal config with only essential settings",
+                default: false,
+              });
           },
           (args) => {
-            writeSampleConfig(args.path);
+            writeSampleConfig(args.path, args.minimal);
           },
         )
         .demandCommand();

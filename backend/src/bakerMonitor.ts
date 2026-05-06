@@ -123,7 +123,10 @@ export const create = async (
     "get protocol constants",
   );
 
-  log.info("Protocol constants", JSON.stringify(constants, null, 2));
+  log.debug("Protocol constants", JSON.stringify(constants, null, 2));
+  log.info(
+    `Protocol: blocks_per_cycle=${constants.blocks_per_cycle}, minimal_block_delay=${constants.minimal_block_delay}`,
+  );
 
   //dedup
   configuredBakers = [...new Set(configuredBakers)];

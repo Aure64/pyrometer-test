@@ -8,7 +8,7 @@ const loglevel_1 = require("loglevel");
 const events_1 = require("./events");
 const now_1 = __importDefault(require("./now"));
 const types_1 = require("./rpc/types");
-const name = "bm-proto-s";
+const name = "bm-proto-t";
 const EMPTY_LIST = Object.freeze([]);
 exports.default = async ({ bakers, block, rpc, }) => {
     const metadata = block.metadata;

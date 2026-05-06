@@ -37,14 +37,21 @@ const run_1 = __importDefault(require("./run"));
 /**
  * Calls makeConfigFile and writes the result to the specified path.
  */
-const writeSampleConfig = (path) => {
-    const sampleConfig = Config.makeSampleConfig();
-    const serialized = TOML.stringify(sampleConfig);
+const writeSampleConfig = (path, minimal) => {
+    const sampleConfig = Config.makeSampleConfig(minimal);
+    const toml = TOML.stringify(sampleConfig);
+    const output = minimal
+        ? `# Pyrometer minimal config
+# Replace tz1YOUR_BAKER_ADDRESS with your baker's address.
+# For all options, run: pyrometer config sample
+
+${toml}`
+        : toml;
     if (path) {
-        FS.writeFileSync(path, serialized);
+        FS.writeFileSync(path, output);
     }
     else {
-        console.log(serialized);
+        console.log(output);
     }
 };
 const clearData = (dataDirectory) => {
@@ -57,7 +64,25 @@ const clearData = (dataDirectory) => {
     }
 };
 const main = async () => {
+    // Try to get version from environment (set by Dockerfile) or from package.json
+    let version = process.env.npm_package_version || "";
+    if (!version) {
+        try {
+            // Try relative path (development)
+            version = require("../package.json").version || "unknown";
+        }
+        catch {
+            try {
+                // Try absolute path (installed package)
+                version = require("/opt/pyrometer/package.json").version || "unknown";
+            }
+            catch {
+                version = "unknown";
+            }
+        }
+    }
     (0, yargs_1.default)(process.argv.slice(2))
+        .version(version)
         .strict()
         .command("config", "Commands to view and manage configuration", (yargs) => {
         return yargs
@@ -69,9 +94,15 @@ const main = async () => {
             console.log(serialized);
         })
             .command("sample [path]", "Print sample config or write it to a file", (yargs) => {
-            return yargs.positional("path", { type: "string" });
+            return yargs
+                .positional("path", { type: "string" })
+                .option("minimal", {
+                type: "boolean",
+                description: "Output a minimal config with only essential settings",
+                default: false,
+            });
         }, (args) => {
-            writeSampleConfig(args.path);
+            writeSampleConfig(args.path, args.minimal);
         })
             .demandCommand();
     })

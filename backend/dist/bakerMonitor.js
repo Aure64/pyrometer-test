@@ -39,6 +39,7 @@ const EventLog = __importStar(require("./eventlog"));
 const client_1 = __importDefault(require("./rpc/client"));
 const events_1 = require("./events");
 const now_1 = __importDefault(require("./now"));
+const health_1 = require("./api/health");
 const bm_proto_h_1 = __importDefault(require("./bm-proto-h"));
 const bm_proto_i_1 = __importDefault(require("./bm-proto-i"));
 const bm_proto_j_1 = __importDefault(require("./bm-proto-j"));
@@ -51,6 +52,7 @@ const bm_proto_p_1 = __importDefault(require("./bm-proto-p"));
 const bm_proto_q_1 = __importDefault(require("./bm-proto-q"));
 const bm_proto_r_1 = __importDefault(require("./bm-proto-r"));
 const bm_proto_s_1 = __importDefault(require("./bm-proto-s"));
+const bm_proto_t_1 = __importDefault(require("./bm-proto-t"));
 const name = "bm";
 const missedKinds = new Set([
     events_1.Events.MissedBake,
@@ -65,12 +67,13 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
     const chainId = await (0, util_1.tryForever)(() => rpc.getChainId(), 60e3, "get chain id");
     log.info(`Chain: ${chainId}`);
     const constants = await (0, util_1.tryForever)(() => rpc.getConstants(), 60e3, "get protocol constants");
-    log.info("Protocol constants", JSON.stringify(constants, null, 2));
+    log.debug("Protocol constants", JSON.stringify(constants, null, 2));
+    log.info(`Protocol: blocks_per_cycle=${constants.blocks_per_cycle}, minimal_block_delay=${constants.minimal_block_delay}`);
     //dedup
     configuredBakers = [...new Set(configuredBakers)];
     const monitorAllActiveBakers = configuredBakers.some((x) => x === "*");
     if (monitorAllActiveBakers) {
-        console.log("Monitoring all active bakers");
+        log.info("Monitoring all active bakers");
     }
     const activeBakersCache = new lru_cache_1.LRUCache({ max: 1 });
     const getMonitoredAddresses = async ({ blockLevel, blockCycle, }) => {
@@ -115,12 +118,8 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
         cyclePosition: -1,
     }));
     const setPosition = async (value) => await store.put(CHAIN_POSITION_KEY, value);
-    // Ajustement Seoul: utiliser tolerated_inactivity_period si disponible,
-    // sinon preserved_cycles (anciens protocoles), sinon consensus_rights_delay en dernier recours
     let atRiskThreshold;
     if ("tolerated_inactivity_period" in constants) {
-        // sous Seoul, la période de tolérance d'inactivité (en cycles) reflète mieux le risque réel
-        // on retire 1 cycle pour ne pas marquer "à risque" trop tôt dans le cycle courant
         const tip = constants.tolerated_inactivity_period;
         atRiskThreshold = Math.max(1, tip - 1);
     }
@@ -131,6 +130,7 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
         atRiskThreshold = constants.consensus_rights_delay;
     }
     const missedCounts = new Map();
+    let rpcFailCount = 0;
     const task = async (isInterrupted) => {
         try {
             const chainPosition = await getPosition();
@@ -174,7 +174,6 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     throw new Error(`Block level ${currentLevel} was requested but data returned level ${blockLevel}`);
                 }
                 let events;
-                const protocolStr = block.protocol;
                 switch (block.protocol) {
                     case "PtHangz2aRngywmSRGGvrcTyMbbdpWdpFKuS4uMWxg2RaH9i1qx":
                         events = await (0, bm_proto_h_1.default)({
@@ -260,18 +259,25 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                             rpc: rpc,
                         });
                         break;
-                    // Seoul (023 / V15)
                     case "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh":
                         events = await (0, bm_proto_s_1.default)({
                             bakers,
-                            // @ts-ignore types Union; bloc Seoul
                             block: block,
                             rpc: rpc,
                         });
                         break;
-                    default:
-                        console.warn(`Unknown protocol at level ${blockLevel}`);
+                    case "PtTALLiNtPec7mE7yY4m3k26J8Qukef3E3ehzhfXgFZKGtDdAXu":
+                        events = await (0, bm_proto_t_1.default)({
+                            bakers,
+                            block: block,
+                            rpc: rpc,
+                        });
+                        break;
+                    default: {
+                        log.warn(`Unknown protocol at level ${blockLevel}`);
                         events = [];
+                        break;
+                    }
                 }
                 const bakerHealthEvents = [];
                 for (const { event, baker, newCount } of checkHealth(events, missedEventsThreshold, missedCounts)) {
@@ -334,18 +340,28 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     blockCycle,
                     cyclePosition,
                 });
+                (0, health_1.updateHealth)({
+                    lastBlockLevel: currentLevel,
+                    lastBlockTimestamp: new Date(block.header.timestamp),
+                    rpcReachable: true,
+                });
+                rpcFailCount = 0;
                 currentLevel++;
                 lastBlockCycle = blockCycle;
                 await (0, delay_1.delay)(1000);
             }
         }
         catch (err) {
+            (0, health_1.updateHealth)({ rpcReachable: false });
+            rpcFailCount++;
+            const backoffMs = Math.min(5000 * Math.pow(2, rpcFailCount - 1), 60000);
             if (err.name === "HttpRequestFailed") {
-                log.warn("RPC Error:", err.message);
+                log.warn(`RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`, err.message);
             }
             else {
-                log.warn("RPC Error:", err);
+                log.warn(`RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`, err);
             }
+            await new Promise((resolve) => setTimeout(resolve, backoffMs));
         }
     };
     const interval = 1000 * (parseInt(constants.minimal_block_delay) || 30);

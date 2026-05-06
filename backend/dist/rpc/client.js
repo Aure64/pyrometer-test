@@ -183,6 +183,9 @@ exports.default = (nodeRpcUrl, { retry_interval_ms: retryIntervalMs, retry_attem
                     fullBalanceFields = [...fullBalanceFields].reverse();
                     return result;
                 }
+                else {
+                    throw err;
+                }
             }
         },
         //.../frozen_balance renamed .../frozen_deposits in Ithaca
@@ -196,6 +199,9 @@ exports.default = (nodeRpcUrl, { retry_interval_ms: retryIntervalMs, retry_attem
                     const result = await fetchDelegateField(pkh, block, frozenDepositsFields[1]);
                     frozenDepositsFields = [...frozenDepositsFields].reverse();
                     return result;
+                }
+                else {
+                    throw err;
                 }
             }
         },

@@ -141,9 +141,9 @@ const TEZTNETS_CONFIG = {
 };
 const LOW_PEER_COUNT = {
     key: `${NODE_MONITOR_GROUP.key}:low_peer_count`,
-    default: undefined,
+    default: 10,
     sampleValue: 5,
-    description: "Low peer count thrashold",
+    description: "Low peer count threshold",
     alias: undefined,
     type: "number",
     group: NODE_MONITOR_GROUP.label,
@@ -193,7 +193,8 @@ const SLACK_ENABLED = {
 const SLACK_URL = {
     key: `${SLACK_KEY}:url`,
     default: undefined,
-    sampleValue: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+    // Avoid real Slack webhook pattern to prevent push protection false positives
+    sampleValue: "SLACK_WEBHOOK_URL",
     description: "Webhook URL for Slack notifications",
     alias: undefined,
     type: "string",
@@ -620,6 +621,28 @@ const RPC_RETRY_ATTEMPTS = {
     isArray: false,
     validationRule: ["numeric", "min:1"],
 };
+// TzKT integration (optional)
+const TZKT_GROUP = { key: "tzkt", label: "TzKT:" };
+const TZKT_ENABLED = {
+    key: `${TZKT_GROUP.key}:enabled`,
+    default: false,
+    description: "Enable optional TzKT lookups (octez version)",
+    alias: undefined,
+    type: "boolean",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const TZKT_BASE_URL = {
+    key: `${TZKT_GROUP.key}:base_url`,
+    default: "https://api.tzkt.io",
+    description: "Base URL for TzKT API",
+    alias: undefined,
+    type: "string",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "link",
+};
 // list of all prefs that should be iterated to build yargs options and nconf defaults
 const userPrefs = [
     BAKERS,
@@ -685,6 +708,8 @@ const userPrefs = [
     AUTODETECT_ENABLED,
     RPC_RETRY_ATTEMPTS,
     RPC_RETRY_INTERVAL_MS,
+    TZKT_ENABLED,
+    TZKT_BASE_URL,
 ];
 /**
  * Iterates through the UserPrefs to create the Yarg settings used for parsing and providing help
@@ -719,7 +744,10 @@ const makeConfigDefaults = () => {
     }, {});
     return defaults;
 };
-const makeSampleConfig = () => {
+const makeSampleConfig = (minimal = false) => {
+    if (minimal) {
+        return makeMinimalSampleConfig();
+    }
     const sampleConfig = userPrefs.reduce((accumulator, userPref) => {
         // ignore user prefs that are only supported by the command line
         if (!userPref.cliOnly) {
@@ -735,6 +763,22 @@ const makeSampleConfig = () => {
     return sampleConfig;
 };
 exports.makeSampleConfig = makeSampleConfig;
+const makeMinimalSampleConfig = () => {
+    const minimalPrefs = [
+        { ...BAKERS, sampleValue: ["tz1YOUR_BAKER_ADDRESS"] },
+        RPC,
+        UI_ENABLED,
+        UI_PORT,
+        LOG_LEVEL,
+    ];
+    const sampleConfig = minimalPrefs.reduce((accumulator, userPref) => {
+        const value = userPref.sampleValue !== undefined
+            ? userPref.sampleValue
+            : userPref.default;
+        return (0, setPath_1.default)(userPref.key, accumulator, value);
+    }, {});
+    return sampleConfig;
+};
 /**
  * Iterates through the UserPrefs to create the validations object used by validatorjs.  Also creates a
  * few custom validators for specific fields.
@@ -959,6 +1003,9 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         },
         get rpc() {
             return nconf_1.default.get(RPC_GROUP.key);
+        },
+        get tzkt() {
+            return nconf_1.default.get(TZKT_GROUP.key);
         },
         asObject,
     };

@@ -122,7 +122,7 @@ const run = async (config) => {
                 }
             }
             catch (err) {
-                (0, loglevel_1.info)(`Could not read ${pkhFile}`);
+                (0, loglevel_1.debug)(`Could not read ${pkhFile}`);
                 (0, loglevel_1.debug)(err);
             }
         }
@@ -139,7 +139,7 @@ const run = async (config) => {
                 }
             }
             catch (err) {
-                (0, loglevel_1.info)(`Could not read ${tzClientConfigFile}`);
+                (0, loglevel_1.debug)(`Could not read ${tzClientConfigFile}`);
                 (0, loglevel_1.debug)(err);
             }
         }
@@ -156,6 +156,9 @@ const run = async (config) => {
     }
     const bakers = [...tezosClientBakers, ...bakerMonitorConfig.bakers];
     bakerMonitorConfig.bakers = bakers;
+    if (bakers.length === 0 && bakerMonitorConfig.rpc) {
+        (0, loglevel_1.info)("No bakers configured. Add baker addresses in your config file or use the UI Settings page.");
+    }
     function notEmpty(value) {
         return value !== null && value !== undefined;
     }
@@ -185,7 +188,7 @@ const run = async (config) => {
         : null;
     const gc = EventLog.gc(eventLog, channels);
     const apiServer = uiConfig.enabled
-        ? (0, server_1.start)(nodeMonitor, bakerMonitor, bakerMonitorConfig.rpc.url, uiConfig, config.rpc)
+        ? (0, server_1.start)(nodeMonitor, bakerMonitor, bakerMonitorConfig.rpc.url, uiConfig, config.rpc, config.tzkt)
         : null;
     const stop = (event) => {
         (0, loglevel_1.info)(`Caught signal ${event}, shutting down...`);
@@ -219,6 +222,9 @@ const run = async (config) => {
         allTasks.push(bakerMonitorTask);
     }
     (0, loglevel_1.info)("Started");
+    if (uiConfig.enabled) {
+        (0, loglevel_1.info)(`Web UI available at http://${uiConfig.host}:${uiConfig.port}`);
+    }
     await Promise.all(allTasks);
     (0, loglevel_1.debug)(`Releasing file lock on ${pidFile}`);
     await pidFileLock();

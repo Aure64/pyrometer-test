@@ -105,6 +105,7 @@ const subscribeToNode = (node, rpcConfig, onEvent, lowPeerCount) => {
         history: [],
     };
     let previousEvents = new Set();
+    let consecutiveFailures = 0;
     const task = async () => {
         let events = [];
         try {
@@ -116,6 +117,7 @@ const subscribeToNode = (node, rpcConfig, onEvent, lowPeerCount) => {
                 log,
             });
             if (nodeInfo.unableToReach) {
+                consecutiveFailures++;
                 log.debug("Unable to reach node");
                 const err = nodeInfo.error;
                 const message = err
@@ -129,8 +131,11 @@ const subscribeToNode = (node, rpcConfig, onEvent, lowPeerCount) => {
                     node: node.url,
                     createdAt: (0, now_1.default)(),
                 });
+                const backoffMs = Math.min(5000 * consecutiveFailures, 60000);
+                await new Promise(resolve => setTimeout(resolve, backoffMs));
             }
             else {
+                consecutiveFailures = 0;
                 events = (0, exports.checkBlockInfo)({
                     nodeInfo,
                     previousNodeInfo,
@@ -151,6 +156,7 @@ const subscribeToNode = (node, rpcConfig, onEvent, lowPeerCount) => {
             }
         }
         catch (err) {
+            consecutiveFailures++;
             log.warn(`Node subscription error: ${err.message}`);
             events.push({
                 kind: events_1.Events.RpcError,
@@ -160,6 +166,8 @@ const subscribeToNode = (node, rpcConfig, onEvent, lowPeerCount) => {
                 node: node.url,
                 createdAt: (0, now_1.default)(),
             });
+            const backoffMs = Math.min(5000 * consecutiveFailures, 60000);
+            await new Promise(resolve => setTimeout(resolve, backoffMs));
         }
         const publishedEvents = new Set();
         for (const event of events) {

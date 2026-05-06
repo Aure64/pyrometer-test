@@ -112,6 +112,17 @@ exports.Baker = (0, nexus_1.objectType)({
         t.nonNull.int("blocksPerCycle");
         t.nonNull.int("atRiskThreshold");
         t.nonNull.list.field("recentEvents", { type: (0, nexus_1.nonNull)(exports.LevelEvents) });
+        t.field("octezVersion", {
+            type: "String",
+            async resolve(parent, _args, ctx) {
+                try {
+                    return await ctx.tzkt.getOctezVersionForBaker(parent.address);
+                }
+                catch (_err) {
+                    return null;
+                }
+            },
+        });
         t.field("balance", {
             type: "String",
             async resolve(parent, _args, ctx) {
@@ -261,6 +272,7 @@ exports.Bakers = (0, nexus_1.objectType)({
         t.nonNull.int("totalCount");
     },
 });
+// Filters removed - all filtering now done on frontend
 let cycleProtocol = { cycle: -1, protocol: "" };
 const getProtocol = async (cycle, level, ctx) => {
     let protocol;
@@ -301,9 +313,10 @@ exports.BakerQuery = (0, nexus_1.extendType)({
             },
             async resolve(_root, { offset, limit, bakers: bakersFilter }, ctx) {
                 const bakerMonitorInfo = await ctx.bakerInfoCollection.info();
-                const bakerInfo = bakersFilter && bakersFilter.length > 0
+                let bakerInfo = bakersFilter && bakersFilter.length > 0
                     ? bakerMonitorInfo.bakerInfo.filter((x) => bakersFilter.includes(x.address))
                     : bakerMonitorInfo.bakerInfo;
+                // Filters removed - all filtering now done on frontend
                 if (bakersFilter) {
                     const sortWeights = {};
                     for (let i = 0; i < bakersFilter.length; i++) {

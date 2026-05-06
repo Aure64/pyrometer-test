@@ -9,6 +9,7 @@ const express_1 = __importDefault(require("express"));
 const express_graphql_1 = require("express-graphql");
 const schema_1 = require("./schema");
 const context_1 = require("./context");
+const health_1 = __importDefault(require("./health"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const loglevel_1 = require("loglevel");
@@ -27,8 +28,9 @@ const rootValue = {
         return "Hello world!";
     },
 };
-const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webroot: configuredWebroot, show_system_info, alias: aliasMap, }, rpcConfig) => {
-    console.error("show_system_info", show_system_info);
+const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webroot: configuredWebroot, show_system_info, alias: aliasMap, }, rpcConfig, tzktConfig) => {
+    (0, loglevel_1.getLogger)("api").debug("show_system_info", show_system_info);
+    exports.app.use(health_1.default);
     const webroot = configuredWebroot || (0, path_1.join)(__dirname, "../../ui");
     (0, loglevel_1.getLogger)("api").info(`Serving web UI assets from ${webroot}`);
     exports.app.use(express_1.default.static(webroot));
@@ -45,7 +47,7 @@ const start = (nodeMonitor, bakerMonitor, rpc, { host, port, explorer_url, webro
                     atRiskThreshold: 1,
                 };
             },
-        }, rpc, rpcConfig, explorer_url, show_system_info, aliasMap),
+        }, rpc, rpcConfig, explorer_url, show_system_info, aliasMap, tzktConfig || { enabled: false, base_url: "https://api.tzkt.io" }),
     }));
     return exports.app.listen(port, host, () => {
         const logger = (0, loglevel_1.getLogger)("api");
