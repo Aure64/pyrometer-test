@@ -57,6 +57,40 @@ const checkAuth = (
   return token === adminToken;
 };
 
+const isValidTzAddress = (address: string): boolean =>
+  validateAddress(address) === TzValidationResult.VALID;
+
+type GuardCtx = {
+  adminToken: string | undefined;
+  configManager: unknown;
+};
+
+const extractAuth = (rootValue: unknown): string | undefined => {
+  if (typeof rootValue !== "object" || rootValue === null) return undefined;
+  const headers = (rootValue as { headers?: unknown }).headers;
+  if (typeof headers !== "object" || headers === null) return undefined;
+  const auth = (headers as { authorization?: unknown }).authorization;
+  return typeof auth === "string" ? auth : undefined;
+};
+
+const guard = (
+  ctx: GuardCtx,
+  info: { rootValue: unknown },
+):
+  | { ok: true }
+  | { ok: false; result: { success: false; message: string } } => {
+  if (!checkAuth(extractAuth(info.rootValue), ctx.adminToken)) {
+    return { ok: false, result: { success: false, message: "Unauthorized" } };
+  }
+  if (!ctx.configManager) {
+    return {
+      ok: false,
+      result: { success: false, message: "Config manager not available" },
+    };
+  }
+  return { ok: true };
+};
+
 export const AdminMutations = extendType({
   type: "Mutation",
   definition(t) {
@@ -78,17 +112,12 @@ export const AdminMutations = extendType({
       type: MutationResult,
       args: { address: nonNull(stringArg()) },
       resolve(_root, { address }, ctx, info) {
-        const authHeader = (info.rootValue as any)?.headers?.authorization;
-        if (!checkAuth(authHeader, ctx.adminToken)) {
-          return { success: false, message: "Unauthorized" };
-        }
-        if (!ctx.configManager) {
-          return { success: false, message: "Config manager not available" };
-        }
-        if (validateAddress(address) !== TzValidationResult.VALID) {
+        const g = guard(ctx, info);
+        if (!g.ok) return g.result;
+        if (!isValidTzAddress(address)) {
           return { success: false, message: "Invalid Tezos address" };
         }
-        ctx.configManager.addBaker(address);
+        ctx.configManager!.addBaker(address);
         return { success: true, message: null };
       },
     });
@@ -97,14 +126,12 @@ export const AdminMutations = extendType({
       type: MutationResult,
       args: { address: nonNull(stringArg()) },
       resolve(_root, { address }, ctx, info) {
-        const authHeader = (info.rootValue as any)?.headers?.authorization;
-        if (!checkAuth(authHeader, ctx.adminToken)) {
-          return { success: false, message: "Unauthorized" };
+        const g = guard(ctx, info);
+        if (!g.ok) return g.result;
+        if (!isValidTzAddress(address)) {
+          return { success: false, message: "Invalid Tezos address" };
         }
-        if (!ctx.configManager) {
-          return { success: false, message: "Config manager not available" };
-        }
-        ctx.configManager.removeBaker(address);
+        ctx.configManager!.removeBaker(address);
         return { success: true, message: null };
       },
     });
@@ -116,14 +143,16 @@ export const AdminMutations = extendType({
         alias: nonNull(stringArg()),
       },
       resolve(_root, { address, alias }, ctx, info) {
-        const authHeader = (info.rootValue as any)?.headers?.authorization;
-        if (!checkAuth(authHeader, ctx.adminToken)) {
-          return { success: false, message: "Unauthorized" };
+        const g = guard(ctx, info);
+        if (!g.ok) return g.result;
+        if (!isValidTzAddress(address)) {
+          return { success: false, message: "Invalid Tezos address" };
         }
-        if (!ctx.configManager) {
-          return { success: false, message: "Config manager not available" };
+        const trimmed = alias.trim();
+        if (trimmed.length === 0 || trimmed.length > 64) {
+          return { success: false, message: "Alias must be 1-64 characters" };
         }
-        ctx.configManager.updateAlias(address, alias);
+        ctx.configManager!.updateAlias(address, trimmed);
         return { success: true, message: null };
       },
     });
@@ -132,14 +161,12 @@ export const AdminMutations = extendType({
       type: MutationResult,
       args: { address: nonNull(stringArg()) },
       resolve(_root, { address }, ctx, info) {
-        const authHeader = (info.rootValue as any)?.headers?.authorization;
-        if (!checkAuth(authHeader, ctx.adminToken)) {
-          return { success: false, message: "Unauthorized" };
+        const g = guard(ctx, info);
+        if (!g.ok) return g.result;
+        if (!isValidTzAddress(address)) {
+          return { success: false, message: "Invalid Tezos address" };
         }
-        if (!ctx.configManager) {
-          return { success: false, message: "Config manager not available" };
-        }
-        ctx.configManager.updateAlias(address, null);
+        ctx.configManager!.updateAlias(address, null);
         return { success: true, message: null };
       },
     });
@@ -150,22 +177,34 @@ export const AdminMutations = extendType({
         input: nonNull(arg({ type: BakerMonitorSettingsInput })),
       },
       resolve(_root, { input }, ctx, info) {
-        const authHeader = (info.rootValue as any)?.headers?.authorization;
-        if (!checkAuth(authHeader, ctx.adminToken)) {
-          return { success: false, message: "Unauthorized" };
-        }
-        if (!ctx.configManager) {
-          return { success: false, message: "Config manager not available" };
-        }
+        const g = guard(ctx, info);
+        if (!g.ok) return g.result;
         const updates: Record<string, unknown> = {};
-        if (input.rpc != null) updates.rpc = input.rpc;
-        if (input.max_catchup_blocks != null)
+        if (input.rpc != null) {
+          if (!/^https?:\/\//.test(input.rpc)) {
+            return { success: false, message: "RPC must be an http(s) URL" };
+          }
+          updates.rpc = input.rpc;
+        }
+        if (input.max_catchup_blocks != null) {
+          if (input.max_catchup_blocks < 0) {
+            return { success: false, message: "max_catchup_blocks must be >= 0" };
+          }
           updates.max_catchup_blocks = input.max_catchup_blocks;
-        if (input.head_distance != null)
+        }
+        if (input.head_distance != null) {
+          if (input.head_distance < 0) {
+            return { success: false, message: "head_distance must be >= 0" };
+          }
           updates.head_distance = input.head_distance;
-        if (input.missed_threshold != null)
+        }
+        if (input.missed_threshold != null) {
+          if (input.missed_threshold < 1) {
+            return { success: false, message: "missed_threshold must be >= 1" };
+          }
           updates.missed_threshold = input.missed_threshold;
-        ctx.configManager.updateSettings(updates);
+        }
+        ctx.configManager!.updateSettings(updates);
         return { success: true, message: null };
       },
     });

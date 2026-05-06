@@ -141,9 +141,9 @@ const TEZTNETS_CONFIG = {
 };
 const LOW_PEER_COUNT = {
     key: `${NODE_MONITOR_GROUP.key}:low_peer_count`,
-    default: undefined,
+    default: 10,
     sampleValue: 5,
-    description: "Low peer count thrashold",
+    description: "Low peer count threshold",
     alias: undefined,
     type: "number",
     group: NODE_MONITOR_GROUP.label,
@@ -193,7 +193,8 @@ const SLACK_ENABLED = {
 const SLACK_URL = {
     key: `${SLACK_KEY}:url`,
     default: undefined,
-    sampleValue: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+    // Avoid real Slack webhook pattern to prevent push protection false positives
+    sampleValue: "SLACK_WEBHOOK_URL",
     description: "Webhook URL for Slack notifications",
     alias: undefined,
     type: "string",
@@ -588,6 +589,15 @@ const UI_SHOW_SYSTEM_INFO = {
     isArray: false,
     validationRule: "boolean",
 };
+const UI_ADMIN_TOKEN = {
+    key: `${UI_GROUP.key}:admin_token`,
+    default: undefined,
+    description: "Admin token for UI mutations",
+    type: "string",
+    alias: undefined,
+    group: UI_GROUP.label,
+    isArray: false,
+};
 const AUTODETECT_GROUP = { key: "autodetect", label: "Auto-detect:" };
 const AUTODETECT_ENABLED = {
     key: `${AUTODETECT_GROUP.key}:enabled`,
@@ -619,6 +629,28 @@ const RPC_RETRY_ATTEMPTS = {
     group: RPC_GROUP.label,
     isArray: false,
     validationRule: ["numeric", "min:1"],
+};
+// TzKT integration (optional)
+const TZKT_GROUP = { key: "tzkt", label: "TzKT:" };
+const TZKT_ENABLED = {
+    key: `${TZKT_GROUP.key}:enabled`,
+    default: false,
+    description: "Enable optional TzKT lookups (octez version)",
+    alias: undefined,
+    type: "boolean",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const TZKT_BASE_URL = {
+    key: `${TZKT_GROUP.key}:base_url`,
+    default: "https://api.tzkt.io",
+    description: "Base URL for TzKT API",
+    alias: undefined,
+    type: "string",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "link",
 };
 // list of all prefs that should be iterated to build yargs options and nconf defaults
 const userPrefs = [
@@ -682,9 +714,12 @@ const userPrefs = [
     UI_WEBROOT,
     UI_EXPLORER_URL,
     UI_SHOW_SYSTEM_INFO,
+    UI_ADMIN_TOKEN,
     AUTODETECT_ENABLED,
     RPC_RETRY_ATTEMPTS,
     RPC_RETRY_INTERVAL_MS,
+    TZKT_ENABLED,
+    TZKT_BASE_URL,
 ];
 /**
  * Iterates through the UserPrefs to create the Yarg settings used for parsing and providing help
@@ -959,6 +994,9 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         },
         get rpc() {
             return nconf_1.default.get(RPC_GROUP.key);
+        },
+        get tzkt() {
+            return nconf_1.default.get(TZKT_GROUP.key);
         },
         asObject,
     };

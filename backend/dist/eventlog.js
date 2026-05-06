@@ -57,9 +57,14 @@ const open = async (storageDir, topic = "eventlog", maxSize = Number.MAX_SAFE_IN
     const readFrom = async function* (position) {
         let currentPosition = position < 0 ? sequence + position : position;
         while (currentPosition < sequence) {
-            const record = await read(currentPosition);
-            if (record) {
-                yield record;
+            try {
+                const record = await read(currentPosition);
+                if (record) {
+                    yield record;
+                }
+            }
+            catch (err) {
+                log.warn(`Skipping corrupted event at position ${currentPosition}`, err);
             }
             currentPosition++;
         }

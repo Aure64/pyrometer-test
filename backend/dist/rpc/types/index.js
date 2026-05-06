@@ -21,6 +21,4 @@ var OpKind;
     OpKind["PROPOSALS"] = "proposals";
     OpKind["BALLOT"] = "ballot";
     OpKind["FAILING_NOOP"] = "failing_noop";
-    OpKind["DOUBLE_CONSENSUS_OPERATION_EVIDENCE"] = "double_consensus_operation_evidence";
-    OpKind["ATTESTATIONS_AGGREGATE"] = "attestations_aggregate";
 })(OpKind || (exports.OpKind = OpKind = {}));

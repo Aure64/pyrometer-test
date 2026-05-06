@@ -32,6 +32,7 @@ const create = async (name, send, storageDirectory, eventLog, { max_batch_size: 
     const store = await storage.open([storageDirectory, "consumers"]);
     const readPosition = async () => (await store.get(name, -1));
     const writePosition = async (value) => await store.put(name, value);
+    let failCount = 0;
     const task = async () => {
         const batch = [];
         let position = await readPosition();
@@ -53,9 +54,13 @@ const create = async (name, send, storageDirectory, eventLog, { max_batch_size: 
             try {
                 await send(batch);
                 await writePosition(position);
+                failCount = 0;
             }
             catch (err) {
-                log.error(`could not send`, err);
+                failCount++;
+                const backoffMs = Math.min(1000 * Math.pow(2, failCount), 60000);
+                log.warn(`Notification send failed (attempt ${failCount}), backing off ${backoffMs}ms`);
+                await new Promise((resolve) => setTimeout(resolve, backoffMs));
             }
         }
     };

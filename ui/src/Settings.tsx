@@ -29,6 +29,8 @@ import {
   Divider,
   Badge,
   Tooltip,
+  Skeleton,
+  SkeletonText,
 } from '@chakra-ui/react';
 import { MdDelete, MdEdit, MdLock, MdLockOpen } from 'react-icons/md';
 import { useAuth } from './AuthContext';
@@ -65,11 +67,14 @@ export default function Settings() {
   const [authLoading, setAuthLoading] = useState(false);
 
   const { data: adminData } = useIsAdminConfiguredQuery();
-  const { data: bakersData, refetch: refetchBakers } =
+  const { data: bakersData, loading: bakersLoading, refetch: refetchBakers } =
     useConfiguredBakersQuery();
   const { data: aliasesData, refetch: refetchAliases } = useAliasesQuery();
-  const { data: settingsData, refetch: refetchSettings } =
-    useBakerMonitorSettingsQuery();
+  const {
+    data: settingsData,
+    loading: settingsLoading,
+    refetch: refetchSettings,
+  } = useBakerMonitorSettingsQuery();
 
   const [addBaker] = useAddBakerMutation();
   const [removeBaker] = useRemoveBakerMutation();
@@ -103,7 +108,10 @@ export default function Settings() {
   }, [settingsData, settingsLoaded]);
 
   const aliasMap = useMemo(
-    () => new Map(aliasesData?.aliases.map((x) => [x.address, x.alias])),
+    () =>
+      new Map(
+        (aliasesData?.aliases ?? []).map((x) => [x.address, x.alias]),
+      ),
     [aliasesData],
   );
 
@@ -239,8 +247,10 @@ export default function Settings() {
             </Button>
           ))}
         {!isAdminConfigured && (
-          <Tooltip label="Set admin_token in pyrometer.toml [ui] section to enable editing">
-            <Badge colorScheme="gray">Read-only</Badge>
+          <Tooltip label="Set [ui] admin_token in pyrometer.toml to enable editing from this page">
+            <Badge colorScheme="gray" fontSize="xs">
+              Read-only — admin not configured
+            </Badge>
           </Tooltip>
         )}
       </HStack>
@@ -249,87 +259,116 @@ export default function Settings() {
         <Heading size="sm" mb={3}>
           Monitored Bakers
         </Heading>
-        <Table size="sm" variant="simple">
-          <Thead>
-            <Tr>
-              <Th>Address</Th>
-              <Th>Alias</Th>
-              {isAuthenticated && <Th w="100px">Actions</Th>}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {configuredBakers.map((address) => (
-              <Tr key={address}>
-                <Td fontFamily="mono" fontSize="sm">
-                  {address}
-                </Td>
-                <Td>
-                  {editingAlias?.address === address ? (
-                    <HStack>
-                      <Input
-                        size="sm"
-                        value={editingAlias.alias}
-                        onChange={(e) =>
-                          setEditingAlias({
-                            ...editingAlias,
-                            alias: e.target.value,
-                          })
-                        }
-                        onKeyDown={(e) =>
-                          e.key === 'Enter' && handleSaveAlias()
-                        }
-                      />
-                      <Button size="sm" onClick={handleSaveAlias}>
-                        Save
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setEditingAlias(null)}
-                      >
-                        Cancel
-                      </Button>
-                    </HStack>
-                  ) : (
-                    <Text fontSize="sm">{aliasMap.get(address) || '-'}</Text>
-                  )}
-                </Td>
-                {isAuthenticated && (
-                  <Td>
-                    <HStack spacing={1}>
-                      <IconButton
-                        aria-label="Edit alias"
-                        icon={<MdEdit />}
-                        size="xs"
-                        variant="ghost"
-                        onClick={() =>
-                          setEditingAlias({
-                            address,
-                            alias: aliasMap.get(address) || '',
-                          })
-                        }
-                      />
-                      <IconButton
-                        aria-label="Remove baker"
-                        icon={<MdDelete />}
-                        size="xs"
-                        variant="ghost"
-                        colorScheme="red"
-                        onClick={() => {
-                          setDeletingBaker(address);
-                          onDeleteOpen();
-                        }}
-                      />
-                    </HStack>
-                  </Td>
-                )}
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
+        {bakersLoading && configuredBakers.length === 0 ? (
+          <SkeletonText noOfLines={3} spacing={3} skeletonHeight="4" />
+        ) : configuredBakers.length === 0 ? (
+          <Box
+            py={6}
+            px={4}
+            borderWidth="1px"
+            borderStyle="dashed"
+            borderRadius="md"
+          >
+            <Text fontSize="sm" color="gray.500">
+              No bakers monitored yet.
+              {isAuthenticated
+                ? ' Add one below.'
+                : ' Configure bakers in pyrometer.toml or unlock to add one.'}
+            </Text>
+          </Box>
+        ) : (
+          <Box overflowX="auto">
+            <Table size="sm" variant="simple">
+              <Thead>
+                <Tr>
+                  <Th>Address</Th>
+                  <Th>Alias</Th>
+                  {isAuthenticated && <Th w="120px">Actions</Th>}
+                </Tr>
+              </Thead>
+              <Tbody>
+                {configuredBakers.map((address) => (
+                  <Tr key={address}>
+                    <Td fontFamily="mono" fontSize="sm">
+                      {address}
+                    </Td>
+                    <Td>
+                      {editingAlias?.address === address ? (
+                        <HStack>
+                          <Input
+                            size="sm"
+                            autoFocus
+                            value={editingAlias.alias}
+                            onChange={(e) =>
+                              setEditingAlias({
+                                ...editingAlias,
+                                alias: e.target.value,
+                              })
+                            }
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') handleSaveAlias();
+                              if (e.key === 'Escape') setEditingAlias(null);
+                            }}
+                          />
+                          <Button size="sm" onClick={handleSaveAlias}>
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditingAlias(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </HStack>
+                      ) : (
+                        <Text fontSize="sm">
+                          {aliasMap.get(address) || '—'}
+                        </Text>
+                      )}
+                    </Td>
+                    {isAuthenticated && (
+                      <Td>
+                        <HStack spacing={1}>
+                          <IconButton
+                            aria-label="Edit alias"
+                            icon={<MdEdit />}
+                            size="sm"
+                            minW="36px"
+                            h="36px"
+                            variant="ghost"
+                            onClick={() =>
+                              setEditingAlias({
+                                address,
+                                alias: aliasMap.get(address) || '',
+                              })
+                            }
+                          />
+                          <IconButton
+                            aria-label="Remove baker"
+                            icon={<MdDelete />}
+                            size="sm"
+                            minW="36px"
+                            h="36px"
+                            variant="ghost"
+                            colorScheme="red"
+                            onClick={() => {
+                              setDeletingBaker(address);
+                              onDeleteOpen();
+                            }}
+                          />
+                        </HStack>
+                      </Td>
+                    )}
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          </Box>
+        )}
 
         {isAuthenticated && (
-          <HStack mt={3} spacing={2}>
+          <HStack mt={3} spacing={2} flexWrap="wrap">
             <FormControl
               isInvalid={
                 newBakerAddress.length > 0 && !isValidTzAddress(newBakerAddress)
@@ -341,6 +380,14 @@ export default function Settings() {
                 placeholder="tz1... address"
                 value={newBakerAddress}
                 onChange={(e) => setNewBakerAddress(e.target.value)}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === 'Enter' &&
+                    isValidTzAddress(newBakerAddress)
+                  ) {
+                    handleAddBaker();
+                  }
+                }}
               />
               <FormErrorMessage>Invalid address format</FormErrorMessage>
             </FormControl>
@@ -349,13 +396,21 @@ export default function Settings() {
               placeholder="Alias (optional)"
               value={newBakerAlias}
               onChange={(e) => setNewBakerAlias(e.target.value)}
+              onKeyDown={(e) => {
+                if (
+                  e.key === 'Enter' &&
+                  isValidTzAddress(newBakerAddress)
+                ) {
+                  handleAddBaker();
+                }
+              }}
               maxW="200px"
             />
             <Button
               size="sm"
               colorScheme="blue"
               onClick={handleAddBaker}
-              isDisabled={!newBakerAddress}
+              isDisabled={!isValidTzAddress(newBakerAddress)}
             >
               Add
             </Button>
@@ -369,59 +424,67 @@ export default function Settings() {
         <Heading size="sm" mb={3}>
           Monitoring Configuration
         </Heading>
-        <VStack align="stretch" spacing={3} maxW="500px">
-          <FormControl>
-            <FormLabel fontSize="sm">RPC Endpoint</FormLabel>
-            <Input
-              size="sm"
-              value={rpc}
-              onChange={(e) => setRpc(e.target.value)}
-              isReadOnly={!isAuthenticated}
-            />
-          </FormControl>
-          <HStack spacing={4}>
+        {settingsLoading && !settingsLoaded ? (
+          <SkeletonText noOfLines={4} spacing={3} skeletonHeight="6" maxW="500px" />
+        ) : (
+          <VStack align="stretch" spacing={3} maxW="500px">
             <FormControl>
-              <FormLabel fontSize="sm">Max Catchup Blocks</FormLabel>
+              <FormLabel fontSize="sm">RPC Endpoint</FormLabel>
               <Input
                 size="sm"
-                type="number"
-                value={maxCatchup}
-                onChange={(e) => setMaxCatchup(e.target.value)}
+                value={rpc}
+                onChange={(e) => setRpc(e.target.value)}
                 isReadOnly={!isAuthenticated}
+                placeholder="https://..."
               />
             </FormControl>
-            <FormControl>
-              <FormLabel fontSize="sm">Head Distance</FormLabel>
-              <Input
+            <HStack spacing={4} flexWrap="wrap">
+              <FormControl minW="140px">
+                <FormLabel fontSize="sm">Max Catchup Blocks</FormLabel>
+                <Input
+                  size="sm"
+                  type="number"
+                  min={0}
+                  value={maxCatchup}
+                  onChange={(e) => setMaxCatchup(e.target.value)}
+                  isReadOnly={!isAuthenticated}
+                />
+              </FormControl>
+              <FormControl minW="140px">
+                <FormLabel fontSize="sm">Head Distance</FormLabel>
+                <Input
+                  size="sm"
+                  type="number"
+                  min={0}
+                  value={headDist}
+                  onChange={(e) => setHeadDist(e.target.value)}
+                  isReadOnly={!isAuthenticated}
+                />
+              </FormControl>
+              <FormControl minW="140px">
+                <FormLabel fontSize="sm">Missed Threshold</FormLabel>
+                <Input
+                  size="sm"
+                  type="number"
+                  min={1}
+                  value={missedThresh}
+                  onChange={(e) => setMissedThresh(e.target.value)}
+                  isReadOnly={!isAuthenticated}
+                />
+              </FormControl>
+            </HStack>
+            {isAuthenticated && (
+              <Button
                 size="sm"
-                type="number"
-                value={headDist}
-                onChange={(e) => setHeadDist(e.target.value)}
-                isReadOnly={!isAuthenticated}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel fontSize="sm">Missed Threshold</FormLabel>
-              <Input
-                size="sm"
-                type="number"
-                value={missedThresh}
-                onChange={(e) => setMissedThresh(e.target.value)}
-                isReadOnly={!isAuthenticated}
-              />
-            </FormControl>
-          </HStack>
-          {isAuthenticated && (
-            <Button
-              size="sm"
-              colorScheme="blue"
-              onClick={handleSaveSettings}
-              alignSelf="flex-start"
-            >
-              Save Settings
-            </Button>
-          )}
-        </VStack>
+                colorScheme="blue"
+                onClick={handleSaveSettings}
+                alignSelf="flex-start"
+              >
+                Save Settings
+              </Button>
+            )}
+          </VStack>
+        )}
       </Box>
 
       <Modal isOpen={isAuthOpen} onClose={onAuthClose}>

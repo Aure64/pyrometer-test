@@ -53,11 +53,13 @@ export class ConfigManager extends EventEmitter {
   private persist(): void {
     const dir = dirname(this.overridesPath);
     fs.mkdirSync(dir, { recursive: true });
+    const tmp = `${this.overridesPath}.${process.pid}.tmp`;
     fs.writeFileSync(
-      this.overridesPath,
+      tmp,
       JSON.stringify(this.overrides, null, 2),
       "utf8",
     );
+    fs.renameSync(tmp, this.overridesPath);
   }
 
   getBakers(): string[] {
