@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build:
@@ -74,6 +75,23 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           docker build -t pyrometer:$VERSION -f Dockerfile .
 
+      - name: Login to GHCR
+        if: steps.detect.outputs.present == 'true' && startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push Docker image to GHCR
+        if: steps.detect.outputs.present == 'true' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          IMAGE=ghcr.io/$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          docker tag pyrometer:$VERSION $IMAGE:$VERSION
+          docker tag pyrometer:$VERSION $IMAGE:latest
+          docker push $IMAGE:$VERSION
+          docker push $IMAGE:latest
+
       - name: Build .deb with builddeb.dockerfile
         if: steps.detect.outputs.present == 'true'
         run: |
@@ -97,8 +115,29 @@ jobs:
           name: deb
           path: deb/*.deb
 
+      - name: Extract universal tarball from Docker image
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          cid=$(docker create pyrometer:$VERSION)
+          mkdir -p tarball/pyrometer
+          docker cp "$cid":/opt/pyrometer/dist tarball/pyrometer/dist
+          docker cp "$cid":/opt/pyrometer/ui tarball/pyrometer/ui
+          docker cp "$cid":/opt/pyrometer/node_modules tarball/pyrometer/node_modules
+          docker cp "$cid":/opt/pyrometer/package.json tarball/pyrometer/package.json
+          docker cp "$cid":/usr/bin/pyrometer tarball/pyrometer/pyrometer
+          docker rm "$cid"
+          tar czf pyrometer-${VERSION}.tar.gz -C tarball pyrometer
+          ls -lh pyrometer-${VERSION}.tar.gz
+
+      - name: Upload tarball artifact
+        if: steps.detect.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarball
+          path: pyrometer-*.tar.gz
+
   release:
-    name: Release (attach .deb)
+    name: Release (attach .deb + tarball)
     needs: package-deb
     if: needs.package-deb.outputs.present == 'true' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
@@ -110,7 +149,12 @@ jobs:
         with:
           name: deb
           path: release
-      - name: Filter .deb file by version
+      - name: Download tarball artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tarball
+          path: release
+      - name: Collect release files
         id: filter
         run: |
           VERSION=${GITHUB_REF_NAME#v}
@@ -120,14 +164,18 @@ jobs:
             echo "WARNING: pyrometer_${VERSION}_all.deb not found, using first .deb"
             DEB_FILE=$(ls release/*.deb | head -1)
           fi
-          echo "file=$DEB_FILE" >> $GITHUB_OUTPUT
-          echo "Found .deb file: $DEB_FILE"
+          TARBALL=release/pyrometer-${VERSION}.tar.gz
+          echo "Found .deb: $DEB_FILE"
+          echo "Found tarball: $TARBALL"
+          ls -lh release/
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: ${{ steps.filter.outputs.file }}
+          files: |
+            release/pyrometer_${{ env.VERSION }}_all.deb
+            release/pyrometer-${{ env.VERSION }}.tar.gz
           generate_release_notes: true
 
 
