@@ -22,7 +22,6 @@ import { ConfigManager } from "./configManager";
 import RpcClient from "./rpc/client";
 import { create as createBakerGroups } from "./bakerGroups";
 import * as WhalesRefresh from "./whalesRefresh";
-import type { StakeRpc } from "./whalesRefresh";
 import { resolveSenderBakers } from "./senderBakersResolver";
 
 type TzClientPkhListItem = { name: string; value: string };
@@ -290,17 +289,14 @@ const run = async (config: Config.Config) => {
         )
       : null;
 
-  const sharedRpc = RpcClient(
-    bakerMonitorConfig.rpc.url,
-    config.rpc,
-  ) as unknown as StakeRpc;
+  const sharedRpc = RpcClient(bakerMonitorConfig.rpc.url, config.rpc);
   const cacheFile = joinPath(storageDir, "whales-cache.json");
-  const refreshIntervalMs = 3 * 24 * 60 * 60 * 1000; // 3 cycles ~ 72h
+  const WHALES_REFRESH_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tezos cycles ≈ 72 h
   const hasStakeGroup = bakerGroups
     .listGroups()
     .some((g) => g.kind === "stake");
   const whalesService = hasStakeGroup
-    ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, refreshIntervalMs)
+    ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, WHALES_REFRESH_INTERVAL_MS)
     : null;
 
   const nodeMonitor =

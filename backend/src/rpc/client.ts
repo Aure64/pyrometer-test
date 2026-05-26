@@ -102,7 +102,7 @@ export type RpcClient = {
     level: number,
     maxRoundOrPriority: number,
   ) => Promise<[BakingRights, EndorsingRights]>;
-  getActiveBakers: (block: string) => Promise<TzAddress[]>;
+  getActiveBakers: (block?: string) => Promise<TzAddress[]>;
 };
 
 export type RpcClientConfig = {

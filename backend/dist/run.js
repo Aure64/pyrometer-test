@@ -234,12 +234,12 @@ const run = async (config) => {
         : null;
     const sharedRpc = (0, client_1.default)(bakerMonitorConfig.rpc.url, config.rpc);
     const cacheFile = (0, path_1.join)(storageDir, "whales-cache.json");
-    const refreshIntervalMs = 3 * 24 * 60 * 60 * 1000; // 3 cycles ~ 72h
+    const WHALES_REFRESH_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tezos cycles ≈ 72 h
     const hasStakeGroup = bakerGroups
         .listGroups()
         .some((g) => g.kind === "stake");
     const whalesService = hasStakeGroup
-        ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, refreshIntervalMs)
+        ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, WHALES_REFRESH_INTERVAL_MS)
         : null;
     const nodeMonitor = nodes.length > 0 || teztnets
         ? await NodeMonitor.create(onEvent, { ...nodeMonitorConfig, nodes }, config.rpc)
