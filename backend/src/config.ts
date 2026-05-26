@@ -1044,6 +1044,7 @@ const makeConfigValidations = (): Validator.Rules => {
 
 export type Config = {
   bakerMonitor: BakerMonitorConfig;
+  bakerGroups: import("./bakerGroups").RawBakerGroupConfig[];
   nodeMonitor: NodeMonitorConfig;
   logging: LoggingConfig;
   excludedEvents: Events[];
@@ -1124,7 +1125,7 @@ export const load = async (
   yargOptions = yargRunOptions,
   validate = true,
 ): Promise<Config> => {
-  nconf.argv(yargs.strict().options(yargOptions));
+  nconf.argv(yargs(process.argv.slice(2)).strict().options(yargOptions));
 
   const cliOptions = nconf.get();
   const nonConfigKeys = ["_", "$0"];
@@ -1232,6 +1233,10 @@ export const load = async (
   const config: Config = {
     get bakerMonitor() {
       return bakerMonitoConfig;
+    },
+    get bakerGroups() {
+      const raw = (nconf.get("baker_group") as unknown[]) || [];
+      return raw as import("./bakerGroups").RawBakerGroupConfig[];
     },
     get nodeMonitor() {
       return nodeMonitorConfig;

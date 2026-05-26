@@ -886,7 +886,7 @@ exports.toNamedNode = toNamedNode;
  * unless overriden by argv.
  */
 const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
-    nconf_1.default.argv(yargs_1.default.strict().options(yargOptions));
+    nconf_1.default.argv((0, yargs_1.default)(process.argv.slice(2)).strict().options(yargOptions));
     const cliOptions = nconf_1.default.get();
     const nonConfigKeys = ["_", "$0"];
     const cliAliases = userPrefs
@@ -974,6 +974,10 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
     const config = {
         get bakerMonitor() {
             return bakerMonitoConfig;
+        },
+        get bakerGroups() {
+            const raw = nconf_1.default.get("baker_group") || [];
+            return raw;
         },
         get nodeMonitor() {
             return nodeMonitorConfig;
