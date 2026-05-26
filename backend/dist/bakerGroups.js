@@ -13,7 +13,25 @@ const create = (raw, fallbackThreshold, staticBakers) => {
             bakers: new Set(kind === "static" ? g.bakers ?? [] : []),
         });
     }
+    // getMaxThreshold is immutable for the lifetime of the registry; compute once.
+    let maxThreshold = fallbackThreshold;
+    for (const g of groups.values()) {
+        if (g.missed_threshold > maxThreshold)
+            maxThreshold = g.missed_threshold;
+    }
+    // Hot-path caches invalidated only when setGroupBakers mutates a group.
+    // getThresholdFor runs per event, getAllMonitoredBakers runs per block —
+    // both stay stable between refreshes, so memoizing avoids per-tick rebuilds.
+    const thresholdCache = new Map();
+    let monitoredCache = null;
+    const invalidate = () => {
+        thresholdCache.clear();
+        monitoredCache = null;
+    };
     const getThresholdFor = (baker) => {
+        const cached = thresholdCache.get(baker);
+        if (cached !== undefined)
+            return cached;
         let best = null;
         for (const g of groups.values()) {
             if (g.bakers.has(baker)) {
@@ -22,35 +40,33 @@ const create = (raw, fallbackThreshold, staticBakers) => {
                 }
             }
         }
-        return best ?? fallbackThreshold;
+        const resolved = best ?? fallbackThreshold;
+        thresholdCache.set(baker, resolved);
+        return resolved;
     };
     const getAllMonitoredBakers = () => {
+        if (monitoredCache !== null)
+            return monitoredCache;
         const set = new Set(staticBakers);
         for (const g of groups.values()) {
             g.bakers.forEach((b) => set.add(b));
         }
-        return [...set];
+        monitoredCache = [...set];
+        return monitoredCache;
     };
     const setGroupBakers = (name, addrs) => {
         const g = groups.get(name);
         if (!g)
             return;
         g.bakers = new Set(addrs);
-    };
-    const getMaxThreshold = () => {
-        let max = fallbackThreshold;
-        for (const g of groups.values()) {
-            if (g.missed_threshold > max)
-                max = g.missed_threshold;
-        }
-        return max;
+        invalidate();
     };
     return {
         getGroup: (name) => groups.get(name),
         getThresholdFor,
         getAllMonitoredBakers,
         setGroupBakers,
-        getMaxThreshold,
+        getMaxThreshold: () => maxThreshold,
         listGroups: () => [...groups.values()],
     };
 };

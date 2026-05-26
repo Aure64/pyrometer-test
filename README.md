@@ -192,6 +192,13 @@ bakers = ["@group:whales", "@group:corporate"]
 
 Mixing literal addresses and group references in the same `bakers` list is supported.
 
+**Operational notes:**
+
+- The Discord sender ships its own block (`[discord] enabled = true / url = ".../webhook" / bakers = [...]`) and posts rich embeds with severity-based colors (red for `BakerUnhealthy`, green for `BakerRecovered`, orange for missed events). Discord webhook rate-limits (HTTP 429) are respected via the `Retry-After` header.
+- Dynamic groups (`stake_min`) cache their resolved baker list to `{data_dir}/whales-cache.json`. The cache is loaded synchronously at boot so the very first block tick already sees the previous snapshot — no warm-up window with empty groups.
+- While the first periodic refresh has not yet succeeded (e.g. RPC unreachable at boot), Pyrometer retries every 5 minutes. Once the first refresh succeeds, the service switches to the configured interval (3 cycles).
+- The new monitoring path is fully optional and backward compatible: a config without any `[[baker_group]]` section behaves byte-identically to the previous version.
+
 ---
 
 `.deb` packages, tarballs, and Docker images are on the [Releases](https://github.com/Aure64/pyrometer-test/releases) page and [GHCR](https://ghcr.io/aure64/pyrometer-test).

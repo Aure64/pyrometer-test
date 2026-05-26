@@ -88,15 +88,10 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
             return activeBakers;
         }
         if (bakerGroups) {
-            // The registry already unions staticBakers (= configuredBakers) into
-            // getAllMonitoredBakers, but we re-union with configuredBakers here for
-            // defensive deduplication in case a caller built the registry differently.
-            return [
-                ...new Set([
-                    ...configuredBakers,
-                    ...bakerGroups.getAllMonitoredBakers(),
-                ]),
-            ];
+            // The registry is built with configuredBakers as its staticBakers, so
+            // getAllMonitoredBakers() already includes them — return its memoized
+            // result directly without rebuilding the union per block.
+            return bakerGroups.getAllMonitoredBakers();
         }
         return configuredBakers;
     };
