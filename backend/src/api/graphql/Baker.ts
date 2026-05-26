@@ -190,10 +190,11 @@ export const Baker = objectType({
       async resolve(parent, _args, ctx) {
         if (!parent.lastProcessed) return null;
         try {
-          return await ctx.rpc.getStakingBalance(
+          const balance = await ctx.rpc.getStakingBalance(
             parent.address,
             `head~${parent.headDistance}`,
           );
+          return String(balance);
         } catch (err) {
           throw mkGQLError(err as Error);
         }

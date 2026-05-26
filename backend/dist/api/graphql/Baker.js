@@ -155,7 +155,8 @@ exports.Baker = (0, nexus_1.objectType)({
                 if (!parent.lastProcessed)
                     return null;
                 try {
-                    return await ctx.rpc.getStakingBalance(parent.address, `head~${parent.headDistance}`);
+                    const balance = await ctx.rpc.getStakingBalance(parent.address, `head~${parent.headDistance}`);
+                    return String(balance);
                 }
                 catch (err) {
                     throw mkGQLError(err);

@@ -205,8 +205,9 @@ exports.default = (nodeRpcUrl, { retry_interval_ms: retryIntervalMs, retry_attem
                 }
             }
         },
-        getStakingBalance: (pkh, block = "head") => {
-            return fetchDelegateField(pkh, block, "staking_balance");
+        getStakingBalance: async (pkh, block = "head") => {
+            const raw = await fetchDelegateField(pkh, block, "staking_balance");
+            return BigInt(String(raw));
         },
         getGracePeriod: (pkh, block = "head") => {
             return fetchDelegateField(pkh, block, "grace_period");
