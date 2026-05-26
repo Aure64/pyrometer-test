@@ -57,3 +57,55 @@ describe("config: baker_group parsing", () => {
         expect(config.bakerGroups[1].missed_threshold).toEqual(75);
     });
 });
+describe("config: baker_group validation", () => {
+    it("rejects a group without a name", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"], missed_threshold: 30 },
+        ])).toThrow(/'name' is required/);
+    });
+    it("rejects duplicate names", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "g", bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"], missed_threshold: 30 },
+            { name: "g", bakers: ["tz1XJqNybPz88X84kGPLN5LFaC4oN1av75dA"], missed_threshold: 30 },
+        ])).toThrow(/duplicate name "g"/);
+    });
+    it("rejects a group with neither bakers nor stake_min", () => {
+        expect(() => (0, config_1.validateBakerGroups)([{ name: "g", missed_threshold: 30 }])).toThrow(/must define either 'bakers' or 'stake_min'/);
+    });
+    it("rejects a group with both bakers and stake_min", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            {
+                name: "g",
+                bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"],
+                stake_min: 1000000000000,
+                missed_threshold: 30,
+            },
+        ])).toThrow(/'bakers' and 'stake_min' are mutually exclusive/);
+    });
+    it("rejects missed_threshold <= 0", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "g", bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"], missed_threshold: 0 },
+        ])).toThrow(/'missed_threshold' must be > 0/);
+    });
+    it("rejects names not matching [a-z][a-z0-9_-]*", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "BadName!", bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"], missed_threshold: 30 },
+        ])).toThrow(/name must match/);
+    });
+    it("rejects invalid tz addresses inside bakers", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "g", bakers: ["not-a-tz-address"], missed_threshold: 30 },
+        ])).toThrow(/invalid address/);
+    });
+    it("rejects stake_min <= 0", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "g", stake_min: 0, missed_threshold: 30 },
+        ])).toThrow(/'stake_min' must be > 0/);
+    });
+    it("accepts a valid set", () => {
+        expect(() => (0, config_1.validateBakerGroups)([
+            { name: "g1", bakers: ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"], missed_threshold: 30 },
+            { name: "g2", stake_min: 1000000000000, missed_threshold: 75 },
+        ])).not.toThrow();
+    });
+});

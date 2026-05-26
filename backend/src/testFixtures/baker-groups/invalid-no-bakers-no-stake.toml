@@ -1,0 +1,8 @@
+data_dir = "/tmp/p"
+[baker_monitor]
+bakers = []
+rpc = "http://127.0.0.1:8732"
+missed_threshold = 5
+[[baker_group]]
+name = "g"
+missed_threshold = 30

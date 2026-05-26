@@ -1117,6 +1117,84 @@ export const toNamedNode = (
   }
 };
 
+export class BakerGroupValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BakerGroupValidationError";
+  }
+}
+
+const BAKER_GROUP_NAME_RE = /^[a-z][a-z0-9_-]*$/;
+
+export const validateBakerGroups = (
+  raw: import("./bakerGroups").RawBakerGroupConfig[],
+): void => {
+  const seen = new Set<string>();
+  for (let i = 0; i < raw.length; i++) {
+    const g = raw[i];
+    if (!g.name) {
+      throw new BakerGroupValidationError(
+        `baker_group #${i}: 'name' is required`,
+      );
+    }
+    if (!BAKER_GROUP_NAME_RE.test(g.name)) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": name must match [a-z][a-z0-9_-]*`,
+      );
+    }
+    if (seen.has(g.name)) {
+      throw new BakerGroupValidationError(
+        `baker_group: duplicate name "${g.name}"`,
+      );
+    }
+    seen.add(g.name);
+
+    const hasBakers = Array.isArray(g.bakers) && g.bakers.length > 0;
+    const hasStake = g.stake_min !== undefined;
+    if (!hasBakers && !hasStake) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": must define either 'bakers' or 'stake_min'`,
+      );
+    }
+    if (hasBakers && hasStake) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": 'bakers' and 'stake_min' are mutually exclusive`,
+      );
+    }
+
+    if (typeof g.missed_threshold !== "number" || g.missed_threshold <= 0) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": 'missed_threshold' must be > 0`,
+      );
+    }
+
+    if (hasBakers) {
+      for (const addr of g.bakers!) {
+        if (validateAddress(addr) !== TzValidationResult.VALID) {
+          throw new BakerGroupValidationError(
+            `baker_group "${g.name}": invalid address ${addr}`,
+          );
+        }
+      }
+    }
+    if (hasStake) {
+      let stake: bigint;
+      try {
+        stake = BigInt(g.stake_min as string | number | bigint);
+      } catch {
+        throw new BakerGroupValidationError(
+          `baker_group "${g.name}": 'stake_min' must be a positive integer`,
+        );
+      }
+      if (stake <= 0n) {
+        throw new BakerGroupValidationError(
+          `baker_group "${g.name}": 'stake_min' must be > 0`,
+        );
+      }
+    }
+  }
+};
+
 /**
  * Load config settings from argv and the file system.  File system will use the path from envPaths
  * unless overriden by argv.
@@ -1186,6 +1264,21 @@ export const load = async (
       const errors = validation.errors.all();
       console.log(formatValidationErrors({ ...errors, ...aliasErrors }));
       process.exit(1);
+    }
+
+    // baker_group validation
+    const rawBakerGroups = (nconf.get("baker_group") as
+      | import("./bakerGroups").RawBakerGroupConfig[]
+      | undefined) || [];
+    try {
+      validateBakerGroups(rawBakerGroups);
+    } catch (err) {
+      if (err instanceof BakerGroupValidationError) {
+        console.error("Invalid config");
+        console.error(err.message);
+        process.exit(1);
+      }
+      throw err;
     }
   }
 

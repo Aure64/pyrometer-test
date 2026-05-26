@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.load = exports.toNamedNode = exports.makeSampleConfig = exports.yargResetOptions = exports.yargRunOptions = void 0;
+exports.load = exports.validateBakerGroups = exports.BakerGroupValidationError = exports.toNamedNode = exports.makeSampleConfig = exports.yargResetOptions = exports.yargRunOptions = void 0;
 const nconf_1 = __importDefault(require("nconf"));
 const util_1 = require("util");
 const toml_1 = __importDefault(require("@iarna/toml"));
@@ -881,6 +881,61 @@ const toNamedNode = (configNode) => {
     }
 };
 exports.toNamedNode = toNamedNode;
+class BakerGroupValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "BakerGroupValidationError";
+    }
+}
+exports.BakerGroupValidationError = BakerGroupValidationError;
+const BAKER_GROUP_NAME_RE = /^[a-z][a-z0-9_-]*$/;
+const validateBakerGroups = (raw) => {
+    const seen = new Set();
+    for (let i = 0; i < raw.length; i++) {
+        const g = raw[i];
+        if (!g.name) {
+            throw new BakerGroupValidationError(`baker_group #${i}: 'name' is required`);
+        }
+        if (!BAKER_GROUP_NAME_RE.test(g.name)) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": name must match [a-z][a-z0-9_-]*`);
+        }
+        if (seen.has(g.name)) {
+            throw new BakerGroupValidationError(`baker_group: duplicate name "${g.name}"`);
+        }
+        seen.add(g.name);
+        const hasBakers = Array.isArray(g.bakers) && g.bakers.length > 0;
+        const hasStake = g.stake_min !== undefined;
+        if (!hasBakers && !hasStake) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": must define either 'bakers' or 'stake_min'`);
+        }
+        if (hasBakers && hasStake) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": 'bakers' and 'stake_min' are mutually exclusive`);
+        }
+        if (typeof g.missed_threshold !== "number" || g.missed_threshold <= 0) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": 'missed_threshold' must be > 0`);
+        }
+        if (hasBakers) {
+            for (const addr of g.bakers) {
+                if ((0, utils_1.validateAddress)(addr) !== utils_1.ValidationResult.VALID) {
+                    throw new BakerGroupValidationError(`baker_group "${g.name}": invalid address ${addr}`);
+                }
+            }
+        }
+        if (hasStake) {
+            let stake;
+            try {
+                stake = BigInt(g.stake_min);
+            }
+            catch {
+                throw new BakerGroupValidationError(`baker_group "${g.name}": 'stake_min' must be a positive integer`);
+            }
+            if (stake <= 0n) {
+                throw new BakerGroupValidationError(`baker_group "${g.name}": 'stake_min' must be > 0`);
+            }
+        }
+    }
+};
+exports.validateBakerGroups = validateBakerGroups;
 /**
  * Load config settings from argv and the file system.  File system will use the path from envPaths
  * unless overriden by argv.
@@ -938,6 +993,19 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
             const errors = validation.errors.all();
             console.log(formatValidationErrors({ ...errors, ...aliasErrors }));
             process.exit(1);
+        }
+        // baker_group validation
+        const rawBakerGroups = nconf_1.default.get("baker_group") || [];
+        try {
+            (0, exports.validateBakerGroups)(rawBakerGroups);
+        }
+        catch (err) {
+            if (err instanceof BakerGroupValidationError) {
+                console.error("Invalid config");
+                console.error(err.message);
+                process.exit(1);
+            }
+            throw err;
         }
     }
     const asObject = () => {
