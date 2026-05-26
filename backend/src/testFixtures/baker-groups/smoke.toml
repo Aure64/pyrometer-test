@@ -1,0 +1,34 @@
+data_dir = "/tmp/pyrometer-smoke"
+
+[baker_monitor]
+bakers = ["tz1XJqNybPz88X84kGPLN5LFaC4oN1av75dA"]
+missed_threshold = 5
+rpc = "http://127.0.0.1:8732"
+max_catchup_blocks = 1
+head_distance = 2
+
+[[baker_group]]
+name = "corporate"
+bakers = [
+  "tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26",
+  "tz1Myst5o9a66oBoxe9oW7K6GekPHzWUMbBQ",
+]
+missed_threshold = 30
+
+[[baker_group]]
+name = "whales"
+stake_min = 1_000_000_000_000
+missed_threshold = 75
+
+[discord]
+enabled = false
+url = ""
+
+[slack]
+enabled = false
+url = ""
+
+[ui]
+enabled = false
+host = "127.0.0.1"
+port = 2099
