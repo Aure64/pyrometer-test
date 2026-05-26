@@ -33,6 +33,12 @@ describe("config: baker_group parsing", () => {
     expect(config.bakerGroups[1].stake_min).toEqual(1_000_000_000_000);
     expect(config.bakerGroups[1].missed_threshold).toEqual(75);
   });
+
+  it("accepts @group:NAME in a sender's bakers", async () => {
+    process.argv = [process.argv[0], process.argv[1], "--config", fixturePath("valid-with-group-ref.toml")];
+    const config = await load(undefined, true);
+    expect(config.slack.bakers).toEqual(["@group:whales"]);
+  });
 });
 
 describe("config: baker_group validation", () => {

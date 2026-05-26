@@ -1052,6 +1052,8 @@ const makeMinimalSampleConfig = (): Record<string, string> => {
  * Iterates through the UserPrefs to create the validations object used by validatorjs.  Also creates a
  * few custom validators for specific fields.
  */
+const BAKER_GROUP_REF_RE = /^@group:[a-z][a-z0-9_-]*$/;
+
 const makeConfigValidations = (): Validator.Rules => {
   Validator.register(
     "baker",
@@ -1059,9 +1061,11 @@ const makeConfigValidations = (): Validator.Rules => {
       if (typeof value !== "string") return false;
       //wildcard "address"
       if (value === "*") return true;
+      // group reference e.g. @group:whales
+      if (BAKER_GROUP_REF_RE.test(value)) return true;
       return validateAddress(value) === TzValidationResult.VALID;
     },
-    "The :attribute is not a valid baker address.",
+    "The :attribute is not a valid baker address or @group:NAME reference.",
   );
   Validator.register(
     "loglevel",

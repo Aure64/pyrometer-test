@@ -863,6 +863,7 @@ const makeMinimalSampleConfig = () => {
  * Iterates through the UserPrefs to create the validations object used by validatorjs.  Also creates a
  * few custom validators for specific fields.
  */
+const BAKER_GROUP_REF_RE = /^@group:[a-z][a-z0-9_-]*$/;
 const makeConfigValidations = () => {
     validatorjs_1.default.register("baker", (value) => {
         if (typeof value !== "string")
@@ -870,8 +871,11 @@ const makeConfigValidations = () => {
         //wildcard "address"
         if (value === "*")
             return true;
+        // group reference e.g. @group:whales
+        if (BAKER_GROUP_REF_RE.test(value))
+            return true;
         return (0, utils_1.validateAddress)(value) === utils_1.ValidationResult.VALID;
-    }, "The :attribute is not a valid baker address.");
+    }, "The :attribute is not a valid baker address or @group:NAME reference.");
     validatorjs_1.default.register("loglevel", (value) => {
         return LOG_LEVELS.includes(`${value}`);
     }, "The :attribute is not a valid log level.");
