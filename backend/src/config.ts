@@ -1286,7 +1286,14 @@ export const load = async (
   yargOptions = yargRunOptions,
   validate = true,
 ): Promise<Config> => {
-  nconf.argv(yargs(process.argv.slice(2)).strict().options(yargOptions));
+  // Strip leading positionals (subcommands consumed by the parent yargs in
+  // index.ts) before parsing here with a fresh yargs instance — otherwise
+  // `.strict()` would reject the subcommand name as an unknown argument.
+  let argsToParse = process.argv.slice(2);
+  while (argsToParse.length > 0 && !argsToParse[0].startsWith("-")) {
+    argsToParse = argsToParse.slice(1);
+  }
+  nconf.argv(yargs(argsToParse).strict().options(yargOptions));
 
   const cliOptions = nconf.get();
   const nonConfigKeys = ["_", "$0"];
