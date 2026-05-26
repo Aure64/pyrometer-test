@@ -7,6 +7,7 @@ import { create as DesktopSender } from "./senders/desktop";
 import { create as HttpSender } from "./senders/http";
 import { create as TelegramSender } from "./senders/telegram";
 import { create as SlackSender } from "./senders/slack";
+import { create as DiscordSender } from "./senders/discord";
 import * as EventLog from "./eventlog";
 import { debug, info, error } from "loglevel";
 import * as Config from "./config";
@@ -18,6 +19,11 @@ import { setup as setupLogging } from "./logging";
 
 import { start as startAPIServer } from "./api/server";
 import { ConfigManager } from "./configManager";
+import RpcClient from "./rpc/client";
+import { create as createBakerGroups } from "./bakerGroups";
+import * as WhalesRefresh from "./whalesRefresh";
+import type { StakeRpc } from "./whalesRefresh";
+import { resolveSenderBakers } from "./senderBakersResolver";
 
 type TzClientPkhListItem = { name: string; value: string };
 
@@ -32,6 +38,12 @@ const run = async (config: Config.Config) => {
   setupLogging(config.logging);
 
   const storageDir = normalizePath(config.storageDirectory);
+
+  const bakerGroups = createBakerGroups(
+    config.bakerGroups ?? [],
+    config.bakerMonitor.missed_threshold,
+    config.bakerMonitor.bakers,
+  );
 
   const pid = process.pid;
   const pidFile = joinPath(storageDir, "pid");
@@ -67,12 +79,26 @@ const run = async (config: Config.Config) => {
 
   const emailConfig = config.email;
   if (emailConfig?.enabled) {
-    channels.push(await createChannel("email", EmailSender(emailConfig)));
+    const resolved = {
+      ...emailConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(emailConfig.bakers) ? emailConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("email", EmailSender(resolved)));
   }
 
   const desktopConfig = config.desktop;
   if (desktopConfig?.enabled) {
-    channels.push(await createChannel("desktop", DesktopSender(desktopConfig)));
+    const resolved = {
+      ...desktopConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(desktopConfig.bakers) ? desktopConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("desktop", DesktopSender(resolved)));
   }
 
   const webhookConfig = config.webhook;
@@ -82,17 +108,45 @@ const run = async (config: Config.Config) => {
 
   const telegramConfig = config.telegram;
   if (telegramConfig?.enabled) {
+    const resolved = {
+      ...telegramConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(telegramConfig.bakers)
+          ? telegramConfig.bakers
+          : undefined,
+        bakerGroups,
+      ),
+    };
     channels.push(
       await createChannel(
         "telegram",
-        await TelegramSender(telegramConfig, storageDir),
+        await TelegramSender(resolved, storageDir),
       ),
     );
   }
 
   const slackConfig = config.slack;
   if (slackConfig?.enabled) {
-    channels.push(await createChannel("slack", SlackSender(slackConfig)));
+    const resolved = {
+      ...slackConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(slackConfig.bakers) ? slackConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("slack", SlackSender(resolved)));
+  }
+
+  const discordConfig = config.discord;
+  if (discordConfig?.enabled) {
+    const resolved = {
+      ...discordConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(discordConfig.bakers) ? discordConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("discord", DiscordSender(resolved)));
   }
 
   const excludedEvents = config.excludedEvents;
@@ -232,8 +286,22 @@ const run = async (config: Config.Config) => {
           config.rpc,
           uiConfig.enabled,
           onEvent,
+          bakerGroups,
         )
       : null;
+
+  const sharedRpc = RpcClient(
+    bakerMonitorConfig.rpc.url,
+    config.rpc,
+  ) as unknown as StakeRpc;
+  const cacheFile = joinPath(storageDir, "whales-cache.json");
+  const refreshIntervalMs = 3 * 24 * 60 * 60 * 1000; // 3 cycles ~ 72h
+  const hasStakeGroup = bakerGroups
+    .listGroups()
+    .some((g) => g.kind === "stake");
+  const whalesService = hasStakeGroup
+    ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, refreshIntervalMs)
+    : null;
 
   const nodeMonitor =
     nodes.length > 0 || teztnets
@@ -262,6 +330,7 @@ const run = async (config: Config.Config) => {
     info(`Caught signal ${event}, shutting down...`);
     apiServer?.close();
     bakerMonitor?.stop();
+    whalesService?.stop();
     nodeMonitor?.stop();
     for (const ch of channels) {
       ch.stop();
@@ -293,6 +362,10 @@ const run = async (config: Config.Config) => {
   if (bakerMonitor) {
     const bakerMonitorTask = bakerMonitor.start();
     allTasks.push(bakerMonitorTask);
+  }
+
+  if (whalesService) {
+    allTasks.push(whalesService.start());
   }
 
   info("Started");

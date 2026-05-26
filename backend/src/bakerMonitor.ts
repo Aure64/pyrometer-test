@@ -158,8 +158,14 @@ export const create = async (
       return activeBakers;
     }
     if (bakerGroups) {
+      // The registry already unions staticBakers (= configuredBakers) into
+      // getAllMonitoredBakers, but we re-union with configuredBakers here for
+      // defensive deduplication in case a caller built the registry differently.
       return [
-        ...new Set([...configuredBakers, ...bakerGroups.getAllMonitoredBakers()]),
+        ...new Set([
+          ...configuredBakers,
+          ...bakerGroups.getAllMonitoredBakers(),
+        ]),
       ];
     }
     return configuredBakers;
@@ -210,7 +216,7 @@ export const create = async (
     await store.put(CHAIN_POSITION_KEY, value);
 
   let atRiskThreshold: number;
-  
+
   if ("tolerated_inactivity_period" in constants) {
     const tip = (constants as any).tolerated_inactivity_period as number;
     atRiskThreshold = Math.max(1, tip - 1);
@@ -221,6 +227,10 @@ export const create = async (
   }
 
   const missedCounts = new Map<TzAddress, number>();
+
+  const getThreshold = bakerGroups
+    ? (b: TzAddress) => bakerGroups.getThresholdFor(b)
+    : (_b: TzAddress) => missedEventsThreshold;
 
   let rpcFailCount = 0;
 
@@ -370,7 +380,7 @@ export const create = async (
               rpc: rpc,
             });
             break;
-          
+
           case "PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg":
             events = await protocolQ({
               bakers,
@@ -379,13 +389,13 @@ export const create = async (
             });
             break;
 
-            case "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7":
-              events = await protocolR({
-                bakers,
-                block,
-                rpc: rpc,
-              });
-              break;
+          case "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7":
+            events = await protocolR({
+              bakers,
+              block,
+              rpc: rpc,
+            });
+            break;
 
           case "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh":
             events = await protocolS({
@@ -411,9 +421,6 @@ export const create = async (
         }
 
         const bakerHealthEvents: BakerHealthEvent[] = [];
-
-        const getThreshold = (b: TzAddress) =>
-          bakerGroups ? bakerGroups.getThresholdFor(b) : missedEventsThreshold;
 
         for (const { event, baker, newCount } of checkHealth(
           events,
@@ -508,12 +515,16 @@ export const create = async (
       const backoffMs = Math.min(5000 * Math.pow(2, rpcFailCount - 1), 60000);
       if (err.name === "HttpRequestFailed") {
         log.warn(
-          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          `RPC Error (attempt ${rpcFailCount}), backing off ${
+            backoffMs / 1000
+          }s:`,
           err.message,
         );
       } else {
         log.warn(
-          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          `RPC Error (attempt ${rpcFailCount}), backing off ${
+            backoffMs / 1000
+          }s:`,
           err,
         );
       }

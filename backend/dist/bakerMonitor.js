@@ -88,8 +88,14 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
             return activeBakers;
         }
         if (bakerGroups) {
+            // The registry already unions staticBakers (= configuredBakers) into
+            // getAllMonitoredBakers, but we re-union with configuredBakers here for
+            // defensive deduplication in case a caller built the registry differently.
             return [
-                ...new Set([...configuredBakers, ...bakerGroups.getAllMonitoredBakers()]),
+                ...new Set([
+                    ...configuredBakers,
+                    ...bakerGroups.getAllMonitoredBakers(),
+                ]),
             ];
         }
         return configuredBakers;
@@ -135,6 +141,9 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
         atRiskThreshold = constants.consensus_rights_delay;
     }
     const missedCounts = new Map();
+    const getThreshold = bakerGroups
+        ? (b) => bakerGroups.getThresholdFor(b)
+        : (_b) => missedEventsThreshold;
     let rpcFailCount = 0;
     const task = async (isInterrupted) => {
         try {
@@ -285,7 +294,6 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     }
                 }
                 const bakerHealthEvents = [];
-                const getThreshold = (b) => bakerGroups ? bakerGroups.getThresholdFor(b) : missedEventsThreshold;
                 for (const { event, baker, newCount } of checkHealth(events, getThreshold, missedCounts)) {
                     if (event) {
                         bakerHealthEvents.push({

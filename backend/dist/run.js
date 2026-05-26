@@ -22,6 +22,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const NodeMonitor = __importStar(require("./nodeMonitor"));
 const BakerMonitor = __importStar(require("./bakerMonitor"));
@@ -31,6 +34,7 @@ const desktop_1 = require("./senders/desktop");
 const http_1 = require("./senders/http");
 const telegram_1 = require("./senders/telegram");
 const slack_1 = require("./senders/slack");
+const discord_1 = require("./senders/discord");
 const EventLog = __importStar(require("./eventlog"));
 const loglevel_1 = require("loglevel");
 const Config = __importStar(require("./config"));
@@ -40,6 +44,10 @@ const path_1 = require("path");
 const logging_1 = require("./logging");
 const server_1 = require("./api/server");
 const configManager_1 = require("./configManager");
+const client_1 = __importDefault(require("./rpc/client"));
+const bakerGroups_1 = require("./bakerGroups");
+const WhalesRefresh = __importStar(require("./whalesRefresh"));
+const senderBakersResolver_1 = require("./senderBakersResolver");
 const run = async (config) => {
     // Makes the script crash on unhandled rejections instead of silently ignoring them.
     process.on("unhandledRejection", (err) => {
@@ -47,6 +55,7 @@ const run = async (config) => {
     });
     (0, logging_1.setup)(config.logging);
     const storageDir = (0, path_1.normalize)(config.storageDirectory);
+    const bakerGroups = (0, bakerGroups_1.create)(config.bakerGroups ?? [], config.bakerMonitor.missed_threshold, config.bakerMonitor.bakers);
     const pid = process.pid;
     const pidFile = (0, path_1.join)(storageDir, "pid");
     let pidFileLock;
@@ -67,11 +76,19 @@ const run = async (config) => {
     const channels = [];
     const emailConfig = config.email;
     if (emailConfig?.enabled) {
-        channels.push(await createChannel("email", (0, email_1.create)(emailConfig)));
+        const resolved = {
+            ...emailConfig,
+            bakers: (0, senderBakersResolver_1.resolveSenderBakers)(Array.isArray(emailConfig.bakers) ? emailConfig.bakers : undefined, bakerGroups),
+        };
+        channels.push(await createChannel("email", (0, email_1.create)(resolved)));
     }
     const desktopConfig = config.desktop;
     if (desktopConfig?.enabled) {
-        channels.push(await createChannel("desktop", (0, desktop_1.create)(desktopConfig)));
+        const resolved = {
+            ...desktopConfig,
+            bakers: (0, senderBakersResolver_1.resolveSenderBakers)(Array.isArray(desktopConfig.bakers) ? desktopConfig.bakers : undefined, bakerGroups),
+        };
+        channels.push(await createChannel("desktop", (0, desktop_1.create)(resolved)));
     }
     const webhookConfig = config.webhook;
     if (webhookConfig?.enabled) {
@@ -79,11 +96,29 @@ const run = async (config) => {
     }
     const telegramConfig = config.telegram;
     if (telegramConfig?.enabled) {
-        channels.push(await createChannel("telegram", await (0, telegram_1.create)(telegramConfig, storageDir)));
+        const resolved = {
+            ...telegramConfig,
+            bakers: (0, senderBakersResolver_1.resolveSenderBakers)(Array.isArray(telegramConfig.bakers)
+                ? telegramConfig.bakers
+                : undefined, bakerGroups),
+        };
+        channels.push(await createChannel("telegram", await (0, telegram_1.create)(resolved, storageDir)));
     }
     const slackConfig = config.slack;
     if (slackConfig?.enabled) {
-        channels.push(await createChannel("slack", (0, slack_1.create)(slackConfig)));
+        const resolved = {
+            ...slackConfig,
+            bakers: (0, senderBakersResolver_1.resolveSenderBakers)(Array.isArray(slackConfig.bakers) ? slackConfig.bakers : undefined, bakerGroups),
+        };
+        channels.push(await createChannel("slack", (0, slack_1.create)(resolved)));
+    }
+    const discordConfig = config.discord;
+    if (discordConfig?.enabled) {
+        const resolved = {
+            ...discordConfig,
+            bakers: (0, senderBakersResolver_1.resolveSenderBakers)(Array.isArray(discordConfig.bakers) ? discordConfig.bakers : undefined, bakerGroups),
+        };
+        channels.push(await createChannel("discord", (0, discord_1.create)(resolved)));
     }
     const excludedEvents = config.excludedEvents;
     const onEvent = async (event) => {
@@ -195,7 +230,16 @@ const run = async (config) => {
         })
         : null;
     const bakerMonitor = bakers.length > 0
-        ? await BakerMonitor.create(storageDir, bakerMonitorConfig, config.rpc, uiConfig.enabled, onEvent)
+        ? await BakerMonitor.create(storageDir, bakerMonitorConfig, config.rpc, uiConfig.enabled, onEvent, bakerGroups)
+        : null;
+    const sharedRpc = (0, client_1.default)(bakerMonitorConfig.rpc.url, config.rpc);
+    const cacheFile = (0, path_1.join)(storageDir, "whales-cache.json");
+    const refreshIntervalMs = 3 * 24 * 60 * 60 * 1000; // 3 cycles ~ 72h
+    const hasStakeGroup = bakerGroups
+        .listGroups()
+        .some((g) => g.kind === "stake");
+    const whalesService = hasStakeGroup
+        ? WhalesRefresh.create(bakerGroups, sharedRpc, cacheFile, refreshIntervalMs)
         : null;
     const nodeMonitor = nodes.length > 0 || teztnets
         ? await NodeMonitor.create(onEvent, { ...nodeMonitorConfig, nodes }, config.rpc)
@@ -208,6 +252,7 @@ const run = async (config) => {
         (0, loglevel_1.info)(`Caught signal ${event}, shutting down...`);
         apiServer?.close();
         bakerMonitor?.stop();
+        whalesService?.stop();
         nodeMonitor?.stop();
         for (const ch of channels) {
             ch.stop();
@@ -234,6 +279,9 @@ const run = async (config) => {
     if (bakerMonitor) {
         const bakerMonitorTask = bakerMonitor.start();
         allTasks.push(bakerMonitorTask);
+    }
+    if (whalesService) {
+        allTasks.push(whalesService.start());
     }
     (0, loglevel_1.info)("Started");
     if (uiConfig.enabled) {

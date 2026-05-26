@@ -5,7 +5,7 @@ import * as service from "./service";
 
 const log = getLogger("whales-refresh");
 
-type StakeRpc = {
+export type StakeRpc = {
   getActiveBakers: (block?: string) => Promise<string[]>;
   getStakingBalance: (pkh: string, block?: string) => Promise<bigint>;
 };
@@ -42,18 +42,21 @@ const mapWithConcurrency = async <T, R>(
   const results: Array<{ ok: true; value: R } | { ok: false; error: unknown }> =
     new Array(items.length);
   let next = 0;
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const i = next++;
-      if (i >= items.length) return;
-      try {
-        results[i] = { ok: true, value: await fn(items[i]) };
-      } catch (error) {
-        results[i] = { ok: false, error };
+  const workers = Array.from(
+    { length: Math.min(limit, items.length) },
+    async () => {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const i = next++;
+        if (i >= items.length) return;
+        try {
+          results[i] = { ok: true, value: await fn(items[i]) };
+        } catch (error) {
+          results[i] = { ok: false, error };
+        }
       }
-    }
-  });
+    },
+  );
   await Promise.all(workers);
   return results;
 };
