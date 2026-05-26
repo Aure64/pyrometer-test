@@ -17,6 +17,12 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+export type AuthResult = {
+  __typename?: 'AuthResult';
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type Baker = {
   __typename?: 'Baker';
   address: Scalars['String']['output'];
@@ -43,6 +49,21 @@ export type BakerEvent = {
   kind: Scalars['String']['output'];
   priority?: Maybe<Scalars['Int']['output']>;
   slotCount?: Maybe<Scalars['Int']['output']>;
+};
+
+export type BakerMonitorSettings = {
+  __typename?: 'BakerMonitorSettings';
+  headDistance: Scalars['Int']['output'];
+  maxCatchupBlocks: Scalars['Int']['output'];
+  missedThreshold: Scalars['Int']['output'];
+  rpc: Scalars['String']['output'];
+};
+
+export type BakerMonitorSettingsInput = {
+  head_distance?: InputMaybe<Scalars['Int']['input']>;
+  max_catchup_blocks?: InputMaybe<Scalars['Int']['input']>;
+  missed_threshold?: InputMaybe<Scalars['Int']['input']>;
+  rpc?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Bakers = {
@@ -134,6 +155,53 @@ export type MemData = {
   used: Scalars['Float']['output'];
 };
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  addBaker: MutationResult;
+  authenticate: AuthResult;
+  removeAlias: MutationResult;
+  removeBaker: MutationResult;
+  setAlias: MutationResult;
+  updateBakerMonitorSettings: MutationResult;
+};
+
+
+export type MutationAddBakerArgs = {
+  address: Scalars['String']['input'];
+};
+
+
+export type MutationAuthenticateArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveAliasArgs = {
+  address: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveBakerArgs = {
+  address: Scalars['String']['input'];
+};
+
+
+export type MutationSetAliasArgs = {
+  address: Scalars['String']['input'];
+  alias: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateBakerMonitorSettingsArgs = {
+  input: BakerMonitorSettingsInput;
+};
+
+export type MutationResult = {
+  __typename?: 'MutationResult';
+  message?: Maybe<Scalars['String']['output']>;
+  success: Scalars['Boolean']['output'];
+};
+
 export type NetworkInfo = {
   __typename?: 'NetworkInfo';
   blocksPerCycle: Scalars['Int']['output'];
@@ -206,7 +274,10 @@ export type PyrometerInfo = {
 export type Query = {
   __typename?: 'Query';
   aliases: Array<TzAddressAlias>;
+  bakerMonitorSettings: BakerMonitorSettings;
   bakers: Bakers;
+  configuredBakers: Array<Scalars['String']['output']>;
+  isAdminConfigured: Scalars['Boolean']['output'];
   networkInfo?: Maybe<NetworkInfo>;
   nodes: Nodes;
   pyrometer: PyrometerInfo;
@@ -306,6 +377,64 @@ export type AliasesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AliasesQuery = { __typename?: 'Query', aliases: Array<{ __typename?: 'TzAddressAlias', alias: string, address: string }> };
+
+export type BakerMonitorSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BakerMonitorSettingsQuery = { __typename?: 'Query', bakerMonitorSettings: { __typename?: 'BakerMonitorSettings', rpc: string, maxCatchupBlocks: number, headDistance: number, missedThreshold: number } };
+
+export type IsAdminConfiguredQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type IsAdminConfiguredQuery = { __typename?: 'Query', isAdminConfigured: boolean };
+
+export type ConfiguredBakersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ConfiguredBakersQuery = { __typename?: 'Query', configuredBakers: Array<string> };
+
+export type AuthenticateMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type AuthenticateMutation = { __typename?: 'Mutation', authenticate: { __typename?: 'AuthResult', success: boolean, message?: string | null } };
+
+export type AddBakerMutationVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type AddBakerMutation = { __typename?: 'Mutation', addBaker: { __typename?: 'MutationResult', success: boolean, message?: string | null } };
+
+export type RemoveBakerMutationVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type RemoveBakerMutation = { __typename?: 'Mutation', removeBaker: { __typename?: 'MutationResult', success: boolean, message?: string | null } };
+
+export type SetAliasMutationVariables = Exact<{
+  address: Scalars['String']['input'];
+  alias: Scalars['String']['input'];
+}>;
+
+
+export type SetAliasMutation = { __typename?: 'Mutation', setAlias: { __typename?: 'MutationResult', success: boolean, message?: string | null } };
+
+export type RemoveAliasMutationVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type RemoveAliasMutation = { __typename?: 'Mutation', removeAlias: { __typename?: 'MutationResult', success: boolean, message?: string | null } };
+
+export type UpdateBakerMonitorSettingsMutationVariables = Exact<{
+  input: BakerMonitorSettingsInput;
+}>;
+
+
+export type UpdateBakerMonitorSettingsMutation = { __typename?: 'Mutation', updateBakerMonitorSettings: { __typename?: 'MutationResult', success: boolean, message?: string | null } };
 
 
 export const GetNodesDocument = gql`
@@ -651,3 +780,309 @@ export function useAliasesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Al
 export type AliasesQueryHookResult = ReturnType<typeof useAliasesQuery>;
 export type AliasesLazyQueryHookResult = ReturnType<typeof useAliasesLazyQuery>;
 export type AliasesQueryResult = Apollo.QueryResult<AliasesQuery, AliasesQueryVariables>;
+export const BakerMonitorSettingsDocument = gql`
+    query bakerMonitorSettings {
+  bakerMonitorSettings {
+    rpc
+    maxCatchupBlocks
+    headDistance
+    missedThreshold
+  }
+}
+    `;
+
+/**
+ * __useBakerMonitorSettingsQuery__
+ *
+ * To run a query within a React component, call `useBakerMonitorSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBakerMonitorSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBakerMonitorSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBakerMonitorSettingsQuery(baseOptions?: Apollo.QueryHookOptions<BakerMonitorSettingsQuery, BakerMonitorSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<BakerMonitorSettingsQuery, BakerMonitorSettingsQueryVariables>(BakerMonitorSettingsDocument, options);
+      }
+export function useBakerMonitorSettingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<BakerMonitorSettingsQuery, BakerMonitorSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<BakerMonitorSettingsQuery, BakerMonitorSettingsQueryVariables>(BakerMonitorSettingsDocument, options);
+        }
+export type BakerMonitorSettingsQueryHookResult = ReturnType<typeof useBakerMonitorSettingsQuery>;
+export type BakerMonitorSettingsLazyQueryHookResult = ReturnType<typeof useBakerMonitorSettingsLazyQuery>;
+export type BakerMonitorSettingsQueryResult = Apollo.QueryResult<BakerMonitorSettingsQuery, BakerMonitorSettingsQueryVariables>;
+export const IsAdminConfiguredDocument = gql`
+    query isAdminConfigured {
+  isAdminConfigured
+}
+    `;
+
+/**
+ * __useIsAdminConfiguredQuery__
+ *
+ * To run a query within a React component, call `useIsAdminConfiguredQuery` and pass it any options that fit your needs.
+ * When your component renders, `useIsAdminConfiguredQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useIsAdminConfiguredQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useIsAdminConfiguredQuery(baseOptions?: Apollo.QueryHookOptions<IsAdminConfiguredQuery, IsAdminConfiguredQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<IsAdminConfiguredQuery, IsAdminConfiguredQueryVariables>(IsAdminConfiguredDocument, options);
+      }
+export function useIsAdminConfiguredLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<IsAdminConfiguredQuery, IsAdminConfiguredQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<IsAdminConfiguredQuery, IsAdminConfiguredQueryVariables>(IsAdminConfiguredDocument, options);
+        }
+export type IsAdminConfiguredQueryHookResult = ReturnType<typeof useIsAdminConfiguredQuery>;
+export type IsAdminConfiguredLazyQueryHookResult = ReturnType<typeof useIsAdminConfiguredLazyQuery>;
+export type IsAdminConfiguredQueryResult = Apollo.QueryResult<IsAdminConfiguredQuery, IsAdminConfiguredQueryVariables>;
+export const ConfiguredBakersDocument = gql`
+    query configuredBakers {
+  configuredBakers
+}
+    `;
+
+/**
+ * __useConfiguredBakersQuery__
+ *
+ * To run a query within a React component, call `useConfiguredBakersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useConfiguredBakersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useConfiguredBakersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useConfiguredBakersQuery(baseOptions?: Apollo.QueryHookOptions<ConfiguredBakersQuery, ConfiguredBakersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConfiguredBakersQuery, ConfiguredBakersQueryVariables>(ConfiguredBakersDocument, options);
+      }
+export function useConfiguredBakersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConfiguredBakersQuery, ConfiguredBakersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConfiguredBakersQuery, ConfiguredBakersQueryVariables>(ConfiguredBakersDocument, options);
+        }
+export type ConfiguredBakersQueryHookResult = ReturnType<typeof useConfiguredBakersQuery>;
+export type ConfiguredBakersLazyQueryHookResult = ReturnType<typeof useConfiguredBakersLazyQuery>;
+export type ConfiguredBakersQueryResult = Apollo.QueryResult<ConfiguredBakersQuery, ConfiguredBakersQueryVariables>;
+export const AuthenticateDocument = gql`
+    mutation authenticate($token: String!) {
+  authenticate(token: $token) {
+    success
+    message
+  }
+}
+    `;
+export type AuthenticateMutationFn = Apollo.MutationFunction<AuthenticateMutation, AuthenticateMutationVariables>;
+
+/**
+ * __useAuthenticateMutation__
+ *
+ * To run a mutation, you first call `useAuthenticateMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAuthenticateMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [authenticateMutation, { data, loading, error }] = useAuthenticateMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useAuthenticateMutation(baseOptions?: Apollo.MutationHookOptions<AuthenticateMutation, AuthenticateMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AuthenticateMutation, AuthenticateMutationVariables>(AuthenticateDocument, options);
+      }
+export type AuthenticateMutationHookResult = ReturnType<typeof useAuthenticateMutation>;
+export type AuthenticateMutationResult = Apollo.MutationResult<AuthenticateMutation>;
+export type AuthenticateMutationOptions = Apollo.BaseMutationOptions<AuthenticateMutation, AuthenticateMutationVariables>;
+export const AddBakerDocument = gql`
+    mutation addBaker($address: String!) {
+  addBaker(address: $address) {
+    success
+    message
+  }
+}
+    `;
+export type AddBakerMutationFn = Apollo.MutationFunction<AddBakerMutation, AddBakerMutationVariables>;
+
+/**
+ * __useAddBakerMutation__
+ *
+ * To run a mutation, you first call `useAddBakerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddBakerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addBakerMutation, { data, loading, error }] = useAddBakerMutation({
+ *   variables: {
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useAddBakerMutation(baseOptions?: Apollo.MutationHookOptions<AddBakerMutation, AddBakerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AddBakerMutation, AddBakerMutationVariables>(AddBakerDocument, options);
+      }
+export type AddBakerMutationHookResult = ReturnType<typeof useAddBakerMutation>;
+export type AddBakerMutationResult = Apollo.MutationResult<AddBakerMutation>;
+export type AddBakerMutationOptions = Apollo.BaseMutationOptions<AddBakerMutation, AddBakerMutationVariables>;
+export const RemoveBakerDocument = gql`
+    mutation removeBaker($address: String!) {
+  removeBaker(address: $address) {
+    success
+    message
+  }
+}
+    `;
+export type RemoveBakerMutationFn = Apollo.MutationFunction<RemoveBakerMutation, RemoveBakerMutationVariables>;
+
+/**
+ * __useRemoveBakerMutation__
+ *
+ * To run a mutation, you first call `useRemoveBakerMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveBakerMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeBakerMutation, { data, loading, error }] = useRemoveBakerMutation({
+ *   variables: {
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useRemoveBakerMutation(baseOptions?: Apollo.MutationHookOptions<RemoveBakerMutation, RemoveBakerMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveBakerMutation, RemoveBakerMutationVariables>(RemoveBakerDocument, options);
+      }
+export type RemoveBakerMutationHookResult = ReturnType<typeof useRemoveBakerMutation>;
+export type RemoveBakerMutationResult = Apollo.MutationResult<RemoveBakerMutation>;
+export type RemoveBakerMutationOptions = Apollo.BaseMutationOptions<RemoveBakerMutation, RemoveBakerMutationVariables>;
+export const SetAliasDocument = gql`
+    mutation setAlias($address: String!, $alias: String!) {
+  setAlias(address: $address, alias: $alias) {
+    success
+    message
+  }
+}
+    `;
+export type SetAliasMutationFn = Apollo.MutationFunction<SetAliasMutation, SetAliasMutationVariables>;
+
+/**
+ * __useSetAliasMutation__
+ *
+ * To run a mutation, you first call `useSetAliasMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetAliasMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setAliasMutation, { data, loading, error }] = useSetAliasMutation({
+ *   variables: {
+ *      address: // value for 'address'
+ *      alias: // value for 'alias'
+ *   },
+ * });
+ */
+export function useSetAliasMutation(baseOptions?: Apollo.MutationHookOptions<SetAliasMutation, SetAliasMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<SetAliasMutation, SetAliasMutationVariables>(SetAliasDocument, options);
+      }
+export type SetAliasMutationHookResult = ReturnType<typeof useSetAliasMutation>;
+export type SetAliasMutationResult = Apollo.MutationResult<SetAliasMutation>;
+export type SetAliasMutationOptions = Apollo.BaseMutationOptions<SetAliasMutation, SetAliasMutationVariables>;
+export const RemoveAliasDocument = gql`
+    mutation removeAlias($address: String!) {
+  removeAlias(address: $address) {
+    success
+    message
+  }
+}
+    `;
+export type RemoveAliasMutationFn = Apollo.MutationFunction<RemoveAliasMutation, RemoveAliasMutationVariables>;
+
+/**
+ * __useRemoveAliasMutation__
+ *
+ * To run a mutation, you first call `useRemoveAliasMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveAliasMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeAliasMutation, { data, loading, error }] = useRemoveAliasMutation({
+ *   variables: {
+ *      address: // value for 'address'
+ *   },
+ * });
+ */
+export function useRemoveAliasMutation(baseOptions?: Apollo.MutationHookOptions<RemoveAliasMutation, RemoveAliasMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveAliasMutation, RemoveAliasMutationVariables>(RemoveAliasDocument, options);
+      }
+export type RemoveAliasMutationHookResult = ReturnType<typeof useRemoveAliasMutation>;
+export type RemoveAliasMutationResult = Apollo.MutationResult<RemoveAliasMutation>;
+export type RemoveAliasMutationOptions = Apollo.BaseMutationOptions<RemoveAliasMutation, RemoveAliasMutationVariables>;
+export const UpdateBakerMonitorSettingsDocument = gql`
+    mutation updateBakerMonitorSettings($input: BakerMonitorSettingsInput!) {
+  updateBakerMonitorSettings(input: $input) {
+    success
+    message
+  }
+}
+    `;
+export type UpdateBakerMonitorSettingsMutationFn = Apollo.MutationFunction<UpdateBakerMonitorSettingsMutation, UpdateBakerMonitorSettingsMutationVariables>;
+
+/**
+ * __useUpdateBakerMonitorSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateBakerMonitorSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBakerMonitorSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBakerMonitorSettingsMutation, { data, loading, error }] = useUpdateBakerMonitorSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateBakerMonitorSettingsMutation(baseOptions?: Apollo.MutationHookOptions<UpdateBakerMonitorSettingsMutation, UpdateBakerMonitorSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateBakerMonitorSettingsMutation, UpdateBakerMonitorSettingsMutationVariables>(UpdateBakerMonitorSettingsDocument, options);
+      }
+export type UpdateBakerMonitorSettingsMutationHookResult = ReturnType<typeof useUpdateBakerMonitorSettingsMutation>;
+export type UpdateBakerMonitorSettingsMutationResult = Apollo.MutationResult<UpdateBakerMonitorSettingsMutation>;
+export type UpdateBakerMonitorSettingsMutationOptions = Apollo.BaseMutationOptions<UpdateBakerMonitorSettingsMutation, UpdateBakerMonitorSettingsMutationVariables>;

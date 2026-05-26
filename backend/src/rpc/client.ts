@@ -77,7 +77,7 @@ export type RpcClient = {
   ) => Promise<BlockHeader[]>;
   getFullBalance: (pkh: TzAddress, block?: string) => Promise<string>;
   getFrozenDeposits: (pkh: TzAddress, block?: string) => Promise<string>;
-  getStakingBalance: (pkh: TzAddress, block?: string) => Promise<string>;
+  getStakingBalance: (pkh: TzAddress, block?: string) => Promise<bigint>;
   getGracePeriod: (pkh: TzAddress, block?: string) => Promise<number>;
   getConsensusKey: (
     pkh: TzAddress,
@@ -102,7 +102,7 @@ export type RpcClient = {
     level: number,
     maxRoundOrPriority: number,
   ) => Promise<[BakingRights, EndorsingRights]>;
-  getActiveBakers: (block: string) => Promise<TzAddress[]>;
+  getActiveBakers: (block?: string) => Promise<TzAddress[]>;
 };
 
 export type RpcClientConfig = {
@@ -388,8 +388,9 @@ export default (
       }
     },
 
-    getStakingBalance: (pkh: TzAddress, block = "head") => {
-      return fetchDelegateField(pkh, block, "staking_balance");
+    getStakingBalance: async (pkh: TzAddress, block = "head") => {
+      const raw = await fetchDelegateField(pkh, block, "staking_balance");
+      return BigInt(String(raw));
     },
 
     getGracePeriod: (pkh: TzAddress, block = "head") => {

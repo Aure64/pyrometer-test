@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.load = exports.toNamedNode = exports.makeSampleConfig = exports.yargResetOptions = exports.yargRunOptions = void 0;
+exports.load = exports.validateBakerGroups = exports.BakerGroupValidationError = exports.toNamedNode = exports.makeSampleConfig = exports.yargResetOptions = exports.yargRunOptions = void 0;
 const nconf_1 = __importDefault(require("nconf"));
 const util_1 = require("util");
 const toml_1 = __importDefault(require("@iarna/toml"));
@@ -141,9 +141,9 @@ const TEZTNETS_CONFIG = {
 };
 const LOW_PEER_COUNT = {
     key: `${NODE_MONITOR_GROUP.key}:low_peer_count`,
-    default: undefined,
+    default: 10,
     sampleValue: 5,
-    description: "Low peer count thrashold",
+    description: "Low peer count threshold",
     alias: undefined,
     type: "number",
     group: NODE_MONITOR_GROUP.label,
@@ -193,7 +193,8 @@ const SLACK_ENABLED = {
 const SLACK_URL = {
     key: `${SLACK_KEY}:url`,
     default: undefined,
-    sampleValue: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+    // Avoid real Slack webhook pattern to prevent push protection false positives
+    sampleValue: "SLACK_WEBHOOK_URL",
     description: "Webhook URL for Slack notifications",
     alias: undefined,
     type: "string",
@@ -223,6 +224,69 @@ const SLACK_SHORT_ADDRESS = {
 };
 const SLACK_EXCLUDED_EVENTS = mkExcludeEventsPref(`${SLACK_KEY}:exclude`, SLACK_GROUP);
 const SLACK_ONLY_BAKERS = mkOnlyBakersPref(`${SLACK_KEY}:bakers`, SLACK_GROUP);
+const DISCORD_GROUP = { key: "discord", label: "Discord:" };
+const DISCORD_KEY = DISCORD_GROUP.key;
+const DISCORD_ENABLED = {
+    key: `${DISCORD_KEY}:enabled`,
+    default: false,
+    description: "Enable Discord webhook notifications",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_URL = {
+    key: `${DISCORD_KEY}:url`,
+    default: "",
+    description: "Discord webhook URL",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: ["string", { required_if: [`${DISCORD_KEY}.enabled`, true] }],
+};
+const DISCORD_EMOJI = {
+    key: `${DISCORD_KEY}:emoji`,
+    default: true,
+    description: "Use emoji in messages",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_SHORT = {
+    key: `${DISCORD_KEY}:short_address`,
+    default: true,
+    description: "Shorten addresses",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_USERNAME = {
+    key: `${DISCORD_KEY}:username`,
+    default: "",
+    description: "Override webhook username",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "string",
+};
+const DISCORD_EXCLUDE = mkExcludeEventsPref(`${DISCORD_KEY}:exclude`, DISCORD_GROUP.label, []);
+const DISCORD_BAKERS = {
+    key: `${DISCORD_KEY}:bakers`,
+    default: undefined,
+    description: "Restrict notifications to these bakers (literal addresses or @group:NAME)",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: true,
+    validationRule: "array",
+};
 const TELEGRAM_GROUP = "Telegram Notifications:";
 const TELEGRAM_KEY = "telegram";
 const TELEGRAM_ENABLED = {
@@ -588,6 +652,15 @@ const UI_SHOW_SYSTEM_INFO = {
     isArray: false,
     validationRule: "boolean",
 };
+const UI_ADMIN_TOKEN = {
+    key: `${UI_GROUP.key}:admin_token`,
+    default: undefined,
+    description: "Admin token for UI mutations",
+    type: "string",
+    alias: undefined,
+    group: UI_GROUP.label,
+    isArray: false,
+};
 const AUTODETECT_GROUP = { key: "autodetect", label: "Auto-detect:" };
 const AUTODETECT_ENABLED = {
     key: `${AUTODETECT_GROUP.key}:enabled`,
@@ -620,6 +693,28 @@ const RPC_RETRY_ATTEMPTS = {
     isArray: false,
     validationRule: ["numeric", "min:1"],
 };
+// TzKT integration (optional)
+const TZKT_GROUP = { key: "tzkt", label: "TzKT:" };
+const TZKT_ENABLED = {
+    key: `${TZKT_GROUP.key}:enabled`,
+    default: false,
+    description: "Enable optional TzKT lookups (octez version)",
+    alias: undefined,
+    type: "boolean",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const TZKT_BASE_URL = {
+    key: `${TZKT_GROUP.key}:base_url`,
+    default: "https://api.tzkt.io",
+    description: "Base URL for TzKT API",
+    alias: undefined,
+    type: "string",
+    group: TZKT_GROUP.label,
+    isArray: false,
+    validationRule: "link",
+};
 // list of all prefs that should be iterated to build yargs options and nconf defaults
 const userPrefs = [
     BAKERS,
@@ -641,6 +736,13 @@ const userPrefs = [
     SLACK_SHORT_ADDRESS,
     SLACK_EXCLUDED_EVENTS,
     SLACK_ONLY_BAKERS,
+    DISCORD_ENABLED,
+    DISCORD_URL,
+    DISCORD_EMOJI,
+    DISCORD_SHORT,
+    DISCORD_USERNAME,
+    DISCORD_EXCLUDE,
+    DISCORD_BAKERS,
     TELEGRAM_ENABLED,
     TELEGRAM_TOKEN,
     TELEGRAM_EMOJI,
@@ -682,9 +784,12 @@ const userPrefs = [
     UI_WEBROOT,
     UI_EXPLORER_URL,
     UI_SHOW_SYSTEM_INFO,
+    UI_ADMIN_TOKEN,
     AUTODETECT_ENABLED,
     RPC_RETRY_ATTEMPTS,
     RPC_RETRY_INTERVAL_MS,
+    TZKT_ENABLED,
+    TZKT_BASE_URL,
 ];
 /**
  * Iterates through the UserPrefs to create the Yarg settings used for parsing and providing help
@@ -719,7 +824,10 @@ const makeConfigDefaults = () => {
     }, {});
     return defaults;
 };
-const makeSampleConfig = () => {
+const makeSampleConfig = (minimal = false) => {
+    if (minimal) {
+        return makeMinimalSampleConfig();
+    }
     const sampleConfig = userPrefs.reduce((accumulator, userPref) => {
         // ignore user prefs that are only supported by the command line
         if (!userPref.cliOnly) {
@@ -735,10 +843,27 @@ const makeSampleConfig = () => {
     return sampleConfig;
 };
 exports.makeSampleConfig = makeSampleConfig;
+const makeMinimalSampleConfig = () => {
+    const minimalPrefs = [
+        { ...BAKERS, sampleValue: ["tz1YOUR_BAKER_ADDRESS"] },
+        RPC,
+        UI_ENABLED,
+        UI_PORT,
+        LOG_LEVEL,
+    ];
+    const sampleConfig = minimalPrefs.reduce((accumulator, userPref) => {
+        const value = userPref.sampleValue !== undefined
+            ? userPref.sampleValue
+            : userPref.default;
+        return (0, setPath_1.default)(userPref.key, accumulator, value);
+    }, {});
+    return sampleConfig;
+};
 /**
  * Iterates through the UserPrefs to create the validations object used by validatorjs.  Also creates a
  * few custom validators for specific fields.
  */
+const BAKER_GROUP_REF_RE = /^@group:[a-z][a-z0-9_-]*$/;
 const makeConfigValidations = () => {
     validatorjs_1.default.register("baker", (value) => {
         if (typeof value !== "string")
@@ -746,8 +871,11 @@ const makeConfigValidations = () => {
         //wildcard "address"
         if (value === "*")
             return true;
+        // group reference e.g. @group:whales
+        if (BAKER_GROUP_REF_RE.test(value))
+            return true;
         return (0, utils_1.validateAddress)(value) === utils_1.ValidationResult.VALID;
-    }, "The :attribute is not a valid baker address.");
+    }, "The :attribute is not a valid baker address or @group:NAME reference.");
     validatorjs_1.default.register("loglevel", (value) => {
         return LOG_LEVELS.includes(`${value}`);
     }, "The :attribute is not a valid log level.");
@@ -827,12 +955,67 @@ const toNamedNode = (configNode) => {
     }
 };
 exports.toNamedNode = toNamedNode;
+class BakerGroupValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "BakerGroupValidationError";
+    }
+}
+exports.BakerGroupValidationError = BakerGroupValidationError;
+const BAKER_GROUP_NAME_RE = /^[a-z][a-z0-9_-]*$/;
+const validateBakerGroups = (raw) => {
+    const seen = new Set();
+    for (let i = 0; i < raw.length; i++) {
+        const g = raw[i];
+        if (!g.name) {
+            throw new BakerGroupValidationError(`baker_group #${i}: 'name' is required`);
+        }
+        if (!BAKER_GROUP_NAME_RE.test(g.name)) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": name must match [a-z][a-z0-9_-]*`);
+        }
+        if (seen.has(g.name)) {
+            throw new BakerGroupValidationError(`baker_group: duplicate name "${g.name}"`);
+        }
+        seen.add(g.name);
+        const hasBakers = Array.isArray(g.bakers) && g.bakers.length > 0;
+        const hasStake = g.stake_min !== undefined;
+        if (!hasBakers && !hasStake) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": must define either 'bakers' or 'stake_min'`);
+        }
+        if (hasBakers && hasStake) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": 'bakers' and 'stake_min' are mutually exclusive`);
+        }
+        if (typeof g.missed_threshold !== "number" || g.missed_threshold <= 0) {
+            throw new BakerGroupValidationError(`baker_group "${g.name}": 'missed_threshold' must be > 0`);
+        }
+        if (hasBakers) {
+            for (const addr of g.bakers) {
+                if ((0, utils_1.validateAddress)(addr) !== utils_1.ValidationResult.VALID) {
+                    throw new BakerGroupValidationError(`baker_group "${g.name}": invalid address ${addr}`);
+                }
+            }
+        }
+        if (hasStake) {
+            let stake;
+            try {
+                stake = BigInt(g.stake_min);
+            }
+            catch {
+                throw new BakerGroupValidationError(`baker_group "${g.name}": 'stake_min' must be a positive integer`);
+            }
+            if (stake <= 0n) {
+                throw new BakerGroupValidationError(`baker_group "${g.name}": 'stake_min' must be > 0`);
+            }
+        }
+    }
+};
+exports.validateBakerGroups = validateBakerGroups;
 /**
  * Load config settings from argv and the file system.  File system will use the path from envPaths
  * unless overriden by argv.
  */
 const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
-    nconf_1.default.argv(yargs_1.default.strict().options(yargOptions));
+    nconf_1.default.argv((0, yargs_1.default)(process.argv.slice(2)).strict().options(yargOptions));
     const cliOptions = nconf_1.default.get();
     const nonConfigKeys = ["_", "$0"];
     const cliAliases = userPrefs
@@ -885,6 +1068,19 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
             console.log(formatValidationErrors({ ...errors, ...aliasErrors }));
             process.exit(1);
         }
+        // baker_group validation
+        const rawBakerGroups = nconf_1.default.get("baker_group") || [];
+        try {
+            (0, exports.validateBakerGroups)(rawBakerGroups);
+        }
+        catch (err) {
+            if (err instanceof BakerGroupValidationError) {
+                console.error("Invalid config");
+                console.error(err.message);
+                process.exit(1);
+            }
+            throw err;
+        }
     }
     const asObject = () => {
         const obj = nconf_1.default.get();
@@ -894,6 +1090,7 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
     createAliasMap(TELEGRAM_KEY);
     createAliasMap(DESKTOP_KEY);
     createAliasMap(SLACK_KEY);
+    createAliasMap(DISCORD_KEY);
     createAliasMap(EMAIL_KEY);
     createAliasMap(UI_GROUP.key);
     const createNodeMonitorConfig = () => {
@@ -921,6 +1118,10 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         get bakerMonitor() {
             return bakerMonitoConfig;
         },
+        get bakerGroups() {
+            const raw = nconf_1.default.get("baker_group") || [];
+            return raw;
+        },
         get nodeMonitor() {
             return nodeMonitorConfig;
         },
@@ -945,6 +1146,9 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         get slack() {
             return nconf_1.default.get(SLACK_KEY);
         },
+        get discord() {
+            return nconf_1.default.get(DISCORD_KEY);
+        },
         get notifications() {
             return nconf_1.default.get(NOTIFICATIONS_KEY);
         },
@@ -959,6 +1163,9 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         },
         get rpc() {
             return nconf_1.default.get(RPC_GROUP.key);
+        },
+        get tzkt() {
+            return nconf_1.default.get(TZKT_GROUP.key);
         },
         asObject,
     };

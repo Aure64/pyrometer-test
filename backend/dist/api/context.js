@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createContext = void 0;
 const client_1 = __importDefault(require("../rpc/client"));
-const createContext = (nodeInfoCollection, bakerInfoCollection, rpcUrl, rpcConfig, explorerUrl, showSystemInfo, aliasMap) => {
+const client_2 = require("../tzkt/client");
+const createContext = (nodeInfoCollection, bakerInfoCollection, rpcUrl, rpcConfig, explorerUrl, showSystemInfo, aliasMap, tzktConfig, configManager = null, adminToken = undefined) => {
     return {
         nodeInfoCollection,
         bakerInfoCollection,
@@ -13,6 +14,9 @@ const createContext = (nodeInfoCollection, bakerInfoCollection, rpcUrl, rpcConfi
         explorerUrl,
         showSystemInfo,
         aliasMap,
+        tzkt: (0, client_2.createTzktClient)(tzktConfig),
+        configManager,
+        adminToken,
     };
 };
 exports.createContext = createContext;

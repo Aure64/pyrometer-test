@@ -7,6 +7,7 @@ import { create as DesktopSender } from "./senders/desktop";
 import { create as HttpSender } from "./senders/http";
 import { create as TelegramSender } from "./senders/telegram";
 import { create as SlackSender } from "./senders/slack";
+import { create as DiscordSender } from "./senders/discord";
 import * as EventLog from "./eventlog";
 import { debug, info, error } from "loglevel";
 import * as Config from "./config";
@@ -17,6 +18,11 @@ import { join as joinPath, normalize as normalizePath } from "path";
 import { setup as setupLogging } from "./logging";
 
 import { start as startAPIServer } from "./api/server";
+import { ConfigManager } from "./configManager";
+import RpcClient from "./rpc/client";
+import { create as createBakerGroups } from "./bakerGroups";
+import * as WhalesRefresh from "./whalesRefresh";
+import { resolveSenderBakers } from "./senderBakersResolver";
 
 type TzClientPkhListItem = { name: string; value: string };
 
@@ -31,6 +37,12 @@ const run = async (config: Config.Config) => {
   setupLogging(config.logging);
 
   const storageDir = normalizePath(config.storageDirectory);
+
+  const bakerGroups = createBakerGroups(
+    config.bakerGroups ?? [],
+    config.bakerMonitor.missed_threshold,
+    config.bakerMonitor.bakers,
+  );
 
   const pid = process.pid;
   const pidFile = joinPath(storageDir, "pid");
@@ -66,12 +78,26 @@ const run = async (config: Config.Config) => {
 
   const emailConfig = config.email;
   if (emailConfig?.enabled) {
-    channels.push(await createChannel("email", EmailSender(emailConfig)));
+    const resolved = {
+      ...emailConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(emailConfig.bakers) ? emailConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("email", EmailSender(resolved)));
   }
 
   const desktopConfig = config.desktop;
   if (desktopConfig?.enabled) {
-    channels.push(await createChannel("desktop", DesktopSender(desktopConfig)));
+    const resolved = {
+      ...desktopConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(desktopConfig.bakers) ? desktopConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("desktop", DesktopSender(resolved)));
   }
 
   const webhookConfig = config.webhook;
@@ -81,17 +107,45 @@ const run = async (config: Config.Config) => {
 
   const telegramConfig = config.telegram;
   if (telegramConfig?.enabled) {
+    const resolved = {
+      ...telegramConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(telegramConfig.bakers)
+          ? telegramConfig.bakers
+          : undefined,
+        bakerGroups,
+      ),
+    };
     channels.push(
       await createChannel(
         "telegram",
-        await TelegramSender(telegramConfig, storageDir),
+        await TelegramSender(resolved, storageDir),
       ),
     );
   }
 
   const slackConfig = config.slack;
   if (slackConfig?.enabled) {
-    channels.push(await createChannel("slack", SlackSender(slackConfig)));
+    const resolved = {
+      ...slackConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(slackConfig.bakers) ? slackConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("slack", SlackSender(resolved)));
+  }
+
+  const discordConfig = config.discord;
+  if (discordConfig?.enabled) {
+    const resolved = {
+      ...discordConfig,
+      bakers: resolveSenderBakers(
+        Array.isArray(discordConfig.bakers) ? discordConfig.bakers : undefined,
+        bakerGroups,
+      ),
+    };
+    channels.push(await createChannel("discord", DiscordSender(resolved)));
   }
 
   const excludedEvents = config.excludedEvents;
@@ -136,7 +190,7 @@ const run = async (config: Config.Config) => {
           }
         }
       } catch (err) {
-        info(`Could not read ${pkhFile}`);
+        debug(`Could not read ${pkhFile}`);
         debug(err);
       }
     }
@@ -154,7 +208,7 @@ const run = async (config: Config.Config) => {
           tezosClientEndpoints.push(tzClientConfig.endpoint);
         }
       } catch (err) {
-        info(`Could not read ${tzClientConfigFile}`);
+        debug(`Could not read ${tzClientConfigFile}`);
         debug(err);
       }
     }
@@ -176,6 +230,12 @@ const run = async (config: Config.Config) => {
 
   const bakers = [...tezosClientBakers, ...bakerMonitorConfig.bakers];
   bakerMonitorConfig.bakers = bakers;
+
+  if (bakers.length === 0 && bakerMonitorConfig.rpc) {
+    info(
+      "No bakers configured. Add baker addresses in your config file or use the UI Settings page.",
+    );
+  }
 
   function notEmpty<TValue>(value: TValue | undefined | null): value is TValue {
     return value !== null && value !== undefined;
@@ -204,6 +264,32 @@ const run = async (config: Config.Config) => {
     uiConfig = { ...config.ui, show_system_info: true };
   }
 
+  const overridesPath = joinPath(normalizePath(storageDir), "overrides.json");
+  const configManager = uiConfig.enabled
+    ? new ConfigManager(overridesPath, {
+        bakers: bakers,
+        aliases: uiConfig.alias || {},
+        settings: {
+          rpc: bakerMonitorConfig.rpc.url,
+          max_catchup_blocks: bakerMonitorConfig.max_catchup_blocks,
+          head_distance: bakerMonitorConfig.head_distance,
+          missed_threshold: bakerMonitorConfig.missed_threshold,
+        },
+      })
+    : null;
+  const cacheFile = joinPath(storageDir, "whales-cache.json");
+
+  // Hydrate stake-based groups from disk cache so bakerMonitor sees the
+  // previous snapshot from the first block tick, not just after the first
+  // whalesService refreshOnce completes (which happens async and may lag
+  // behind the first monitored block by seconds or more).
+  {
+    const cache = await WhalesRefresh.loadCache(cacheFile);
+    for (const [name, addrs] of Object.entries(cache)) {
+      if (bakerGroups.getGroup(name)) bakerGroups.setGroupBakers(name, addrs);
+    }
+  }
+
   const bakerMonitor =
     bakers.length > 0
       ? await BakerMonitor.create(
@@ -212,8 +298,23 @@ const run = async (config: Config.Config) => {
           config.rpc,
           uiConfig.enabled,
           onEvent,
+          bakerGroups,
         )
       : null;
+
+  const sharedRpc = RpcClient(bakerMonitorConfig.rpc.url, config.rpc);
+  const WHALES_REFRESH_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tezos cycles ≈ 72 h
+  const hasStakeGroup = bakerGroups
+    .listGroups()
+    .some((g) => g.kind === "stake");
+  const whalesService = hasStakeGroup
+    ? WhalesRefresh.create(
+        bakerGroups,
+        sharedRpc,
+        cacheFile,
+        WHALES_REFRESH_INTERVAL_MS,
+      )
+    : null;
 
   const nodeMonitor =
     nodes.length > 0 || teztnets
@@ -234,6 +335,7 @@ const run = async (config: Config.Config) => {
         uiConfig,
         config.rpc,
         config.tzkt,
+        configManager,
       )
     : null;
 
@@ -241,6 +343,7 @@ const run = async (config: Config.Config) => {
     info(`Caught signal ${event}, shutting down...`);
     apiServer?.close();
     bakerMonitor?.stop();
+    whalesService?.stop();
     nodeMonitor?.stop();
     for (const ch of channels) {
       ch.stop();
@@ -274,7 +377,14 @@ const run = async (config: Config.Config) => {
     allTasks.push(bakerMonitorTask);
   }
 
+  if (whalesService) {
+    allTasks.push(whalesService.start());
+  }
+
   info("Started");
+  if (uiConfig.enabled) {
+    info(`Web UI available at http://${uiConfig.host}:${uiConfig.port}`);
+  }
   await Promise.all(allTasks);
   debug(`Releasing file lock on ${pidFile}`);
   await pidFileLock();

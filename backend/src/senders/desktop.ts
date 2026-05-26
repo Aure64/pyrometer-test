@@ -1,7 +1,7 @@
 import { notify } from "node-notifier";
 import format from "../format";
 
-import { Events, Event, Sender, FilteredSender } from "../events";
+import { Events, Event, Sender, FilteredSender, BakersFilter } from "../events";
 
 import type { TzAddressAliasMap } from "../config";
 
@@ -12,7 +12,7 @@ export type DesktopConfig = {
   short_address: boolean;
   alias: TzAddressAliasMap;
   exclude: Events[];
-  bakers: string[] | undefined;
+  bakers: BakersFilter;
 };
 
 const post = async (message: string, sound: boolean): Promise<void> => {

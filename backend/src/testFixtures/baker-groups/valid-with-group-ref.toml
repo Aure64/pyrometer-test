@@ -1,0 +1,21 @@
+data_dir = "/tmp/p"
+
+[baker_monitor]
+bakers = []
+rpc = "http://127.0.0.1:8732"
+missed_threshold = 5
+
+[[baker_group]]
+name = "whales"
+stake_min = 1_000_000_000_000
+missed_threshold = 75
+
+[slack]
+enabled = true
+url = "https://hooks.slack.com/services/T00/B00/XXX"
+bakers = ["@group:whales"]
+
+[ui]
+enabled = false
+host = "127.0.0.1"
+port = 2099

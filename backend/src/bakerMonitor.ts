@@ -43,6 +43,7 @@ import protocolS from "./bm-proto-s";
 import protocolT from "./bm-proto-t";
 
 import type { TezosNode } from "./nodeMonitor";
+import type { BakerGroupsRegistry } from "./bakerGroups";
 
 const name = "bm";
 
@@ -103,8 +104,12 @@ export const create = async (
   rpcConfig: RpcClientConfig,
   enableHistory: boolean,
   onEvent: (event: Event) => Promise<void>,
+  bakerGroups?: BakerGroupsRegistry,
 ): Promise<BakerMonitor> => {
-  const MAX_HISTORY = Math.max(7, missedEventsThreshold);
+  const MAX_HISTORY = Math.max(
+    7,
+    bakerGroups ? bakerGroups.getMaxThreshold() : missedEventsThreshold,
+  );
 
   const log = getLogger(name);
 
@@ -123,7 +128,10 @@ export const create = async (
     "get protocol constants",
   );
 
-  log.info("Protocol constants", JSON.stringify(constants, null, 2));
+  log.debug("Protocol constants", JSON.stringify(constants, null, 2));
+  log.info(
+    `Protocol: blocks_per_cycle=${constants.blocks_per_cycle}, minimal_block_delay=${constants.minimal_block_delay}`,
+  );
 
   //dedup
   configuredBakers = [...new Set(configuredBakers)];
@@ -148,6 +156,17 @@ export const create = async (
         activeBakersCache.set(blockCycle, activeBakers);
       }
       return activeBakers;
+    }
+    if (bakerGroups) {
+      // The registry already unions staticBakers (= configuredBakers) into
+      // getAllMonitoredBakers, but we re-union with configuredBakers here for
+      // defensive deduplication in case a caller built the registry differently.
+      return [
+        ...new Set([
+          ...configuredBakers,
+          ...bakerGroups.getAllMonitoredBakers(),
+        ]),
+      ];
     }
     return configuredBakers;
   };
@@ -197,7 +216,7 @@ export const create = async (
     await store.put(CHAIN_POSITION_KEY, value);
 
   let atRiskThreshold: number;
-  
+
   if ("tolerated_inactivity_period" in constants) {
     const tip = (constants as any).tolerated_inactivity_period as number;
     atRiskThreshold = Math.max(1, tip - 1);
@@ -208,6 +227,10 @@ export const create = async (
   }
 
   const missedCounts = new Map<TzAddress, number>();
+
+  const getThreshold = bakerGroups
+    ? (b: TzAddress) => bakerGroups.getThresholdFor(b)
+    : (_b: TzAddress) => missedEventsThreshold;
 
   let rpcFailCount = 0;
 
@@ -357,7 +380,7 @@ export const create = async (
               rpc: rpc,
             });
             break;
-          
+
           case "PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg":
             events = await protocolQ({
               bakers,
@@ -366,13 +389,13 @@ export const create = async (
             });
             break;
 
-            case "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7":
-              events = await protocolR({
-                bakers,
-                block,
-                rpc: rpc,
-              });
-              break;
+          case "PsRiotumaAMotcRoDWW1bysEhQy2n1M5fy8JgRp8jjRfHGmfeA7":
+            events = await protocolR({
+              bakers,
+              block,
+              rpc: rpc,
+            });
+            break;
 
           case "PtSeouLouXkxhg39oWzjxDWaCydNfR3RxCUrNe4Q9Ro8BTehcbh":
             events = await protocolS({
@@ -401,7 +424,7 @@ export const create = async (
 
         for (const { event, baker, newCount } of checkHealth(
           events,
-          missedEventsThreshold,
+          getThreshold,
           missedCounts,
         )) {
           if (event) {
@@ -492,12 +515,16 @@ export const create = async (
       const backoffMs = Math.min(5000 * Math.pow(2, rpcFailCount - 1), 60000);
       if (err.name === "HttpRequestFailed") {
         log.warn(
-          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          `RPC Error (attempt ${rpcFailCount}), backing off ${
+            backoffMs / 1000
+          }s:`,
           err.message,
         );
       } else {
         log.warn(
-          `RPC Error (attempt ${rpcFailCount}), backing off ${backoffMs / 1000}s:`,
+          `RPC Error (attempt ${rpcFailCount}), backing off ${
+            backoffMs / 1000
+          }s:`,
           err,
         );
       }
@@ -600,25 +627,22 @@ export type CheckHealthResult = {
 
 export function* checkHealth(
   events: BakerEvent[],
-  missedEventsThreshold: number,
+  getThreshold: (baker: TzAddress) => number,
   missedCounts: Map<TzAddress, number>,
 ): Generator<CheckHealthResult> {
   for (const { baker, kind } of events) {
+    const threshold = getThreshold(baker);
     const count = missedCounts.get(baker) || 0;
     if (missedKinds.has(kind)) {
       const newCount = count + 1;
       yield {
-        event:
-          newCount === missedEventsThreshold
-            ? Events.BakerUnhealthy
-            : undefined,
+        event: newCount === threshold ? Events.BakerUnhealthy : undefined,
         baker,
         newCount,
       };
     } else if (successKinds.has(kind) && count > 0) {
       yield {
-        event:
-          count >= missedEventsThreshold ? Events.BakerRecovered : undefined,
+        event: count >= threshold ? Events.BakerRecovered : undefined,
         baker,
         newCount: 0,
       };

@@ -5,7 +5,7 @@ import { BakerBlockEvent } from "./events";
 
 setLevel("SILENT");
 
-import { Delegate } from "rpc/types";
+import { Delegate, TzAddress } from "rpc/types";
 
 import { Events } from "./events";
 
@@ -116,7 +116,7 @@ describe("checkHealth", () => {
       const health = Array.from(
         checkHealth(
           [mkEvent(kind, baker1)],
-          missedEventsThreshold,
+          () => missedEventsThreshold,
           missedCounts,
         ),
       );
@@ -141,7 +141,7 @@ describe("checkHealth", () => {
       const health = Array.from(
         checkHealth(
           [mkEvent(kind, baker1)],
-          missedEventsThreshold,
+          () => missedEventsThreshold,
           missedCounts,
         ),
       );
@@ -162,7 +162,7 @@ describe("checkHealth", () => {
       const health = Array.from(
         checkHealth(
           [mkEvent(kind, baker1)],
-          missedEventsThreshold,
+          () => missedEventsThreshold,
           missedCounts,
         ),
       );
@@ -172,5 +172,34 @@ describe("checkHealth", () => {
       expect(health[0].baker).toEqual(baker1);
       expect(health[0].newCount).toEqual(0);
     }
+  });
+
+  it("uses a per-baker threshold", async () => {
+    const baker2 = "tz1BBBBBBBBBBB";
+    const thresholds: Record<string, number> = {
+      [baker1]: 2,
+      [baker2]: 5,
+    };
+    const getT = (b: TzAddress) => thresholds[b] ?? 999;
+
+    // baker1: count 1 -> 2 should fire BakerUnhealthy at 2
+    const missed = new Map<string, number>([
+      [baker1, 1],
+      [baker2, 1],
+    ]);
+    const out = Array.from(
+      checkHealth(
+        [mkEvent(Events.MissedEndorsement, baker1), mkEvent(Events.MissedEndorsement, baker2)],
+        getT,
+        missed,
+      ),
+    );
+    // baker1 reaches its threshold (2); baker2 only reaches 2 of 5
+    const b1 = out.find((x) => x.baker === baker1)!;
+    const b2 = out.find((x) => x.baker === baker2)!;
+    expect(b1.event).toEqual(Events.BakerUnhealthy);
+    expect(b1.newCount).toEqual(2);
+    expect(b2.event).toEqual(undefined);
+    expect(b2.newCount).toEqual(2);
   });
 });

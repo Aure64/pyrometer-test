@@ -1,0 +1,21 @@
+data_dir = "/tmp/pyrometer-test"
+
+[baker_monitor]
+bakers = ["tz1XJqNybPz88X84kGPLN5LFaC4oN1av75dA"]
+missed_threshold = 5
+rpc = "http://127.0.0.1:8732"
+
+[[baker_group]]
+name = "corporate"
+bakers = ["tz1gcna2xxZj2eNp1LaMyAhVJ49mEFj4FH26"]
+missed_threshold = 30
+
+[[baker_group]]
+name = "whales"
+stake_min = 1_000_000_000_000
+missed_threshold = 75
+
+[ui]
+enabled = false
+host = "127.0.0.1"
+port = 2099

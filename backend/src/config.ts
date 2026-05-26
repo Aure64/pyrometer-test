@@ -10,6 +10,7 @@ import {
 } from "@taquito/utils";
 
 import { SlackConfig } from "./senders/slack";
+import { DiscordConfig } from "./senders/discord";
 import { TelegramConfig } from "./senders/telegram";
 import { EmailConfig } from "./senders/email";
 import { DesktopConfig } from "./senders/desktop";
@@ -298,6 +299,76 @@ const SLACK_EXCLUDED_EVENTS = mkExcludeEventsPref(
 );
 
 const SLACK_ONLY_BAKERS = mkOnlyBakersPref(`${SLACK_KEY}:bakers`, SLACK_GROUP);
+
+const DISCORD_GROUP: Group = { key: "discord", label: "Discord:" };
+const DISCORD_KEY = DISCORD_GROUP.key;
+
+const DISCORD_ENABLED: UserPref = {
+  key: `${DISCORD_KEY}:enabled`,
+  default: false,
+  description: "Enable Discord webhook notifications",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_URL: UserPref = {
+  key: `${DISCORD_KEY}:url`,
+  default: "",
+  description: "Discord webhook URL",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: ["string", { required_if: [`${DISCORD_KEY}.enabled`, true] }],
+};
+const DISCORD_EMOJI: UserPref = {
+  key: `${DISCORD_KEY}:emoji`,
+  default: true,
+  description: "Use emoji in messages",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_SHORT: UserPref = {
+  key: `${DISCORD_KEY}:short_address`,
+  default: true,
+  description: "Shorten addresses",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_USERNAME: UserPref = {
+  key: `${DISCORD_KEY}:username`,
+  default: "",
+  description: "Override webhook username",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "string",
+};
+const DISCORD_EXCLUDE: UserPref = mkExcludeEventsPref(
+  `${DISCORD_KEY}:exclude`,
+  DISCORD_GROUP.label,
+  [],
+);
+const DISCORD_BAKERS: UserPref = {
+  key: `${DISCORD_KEY}:bakers`,
+  default: undefined,
+  description:
+    "Restrict notifications to these bakers (literal addresses or @group:NAME)",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: true,
+  validationRule: "array",
+};
 
 const TELEGRAM_GROUP = "Telegram Notifications:";
 const TELEGRAM_KEY = "telegram";
@@ -739,6 +810,16 @@ const UI_SHOW_SYSTEM_INFO: UserPref = {
   validationRule: "boolean",
 };
 
+const UI_ADMIN_TOKEN: UserPref = {
+  key: `${UI_GROUP.key}:admin_token`,
+  default: undefined,
+  description: "Admin token for UI mutations",
+  type: "string" as const,
+  alias: undefined,
+  group: UI_GROUP.label,
+  isArray: false,
+};
+
 const AUTODETECT_GROUP: Group = { key: "autodetect", label: "Auto-detect:" };
 
 const AUTODETECT_ENABLED: UserPref = {
@@ -822,6 +903,13 @@ const userPrefs = [
   SLACK_SHORT_ADDRESS,
   SLACK_EXCLUDED_EVENTS,
   SLACK_ONLY_BAKERS,
+  DISCORD_ENABLED,
+  DISCORD_URL,
+  DISCORD_EMOJI,
+  DISCORD_SHORT,
+  DISCORD_USERNAME,
+  DISCORD_EXCLUDE,
+  DISCORD_BAKERS,
   TELEGRAM_ENABLED,
   TELEGRAM_TOKEN,
   TELEGRAM_EMOJI,
@@ -863,6 +951,7 @@ const userPrefs = [
   UI_WEBROOT,
   UI_EXPLORER_URL,
   UI_SHOW_SYSTEM_INFO,
+  UI_ADMIN_TOKEN,
   AUTODETECT_ENABLED,
   RPC_RETRY_ATTEMPTS,
   RPC_RETRY_INTERVAL_MS,
@@ -913,7 +1002,12 @@ const makeConfigDefaults = () => {
   return defaults;
 };
 
-export const makeSampleConfig = (): Record<string, string> => {
+export const makeSampleConfig = (
+  minimal = false,
+): Record<string, string> => {
+  if (minimal) {
+    return makeMinimalSampleConfig();
+  }
   const sampleConfig = userPrefs.reduce(
     (accumulator: Record<string, string>, userPref: UserPref) => {
       // ignore user prefs that are only supported by the command line
@@ -932,10 +1026,34 @@ export const makeSampleConfig = (): Record<string, string> => {
   return sampleConfig;
 };
 
+const makeMinimalSampleConfig = (): Record<string, string> => {
+  const minimalPrefs: UserPref[] = [
+    { ...BAKERS, sampleValue: ["tz1YOUR_BAKER_ADDRESS"] },
+    RPC,
+    UI_ENABLED,
+    UI_PORT,
+    LOG_LEVEL,
+  ];
+
+  const sampleConfig = minimalPrefs.reduce(
+    (accumulator: Record<string, string>, userPref: UserPref) => {
+      const value =
+        userPref.sampleValue !== undefined
+          ? userPref.sampleValue
+          : userPref.default;
+      return setPath(userPref.key, accumulator, value);
+    },
+    {},
+  );
+  return sampleConfig;
+};
+
 /**
  * Iterates through the UserPrefs to create the validations object used by validatorjs.  Also creates a
  * few custom validators for specific fields.
  */
+const BAKER_GROUP_REF_RE = /^@group:[a-z][a-z0-9_-]*$/;
+
 const makeConfigValidations = (): Validator.Rules => {
   Validator.register(
     "baker",
@@ -943,9 +1061,11 @@ const makeConfigValidations = (): Validator.Rules => {
       if (typeof value !== "string") return false;
       //wildcard "address"
       if (value === "*") return true;
+      // group reference e.g. @group:whales
+      if (BAKER_GROUP_REF_RE.test(value)) return true;
       return validateAddress(value) === TzValidationResult.VALID;
     },
-    "The :attribute is not a valid baker address.",
+    "The :attribute is not a valid baker address or @group:NAME reference.",
   );
   Validator.register(
     "loglevel",
@@ -1006,10 +1126,12 @@ const makeConfigValidations = (): Validator.Rules => {
 
 export type Config = {
   bakerMonitor: BakerMonitorConfig;
+  bakerGroups: import("./bakerGroups").RawBakerGroupConfig[];
   nodeMonitor: NodeMonitorConfig;
   logging: LoggingConfig;
   excludedEvents: Events[];
   slack: SlackConfig;
+  discord: DiscordConfig;
   telegram: TelegramConfig;
   email: EmailConfig;
   desktop: DesktopConfig;
@@ -1078,6 +1200,84 @@ export const toNamedNode = (
   }
 };
 
+export class BakerGroupValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "BakerGroupValidationError";
+  }
+}
+
+const BAKER_GROUP_NAME_RE = /^[a-z][a-z0-9_-]*$/;
+
+export const validateBakerGroups = (
+  raw: import("./bakerGroups").RawBakerGroupConfig[],
+): void => {
+  const seen = new Set<string>();
+  for (let i = 0; i < raw.length; i++) {
+    const g = raw[i];
+    if (!g.name) {
+      throw new BakerGroupValidationError(
+        `baker_group #${i}: 'name' is required`,
+      );
+    }
+    if (!BAKER_GROUP_NAME_RE.test(g.name)) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": name must match [a-z][a-z0-9_-]*`,
+      );
+    }
+    if (seen.has(g.name)) {
+      throw new BakerGroupValidationError(
+        `baker_group: duplicate name "${g.name}"`,
+      );
+    }
+    seen.add(g.name);
+
+    const hasBakers = Array.isArray(g.bakers) && g.bakers.length > 0;
+    const hasStake = g.stake_min !== undefined;
+    if (!hasBakers && !hasStake) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": must define either 'bakers' or 'stake_min'`,
+      );
+    }
+    if (hasBakers && hasStake) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": 'bakers' and 'stake_min' are mutually exclusive`,
+      );
+    }
+
+    if (typeof g.missed_threshold !== "number" || g.missed_threshold <= 0) {
+      throw new BakerGroupValidationError(
+        `baker_group "${g.name}": 'missed_threshold' must be > 0`,
+      );
+    }
+
+    if (hasBakers) {
+      for (const addr of g.bakers!) {
+        if (validateAddress(addr) !== TzValidationResult.VALID) {
+          throw new BakerGroupValidationError(
+            `baker_group "${g.name}": invalid address ${addr}`,
+          );
+        }
+      }
+    }
+    if (hasStake) {
+      let stake: bigint;
+      try {
+        stake = BigInt(g.stake_min as string | number | bigint);
+      } catch {
+        throw new BakerGroupValidationError(
+          `baker_group "${g.name}": 'stake_min' must be a positive integer`,
+        );
+      }
+      if (stake <= 0n) {
+        throw new BakerGroupValidationError(
+          `baker_group "${g.name}": 'stake_min' must be > 0`,
+        );
+      }
+    }
+  }
+};
+
 /**
  * Load config settings from argv and the file system.  File system will use the path from envPaths
  * unless overriden by argv.
@@ -1086,7 +1286,7 @@ export const load = async (
   yargOptions = yargRunOptions,
   validate = true,
 ): Promise<Config> => {
-  nconf.argv(yargs.strict().options(yargOptions));
+  nconf.argv(yargs(process.argv.slice(2)).strict().options(yargOptions));
 
   const cliOptions = nconf.get();
   const nonConfigKeys = ["_", "$0"];
@@ -1148,6 +1348,21 @@ export const load = async (
       console.log(formatValidationErrors({ ...errors, ...aliasErrors }));
       process.exit(1);
     }
+
+    // baker_group validation
+    const rawBakerGroups = (nconf.get("baker_group") as
+      | import("./bakerGroups").RawBakerGroupConfig[]
+      | undefined) || [];
+    try {
+      validateBakerGroups(rawBakerGroups);
+    } catch (err) {
+      if (err instanceof BakerGroupValidationError) {
+        console.error("Invalid config");
+        console.error(err.message);
+        process.exit(1);
+      }
+      throw err;
+    }
   }
 
   const asObject = () => {
@@ -1159,6 +1374,7 @@ export const load = async (
   createAliasMap(TELEGRAM_KEY);
   createAliasMap(DESKTOP_KEY);
   createAliasMap(SLACK_KEY);
+  createAliasMap(DISCORD_KEY);
   createAliasMap(EMAIL_KEY);
   createAliasMap(UI_GROUP.key);
 
@@ -1195,6 +1411,10 @@ export const load = async (
     get bakerMonitor() {
       return bakerMonitoConfig;
     },
+    get bakerGroups() {
+      const raw = (nconf.get("baker_group") as unknown[]) || [];
+      return raw as import("./bakerGroups").RawBakerGroupConfig[];
+    },
     get nodeMonitor() {
       return nodeMonitorConfig;
     },
@@ -1218,6 +1438,9 @@ export const load = async (
     },
     get slack() {
       return nconf.get(SLACK_KEY) as SlackConfig;
+    },
+    get discord() {
+      return nconf.get(DISCORD_KEY) as DiscordConfig;
     },
     get notifications() {
       return nconf.get(NOTIFICATIONS_KEY) as NotificationsConfig;

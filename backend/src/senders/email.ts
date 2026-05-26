@@ -1,7 +1,7 @@
 import { getLogger } from "loglevel";
 import { createTransport } from "nodemailer";
 
-import { Events, Event, Sender, FilteredSender } from "../events";
+import { Events, Event, Sender, FilteredSender, BakersFilter } from "../events";
 
 import { email as formatEmail } from "../format";
 
@@ -22,7 +22,7 @@ export type EmailConfig = {
   short_address: boolean;
   alias: TzAddressAliasMap;
   exclude: Events[];
-  bakers: string[] | undefined;
+  bakers: BakersFilter;
 };
 
 export const create = (config: EmailConfig): Sender => {

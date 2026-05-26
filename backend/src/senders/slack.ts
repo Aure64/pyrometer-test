@@ -1,5 +1,5 @@
 import { IncomingWebhook } from "@slack/webhook";
-import { Events, Event, Sender, FilteredSender } from "../events";
+import { Events, Event, Sender, FilteredSender, BakersFilter } from "../events";
 import format from "../format";
 import { chunk } from "lodash";
 import type { TzAddressAliasMap } from "../config";
@@ -11,7 +11,7 @@ export type SlackConfig = {
   short_address: boolean;
   alias: TzAddressAliasMap;
   exclude: Events[];
-  bakers: string[] | undefined;
+  bakers: BakersFilter;
 };
 
 export type SlackNotificationChannel = {

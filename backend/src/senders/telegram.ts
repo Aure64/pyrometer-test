@@ -1,6 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import { getLogger } from "loglevel";
-import { Events, Event, Sender, FilteredSender } from "../events";
+import { Events, Event, Sender, FilteredSender, BakersFilter } from "../events";
 import format from "../format";
 import { delay } from "../delay";
 
@@ -17,7 +17,7 @@ export type TelegramConfig = {
   short_address: boolean;
   alias: TzAddressAliasMap;
   exclude: Events[];
-  bakers: string[] | undefined;
+  bakers: BakersFilter;
 };
 
 const MAX_MESSAGE_LENGTH = 4096;

@@ -6,6 +6,7 @@ import {
   NodeSynced,
   FilteredSender,
   MissedEndorsement,
+  Sender,
 } from "./events";
 
 describe("filtered sender", () => {
@@ -125,5 +126,49 @@ describe("filtered sender", () => {
     await sender(toSend);
 
     expect(sent).toEqual([event5, event1, event3, event4]);
+  });
+});
+
+describe("filtered sender with bakers callback", () => {
+  const baked = (baker: string): Baked => ({
+    kind: Events.Baked,
+    createdAt: new Date(),
+    baker,
+    cycle: 1,
+    level: 1,
+    priority: 0,
+    timestamp: new Date(),
+  });
+
+  it("invokes the bakers callback per batch and filters dynamically", async () => {
+    let allow = new Set(["tz1A"]);
+    const seen: Event[][] = [];
+    const inner: Sender = async (events) => {
+      seen.push(events);
+    };
+    const sender = FilteredSender(inner, {
+      exclude: [],
+      bakers: () => [...allow],
+    });
+
+    await sender([baked("tz1A"), baked("tz1B")]);
+    expect(seen[0].map((e) => (e as Baked).baker)).toEqual(["tz1A"]);
+
+    allow = new Set(["tz1B"]);
+    await sender([baked("tz1A"), baked("tz1B")]);
+    expect(seen[1].map((e) => (e as Baked).baker)).toEqual(["tz1B"]);
+  });
+
+  it("still accepts a static string[] for backward compat", async () => {
+    const seen: Event[][] = [];
+    const inner: Sender = async (events) => {
+      seen.push(events);
+    };
+    const sender = FilteredSender(inner, {
+      exclude: [],
+      bakers: ["tz1A"],
+    });
+    await sender([baked("tz1A"), baked("tz1B")]);
+    expect(seen[0].map((e) => (e as Baked).baker)).toEqual(["tz1A"]);
   });
 });

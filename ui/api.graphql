@@ -168,3 +168,62 @@ query aliases {
     address
   }
 }
+
+query bakerMonitorSettings {
+  bakerMonitorSettings {
+    rpc
+    maxCatchupBlocks
+    headDistance
+    missedThreshold
+  }
+}
+
+query isAdminConfigured {
+  isAdminConfigured
+}
+
+query configuredBakers {
+  configuredBakers
+}
+
+mutation authenticate($token: String!) {
+  authenticate(token: $token) {
+    success
+    message
+  }
+}
+
+mutation addBaker($address: String!) {
+  addBaker(address: $address) {
+    success
+    message
+  }
+}
+
+mutation removeBaker($address: String!) {
+  removeBaker(address: $address) {
+    success
+    message
+  }
+}
+
+mutation setAlias($address: String!, $alias: String!) {
+  setAlias(address: $address, alias: $alias) {
+    success
+    message
+  }
+}
+
+mutation removeAlias($address: String!) {
+  removeAlias(address: $address) {
+    success
+    message
+  }
+}
+
+mutation updateBakerMonitorSettings($input: BakerMonitorSettingsInput!) {
+  updateBakerMonitorSettings(input: $input) {
+    success
+    message
+  }
+}

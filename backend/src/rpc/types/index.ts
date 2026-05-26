@@ -339,7 +339,7 @@ export type EndorsingRights =
 
 export type BakingRightH = BakingRightsH[number];
 export type BakingRightI = BakingRightsI[number];
-export type BakingRightJ = BakingRightsI[number];
+export type BakingRightJ = BakingRightsJ[number];
 export type BakingRightK = BakingRightsK[number];
 export type BakingRightL = BakingRightsL[number];
 export type BakingRightM = BakingRightsM[number];
@@ -545,6 +545,7 @@ export enum OpKind {
   DOUBLE_ATTESTATION_EVIDENCE = "double_attestation_evidence",
   DOUBLE_PREENDORSEMENT_EVIDENCE = "double_preendorsement_evidence",
   DOUBLE_PREATTESTATION_EVIDENCE = "double_preattestation_evidence",
+  DOUBLE_CONSENSUS_OPERATION_EVIDENCE = "double_consensus_operation_evidence",
   DOUBLE_BAKING_EVIDENCE = "double_baking_evidence",
   PROPOSALS = "proposals",
   BALLOT = "ballot",

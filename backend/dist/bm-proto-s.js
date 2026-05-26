@@ -79,12 +79,12 @@ exports.default = async ({ bakers, block, rpc, }) => {
 };
 const checkBlockBakingRights = ({ baker, blockBaker, blockProposer, bakingRights, blockId, blockPriority, }) => {
     const log = (0, loglevel_1.getLogger)(name);
-    const bakerRight = bakingRights.find((br) => br.delegate == baker);
+    const bakerRight = bakingRights.find((br) => br.delegate === baker);
     if (!bakerRight) {
         log.debug(`No baking slot at block ${blockId} for ${baker}`);
         return null;
     }
-    const blockRight = bakingRights.find((br) => br.round == blockPriority);
+    const blockRight = bakingRights.find((br) => br.round === blockPriority);
     if (!blockRight) {
         log.error(`No rights found block ${blockId} at round ${blockPriority}`, bakingRights);
         return null;

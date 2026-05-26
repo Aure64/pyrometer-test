@@ -140,12 +140,16 @@ export const excludeEvents = (
   );
 };
 
+export type BakersFilter = string[] | (() => string[]) | undefined;
+
 export const FilteredSender = (
   sender: Sender,
-  config: { exclude: Events[]; bakers: string[] | undefined },
+  config: { exclude: Events[]; bakers: BakersFilter },
 ): Sender => {
   return async (inEvents: Event[]) => {
-    const events = excludeEvents(inEvents, config.exclude, config.bakers);
+    const bakersList =
+      typeof config.bakers === "function" ? config.bakers() : config.bakers;
+    const events = excludeEvents(inEvents, config.exclude, bakersList);
     if (events.length !== inEvents.length) {
       getLogger("events").debug(
         `Filtered out ${inEvents.length - events.length}`,

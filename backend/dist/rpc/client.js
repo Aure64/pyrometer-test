@@ -183,6 +183,9 @@ exports.default = (nodeRpcUrl, { retry_interval_ms: retryIntervalMs, retry_attem
                     fullBalanceFields = [...fullBalanceFields].reverse();
                     return result;
                 }
+                else {
+                    throw err;
+                }
             }
         },
         //.../frozen_balance renamed .../frozen_deposits in Ithaca
@@ -197,10 +200,14 @@ exports.default = (nodeRpcUrl, { retry_interval_ms: retryIntervalMs, retry_attem
                     frozenDepositsFields = [...frozenDepositsFields].reverse();
                     return result;
                 }
+                else {
+                    throw err;
+                }
             }
         },
-        getStakingBalance: (pkh, block = "head") => {
-            return fetchDelegateField(pkh, block, "staking_balance");
+        getStakingBalance: async (pkh, block = "head") => {
+            const raw = await fetchDelegateField(pkh, block, "staking_balance");
+            return BigInt(String(raw));
         },
         getGracePeriod: (pkh, block = "head") => {
             return fetchDelegateField(pkh, block, "grace_period");

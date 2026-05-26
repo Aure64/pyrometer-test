@@ -5,7 +5,7 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
   config: {
-    initialColorMode: 'dark',
+    initialColorMode: 'system',
     useSystemColorMode: true,
   },
 });
@@ -18,9 +18,23 @@ import {
   InMemoryCache,
   ApolloProvider,
 } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { AuthProvider } from './AuthContext';
+
+const httpLink = createHttpLink({ uri: '/gql/' });
+
+const authLink = setContext((_, { headers }) => {
+  const token = localStorage.getItem('pyrometer_admin_token');
+  return {
+    headers: {
+      ...headers,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
+  };
+});
 
 const apolloClient = new ApolloClient({
-  link: createHttpLink({ uri: '/gql/' }),
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 });
 
@@ -30,7 +44,9 @@ root.render(
   <React.StrictMode>
     <ApolloProvider client={apolloClient}>
       <ChakraProvider theme={theme}>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </ChakraProvider>
     </ApolloProvider>
   </React.StrictMode>,

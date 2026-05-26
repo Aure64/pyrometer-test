@@ -19,3 +19,4 @@ __exportStar(require("./Baker"), exports);
 __exportStar(require("./SysInfo"), exports);
 __exportStar(require("./Pyrometer"), exports);
 __exportStar(require("./Settings"), exports);
+__exportStar(require("./Mutations"), exports);
