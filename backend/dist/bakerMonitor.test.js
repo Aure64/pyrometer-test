@@ -98,7 +98,7 @@ describe("checkHealth", () => {
             events_1.Events.MissedEndorsement,
             events_1.Events.MissedBonus,
         ]) {
-            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], missedEventsThreshold, missedCounts));
+            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], () => missedEventsThreshold, missedCounts));
             expect(health.length).toEqual(1);
             expect(health[0].event).toEqual(events_1.Events.BakerUnhealthy);
             expect(health[0].baker).toEqual(baker1);
@@ -114,7 +114,7 @@ describe("checkHealth", () => {
             events_1.Events.MissedEndorsement,
             events_1.Events.MissedBonus,
         ]) {
-            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], missedEventsThreshold, missedCounts));
+            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], () => missedEventsThreshold, missedCounts));
             expect(health.length).toEqual(1);
             expect(health[0].event).toEqual(undefined);
             expect(health[0].baker).toEqual(baker1);
@@ -126,11 +126,32 @@ describe("checkHealth", () => {
             [baker1, missedEventsThreshold + 1],
         ]);
         for (const kind of [events_1.Events.Baked, events_1.Events.Endorsed]) {
-            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], missedEventsThreshold, missedCounts));
+            const health = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(kind, baker1)], () => missedEventsThreshold, missedCounts));
             expect(health.length).toEqual(1);
             expect(health[0].event).toEqual(events_1.Events.BakerRecovered);
             expect(health[0].baker).toEqual(baker1);
             expect(health[0].newCount).toEqual(0);
         }
+    });
+    it("uses a per-baker threshold", async () => {
+        const baker2 = "tz1BBBBBBBBBBB";
+        const thresholds = {
+            [baker1]: 2,
+            [baker2]: 5,
+        };
+        const getT = (b) => thresholds[b] ?? 999;
+        // baker1: count 1 -> 2 should fire BakerUnhealthy at 2
+        const missed = new Map([
+            [baker1, 1],
+            [baker2, 1],
+        ]);
+        const out = Array.from((0, bakerMonitor_2.checkHealth)([mkEvent(events_1.Events.MissedEndorsement, baker1), mkEvent(events_1.Events.MissedEndorsement, baker2)], getT, missed));
+        // baker1 reaches its threshold (2); baker2 only reaches 2 of 5
+        const b1 = out.find((x) => x.baker === baker1);
+        const b2 = out.find((x) => x.baker === baker2);
+        expect(b1.event).toEqual(events_1.Events.BakerUnhealthy);
+        expect(b1.newCount).toEqual(2);
+        expect(b2.event).toEqual(undefined);
+        expect(b2.newCount).toEqual(2);
     });
 });

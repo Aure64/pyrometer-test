@@ -404,7 +404,7 @@ export const create = async (
 
         for (const { event, baker, newCount } of checkHealth(
           events,
-          missedEventsThreshold,
+          () => missedEventsThreshold,
           missedCounts,
         )) {
           if (event) {
@@ -603,25 +603,22 @@ export type CheckHealthResult = {
 
 export function* checkHealth(
   events: BakerEvent[],
-  missedEventsThreshold: number,
+  getThreshold: (baker: TzAddress) => number,
   missedCounts: Map<TzAddress, number>,
 ): Generator<CheckHealthResult> {
   for (const { baker, kind } of events) {
+    const threshold = getThreshold(baker);
     const count = missedCounts.get(baker) || 0;
     if (missedKinds.has(kind)) {
       const newCount = count + 1;
       yield {
-        event:
-          newCount === missedEventsThreshold
-            ? Events.BakerUnhealthy
-            : undefined,
+        event: newCount === threshold ? Events.BakerUnhealthy : undefined,
         baker,
         newCount,
       };
     } else if (successKinds.has(kind) && count > 0) {
       yield {
-        event:
-          count >= missedEventsThreshold ? Events.BakerRecovered : undefined,
+        event: count >= threshold ? Events.BakerRecovered : undefined,
         baker,
         newCount: 0,
       };

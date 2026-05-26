@@ -280,7 +280,7 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     }
                 }
                 const bakerHealthEvents = [];
-                for (const { event, baker, newCount } of checkHealth(events, missedEventsThreshold, missedCounts)) {
+                for (const { event, baker, newCount } of checkHealth(events, () => missedEventsThreshold, missedCounts)) {
                     if (event) {
                         bakerHealthEvents.push({
                             kind: event,
@@ -432,22 +432,21 @@ const checkForDeactivations = ({ baker, cycle, delegateInfo, threshold, }) => {
     return null;
 };
 exports.checkForDeactivations = checkForDeactivations;
-function* checkHealth(events, missedEventsThreshold, missedCounts) {
+function* checkHealth(events, getThreshold, missedCounts) {
     for (const { baker, kind } of events) {
+        const threshold = getThreshold(baker);
         const count = missedCounts.get(baker) || 0;
         if (missedKinds.has(kind)) {
             const newCount = count + 1;
             yield {
-                event: newCount === missedEventsThreshold
-                    ? events_1.Events.BakerUnhealthy
-                    : undefined,
+                event: newCount === threshold ? events_1.Events.BakerUnhealthy : undefined,
                 baker,
                 newCount,
             };
         }
         else if (successKinds.has(kind) && count > 0) {
             yield {
-                event: count >= missedEventsThreshold ? events_1.Events.BakerRecovered : undefined,
+                event: count >= threshold ? events_1.Events.BakerRecovered : undefined,
                 baker,
                 newCount: 0,
             };
