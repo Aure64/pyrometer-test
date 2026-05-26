@@ -60,8 +60,8 @@ const missedKinds = new Set([
     events_1.Events.MissedEndorsement,
 ]);
 const successKinds = new Set([events_1.Events.Baked, events_1.Events.Endorsed]);
-const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode, max_catchup_blocks: catchupLimit, head_distance: headDistance, missed_threshold: missedEventsThreshold, }, rpcConfig, enableHistory, onEvent) => {
-    const MAX_HISTORY = Math.max(7, missedEventsThreshold);
+const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode, max_catchup_blocks: catchupLimit, head_distance: headDistance, missed_threshold: missedEventsThreshold, }, rpcConfig, enableHistory, onEvent, bakerGroups) => {
+    const MAX_HISTORY = Math.max(7, bakerGroups ? bakerGroups.getMaxThreshold() : missedEventsThreshold);
     const log = (0, loglevel_1.getLogger)(name);
     const rpc = (0, client_1.default)(rpcNode.url, rpcConfig);
     const chainId = await (0, util_1.tryForever)(() => rpc.getChainId(), 60e3, "get chain id");
@@ -86,6 +86,11 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                 activeBakersCache.set(blockCycle, activeBakers);
             }
             return activeBakers;
+        }
+        if (bakerGroups) {
+            return [
+                ...new Set([...configuredBakers, ...bakerGroups.getAllMonitoredBakers()]),
+            ];
         }
         return configuredBakers;
     };
@@ -280,7 +285,8 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     }
                 }
                 const bakerHealthEvents = [];
-                for (const { event, baker, newCount } of checkHealth(events, () => missedEventsThreshold, missedCounts)) {
+                const getThreshold = (b) => bakerGroups ? bakerGroups.getThresholdFor(b) : missedEventsThreshold;
+                for (const { event, baker, newCount } of checkHealth(events, getThreshold, missedCounts)) {
                     if (event) {
                         bakerHealthEvents.push({
                             kind: event,

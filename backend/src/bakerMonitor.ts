@@ -43,6 +43,7 @@ import protocolS from "./bm-proto-s";
 import protocolT from "./bm-proto-t";
 
 import type { TezosNode } from "./nodeMonitor";
+import type { BakerGroupsRegistry } from "./bakerGroups";
 
 const name = "bm";
 
@@ -103,8 +104,12 @@ export const create = async (
   rpcConfig: RpcClientConfig,
   enableHistory: boolean,
   onEvent: (event: Event) => Promise<void>,
+  bakerGroups?: BakerGroupsRegistry,
 ): Promise<BakerMonitor> => {
-  const MAX_HISTORY = Math.max(7, missedEventsThreshold);
+  const MAX_HISTORY = Math.max(
+    7,
+    bakerGroups ? bakerGroups.getMaxThreshold() : missedEventsThreshold,
+  );
 
   const log = getLogger(name);
 
@@ -151,6 +156,11 @@ export const create = async (
         activeBakersCache.set(blockCycle, activeBakers);
       }
       return activeBakers;
+    }
+    if (bakerGroups) {
+      return [
+        ...new Set([...configuredBakers, ...bakerGroups.getAllMonitoredBakers()]),
+      ];
     }
     return configuredBakers;
   };
@@ -402,9 +412,12 @@ export const create = async (
 
         const bakerHealthEvents: BakerHealthEvent[] = [];
 
+        const getThreshold = (b: TzAddress) =>
+          bakerGroups ? bakerGroups.getThresholdFor(b) : missedEventsThreshold;
+
         for (const { event, baker, newCount } of checkHealth(
           events,
-          () => missedEventsThreshold,
+          getThreshold,
           missedCounts,
         )) {
           if (event) {

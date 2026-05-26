@@ -5,7 +5,7 @@ import { BakerBlockEvent } from "./events";
 
 setLevel("SILENT");
 
-import { Delegate } from "rpc/types";
+import { Delegate, TzAddress } from "rpc/types";
 
 import { Events } from "./events";
 
@@ -180,7 +180,7 @@ describe("checkHealth", () => {
       [baker1]: 2,
       [baker2]: 5,
     };
-    const getT = (b: string) => thresholds[b] ?? 999;
+    const getT = (b: TzAddress) => thresholds[b] ?? 999;
 
     // baker1: count 1 -> 2 should fire BakerUnhealthy at 2
     const missed = new Map<string, number>([
