@@ -11,7 +11,7 @@ export type BakerGroup = {
   missed_threshold: number;
   kind: "static" | "stake";
   stake_min?: bigint;
-  bakers: Set<string>;
+  bakers: ReadonlySet<string>;
 };
 
 export type BakerGroupsRegistry = {
