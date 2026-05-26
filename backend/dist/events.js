@@ -31,7 +31,8 @@ const excludeEvents = (inEvents, exclude, bakers) => {
 exports.excludeEvents = excludeEvents;
 const FilteredSender = (sender, config) => {
     return async (inEvents) => {
-        const events = (0, exports.excludeEvents)(inEvents, config.exclude, config.bakers);
+        const bakersList = typeof config.bakers === "function" ? config.bakers() : config.bakers;
+        const events = (0, exports.excludeEvents)(inEvents, config.exclude, bakersList);
         if (events.length !== inEvents.length) {
             (0, loglevel_1.getLogger)("events").debug(`Filtered out ${inEvents.length - events.length}`);
         }
