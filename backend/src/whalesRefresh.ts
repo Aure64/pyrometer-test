@@ -1,7 +1,7 @@
 import * as fs from "fs/promises";
 import { getLogger } from "loglevel";
 import type { BakerGroupsRegistry } from "./bakerGroups";
-import * as service from "./service";
+import type { Service } from "./service";
 
 const log = getLogger("whales-refresh");
 
@@ -110,19 +110,21 @@ export const create = (
   cacheFile: string,
   refreshIntervalMs: number,
   concurrency = 10,
-): service.Service => {
-  let firstRun = true;
+  // Short retry delay used until the first successful refresh (e.g., RPC down
+  // at boot). After first success we switch to the long refreshIntervalMs.
+  // service.create only supports a fixed interval, so we hand-roll a scheduler
+  // here to support variable delays.
+  retryIntervalMs = 5 * 60 * 1000,
+): Service => {
+  let firstSuccess = false;
+  let stopped = false;
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
-  const task = async (_isInterrupted: () => boolean) => {
-    if (firstRun) {
-      firstRun = false;
-      const cache = await loadCache(cacheFile);
-      for (const [name, addrs] of Object.entries(cache)) {
-        if (registry.getGroup(name)) registry.setGroupBakers(name, addrs);
-      }
-    }
+  const tick = async () => {
+    if (stopped) return;
     const ok = await refreshOnce(registry, rpc, { concurrency });
     if (ok) {
+      firstSuccess = true;
       const dump: WhalesCache = {};
       for (const g of registry.listGroups()) {
         if (g.kind === "stake") dump[g.name] = [...g.bakers];
@@ -133,7 +135,19 @@ export const create = (
         log.warn("whales cache save failed", err);
       }
     }
+    if (stopped) return;
+    const nextDelay = firstSuccess ? refreshIntervalMs : retryIntervalMs;
+    timer = setTimeout(() => void tick(), nextDelay);
   };
 
-  return service.create("whales-refresh", task, refreshIntervalMs);
+  return {
+    name: "whales-refresh",
+    start: async () => {
+      await tick();
+    },
+    stop: () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    },
+  };
 };

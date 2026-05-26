@@ -229,11 +229,22 @@ const run = async (config) => {
             },
         })
         : null;
+    const cacheFile = (0, path_1.join)(storageDir, "whales-cache.json");
+    // Hydrate stake-based groups from disk cache so bakerMonitor sees the
+    // previous snapshot from the first block tick, not just after the first
+    // whalesService refreshOnce completes (which happens async and may lag
+    // behind the first monitored block by seconds or more).
+    {
+        const cache = await WhalesRefresh.loadCache(cacheFile);
+        for (const [name, addrs] of Object.entries(cache)) {
+            if (bakerGroups.getGroup(name))
+                bakerGroups.setGroupBakers(name, addrs);
+        }
+    }
     const bakerMonitor = bakers.length > 0
         ? await BakerMonitor.create(storageDir, bakerMonitorConfig, config.rpc, uiConfig.enabled, onEvent, bakerGroups)
         : null;
     const sharedRpc = (0, client_1.default)(bakerMonitorConfig.rpc.url, config.rpc);
-    const cacheFile = (0, path_1.join)(storageDir, "whales-cache.json");
     const WHALES_REFRESH_INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // 3 Tezos cycles ≈ 72 h
     const hasStakeGroup = bakerGroups
         .listGroups()

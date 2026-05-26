@@ -26,7 +26,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.create = exports.refreshOnce = exports.saveCache = exports.loadCache = void 0;
 const fs = __importStar(require("fs/promises"));
 const loglevel_1 = require("loglevel");
-const service = __importStar(require("./service"));
 const log = (0, loglevel_1.getLogger)("whales-refresh");
 const loadCache = async (filePath) => {
     try {
@@ -100,19 +99,21 @@ const refreshOnce = async (registry, rpc, opts = {}) => {
     return true;
 };
 exports.refreshOnce = refreshOnce;
-const create = (registry, rpc, cacheFile, refreshIntervalMs, concurrency = 10) => {
-    let firstRun = true;
-    const task = async (_isInterrupted) => {
-        if (firstRun) {
-            firstRun = false;
-            const cache = await (0, exports.loadCache)(cacheFile);
-            for (const [name, addrs] of Object.entries(cache)) {
-                if (registry.getGroup(name))
-                    registry.setGroupBakers(name, addrs);
-            }
-        }
+const create = (registry, rpc, cacheFile, refreshIntervalMs, concurrency = 10, 
+// Short retry delay used until the first successful refresh (e.g., RPC down
+// at boot). After first success we switch to the long refreshIntervalMs.
+// service.create only supports a fixed interval, so we hand-roll a scheduler
+// here to support variable delays.
+retryIntervalMs = 5 * 60 * 1000) => {
+    let firstSuccess = false;
+    let stopped = false;
+    let timer = null;
+    const tick = async () => {
+        if (stopped)
+            return;
         const ok = await (0, exports.refreshOnce)(registry, rpc, { concurrency });
         if (ok) {
+            firstSuccess = true;
             const dump = {};
             for (const g of registry.listGroups()) {
                 if (g.kind === "stake")
@@ -125,7 +126,21 @@ const create = (registry, rpc, cacheFile, refreshIntervalMs, concurrency = 10) =
                 log.warn("whales cache save failed", err);
             }
         }
+        if (stopped)
+            return;
+        const nextDelay = firstSuccess ? refreshIntervalMs : retryIntervalMs;
+        timer = setTimeout(() => void tick(), nextDelay);
     };
-    return service.create("whales-refresh", task, refreshIntervalMs);
+    return {
+        name: "whales-refresh",
+        start: async () => {
+            await tick();
+        },
+        stop: () => {
+            stopped = true;
+            if (timer)
+                clearTimeout(timer);
+        },
+    };
 };
 exports.create = create;
