@@ -153,6 +153,45 @@ Pyrometer can auto-detect baker addresses and RPC endpoints from a local `tezos-
 enabled = false
 ```
 
+### Baker groups
+
+Pyrometer can split monitored bakers into named groups, each with its own `missed_threshold`. This is useful when you watch many bakers and want faster alerts for higher-stake operators while keeping smaller bakers on a longer threshold.
+
+```toml
+[[baker_group]]
+name = "whales"
+stake_min = 1_000_000_000_000   # 1M tez expressed in mutez
+missed_threshold = 75            # ~10 min on Tallinn
+
+[[baker_group]]
+name = "corporate"
+bakers = ["tz1...", "tz1..."]
+missed_threshold = 30
+```
+
+A group declares either an explicit `bakers` list **or** `stake_min` (mutually exclusive):
+
+- **Static groups** (`bakers = [...]`): a fixed list of `tz...` addresses.
+- **Dynamic groups** (`stake_min = N`): membership is recomputed from on-chain `staking_balance` and refreshed automatically every 3 cycles (~72 h on Tallinn).
+
+Bakers listed in `[baker_monitor].bakers` that are not in any group fall back to the global `[baker_monitor].missed_threshold`. When a baker belongs to multiple groups, the lowest `missed_threshold` wins.
+
+Reference a group from any sender with `@group:NAME`:
+
+```toml
+[discord]
+enabled = true
+url = "https://discord.com/api/webhooks/..."
+bakers = ["@group:whales"]      # only whale events
+
+[slack]
+enabled = true
+url = "https://hooks.slack.com/..."
+bakers = ["@group:whales", "@group:corporate"]
+```
+
+Mixing literal addresses and group references in the same `bakers` list is supported.
+
 ---
 
 `.deb` packages, tarballs, and Docker images are on the [Releases](https://github.com/Aure64/pyrometer-test/releases) page and [GHCR](https://ghcr.io/aure64/pyrometer-test).
