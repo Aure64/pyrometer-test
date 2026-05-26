@@ -12,7 +12,7 @@ missed_threshold = 30
 
 [[baker_group]]
 name = "whales"
-stake_min = "1000000000000"
+stake_min = 1_000_000_000_000
 missed_threshold = 75
 
 [ui]

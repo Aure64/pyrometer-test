@@ -1,4 +1,5 @@
 import { setLevel } from "loglevel";
+import nconf from "nconf";
 import * as path from "path";
 import { load } from "./config";
 
@@ -8,6 +9,16 @@ const fixturePath = (name: string) =>
   path.join(__dirname, "testFixtures/baker-groups", name);
 
 describe("config: baker_group parsing", () => {
+  const originalArgv = process.argv;
+  afterEach(() => {
+    process.argv = originalArgv;
+    // reset nconf stores so the next test gets a clean instance
+    nconf.remove("argv");
+    nconf.remove("file");
+    nconf.remove("defaults");
+    nconf.remove("overrides");
+  });
+
   it("parses [[baker_group]] into the Config", async () => {
     process.argv = [process.argv[0], process.argv[1], "--config", fixturePath("valid.toml")];
     const config = await load(undefined, false);
@@ -19,7 +30,7 @@ describe("config: baker_group parsing", () => {
     ]);
     expect(config.bakerGroups[0].missed_threshold).toEqual(30);
     expect(config.bakerGroups[1].name).toEqual("whales");
-    expect(config.bakerGroups[1].stake_min).toEqual("1000000000000");
+    expect(config.bakerGroups[1].stake_min).toEqual(1_000_000_000_000);
     expect(config.bakerGroups[1].missed_threshold).toEqual(75);
   });
 });

@@ -3,7 +3,7 @@ export type RawBakerGroupConfig = {
   missed_threshold: number;
   // exactly one of:
   bakers?: string[];
-  stake_min?: string | bigint;
+  stake_min?: number | string | bigint;
 };
 
 export type BakerGroup = {

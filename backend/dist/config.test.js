@@ -22,13 +22,26 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const loglevel_1 = require("loglevel");
+const nconf_1 = __importDefault(require("nconf"));
 const path = __importStar(require("path"));
 const config_1 = require("./config");
 (0, loglevel_1.setLevel)("SILENT");
 const fixturePath = (name) => path.join(__dirname, "testFixtures/baker-groups", name);
 describe("config: baker_group parsing", () => {
+    const originalArgv = process.argv;
+    afterEach(() => {
+        process.argv = originalArgv;
+        // reset nconf stores so the next test gets a clean instance
+        nconf_1.default.remove("argv");
+        nconf_1.default.remove("file");
+        nconf_1.default.remove("defaults");
+        nconf_1.default.remove("overrides");
+    });
     it("parses [[baker_group]] into the Config", async () => {
         process.argv = [process.argv[0], process.argv[1], "--config", fixturePath("valid.toml")];
         const config = await (0, config_1.load)(undefined, false);
@@ -40,7 +53,7 @@ describe("config: baker_group parsing", () => {
         ]);
         expect(config.bakerGroups[0].missed_threshold).toEqual(30);
         expect(config.bakerGroups[1].name).toEqual("whales");
-        expect(config.bakerGroups[1].stake_min).toEqual("1000000000000");
+        expect(config.bakerGroups[1].stake_min).toEqual(1000000000000);
         expect(config.bakerGroups[1].missed_threshold).toEqual(75);
     });
 });
