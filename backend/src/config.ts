@@ -10,6 +10,7 @@ import {
 } from "@taquito/utils";
 
 import { SlackConfig } from "./senders/slack";
+import { DiscordConfig } from "./senders/discord";
 import { TelegramConfig } from "./senders/telegram";
 import { EmailConfig } from "./senders/email";
 import { DesktopConfig } from "./senders/desktop";
@@ -298,6 +299,76 @@ const SLACK_EXCLUDED_EVENTS = mkExcludeEventsPref(
 );
 
 const SLACK_ONLY_BAKERS = mkOnlyBakersPref(`${SLACK_KEY}:bakers`, SLACK_GROUP);
+
+const DISCORD_GROUP: Group = { key: "discord", label: "Discord:" };
+const DISCORD_KEY = DISCORD_GROUP.key;
+
+const DISCORD_ENABLED: UserPref = {
+  key: `${DISCORD_KEY}:enabled`,
+  default: false,
+  description: "Enable Discord webhook notifications",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_URL: UserPref = {
+  key: `${DISCORD_KEY}:url`,
+  default: "",
+  description: "Discord webhook URL",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: ["string", { required_if: [`${DISCORD_KEY}.enabled`, true] }],
+};
+const DISCORD_EMOJI: UserPref = {
+  key: `${DISCORD_KEY}:emoji`,
+  default: true,
+  description: "Use emoji in messages",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_SHORT: UserPref = {
+  key: `${DISCORD_KEY}:short_address`,
+  default: true,
+  description: "Shorten addresses",
+  alias: undefined,
+  type: "boolean",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "boolean",
+};
+const DISCORD_USERNAME: UserPref = {
+  key: `${DISCORD_KEY}:username`,
+  default: "",
+  description: "Override webhook username",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: false,
+  validationRule: "string",
+};
+const DISCORD_EXCLUDE: UserPref = mkExcludeEventsPref(
+  `${DISCORD_KEY}:exclude`,
+  DISCORD_GROUP.label,
+  [],
+);
+const DISCORD_BAKERS: UserPref = {
+  key: `${DISCORD_KEY}:bakers`,
+  default: undefined,
+  description:
+    "Restrict notifications to these bakers (literal addresses or @group:NAME)",
+  alias: undefined,
+  type: "string",
+  group: DISCORD_GROUP.label,
+  isArray: true,
+  validationRule: "array",
+};
 
 const TELEGRAM_GROUP = "Telegram Notifications:";
 const TELEGRAM_KEY = "telegram";
@@ -832,6 +903,13 @@ const userPrefs = [
   SLACK_SHORT_ADDRESS,
   SLACK_EXCLUDED_EVENTS,
   SLACK_ONLY_BAKERS,
+  DISCORD_ENABLED,
+  DISCORD_URL,
+  DISCORD_EMOJI,
+  DISCORD_SHORT,
+  DISCORD_USERNAME,
+  DISCORD_EXCLUDE,
+  DISCORD_BAKERS,
   TELEGRAM_ENABLED,
   TELEGRAM_TOKEN,
   TELEGRAM_EMOJI,
@@ -1049,6 +1127,7 @@ export type Config = {
   logging: LoggingConfig;
   excludedEvents: Events[];
   slack: SlackConfig;
+  discord: DiscordConfig;
   telegram: TelegramConfig;
   email: EmailConfig;
   desktop: DesktopConfig;
@@ -1291,6 +1370,7 @@ export const load = async (
   createAliasMap(TELEGRAM_KEY);
   createAliasMap(DESKTOP_KEY);
   createAliasMap(SLACK_KEY);
+  createAliasMap(DISCORD_KEY);
   createAliasMap(EMAIL_KEY);
   createAliasMap(UI_GROUP.key);
 
@@ -1354,6 +1434,9 @@ export const load = async (
     },
     get slack() {
       return nconf.get(SLACK_KEY) as SlackConfig;
+    },
+    get discord() {
+      return nconf.get(DISCORD_KEY) as DiscordConfig;
     },
     get notifications() {
       return nconf.get(NOTIFICATIONS_KEY) as NotificationsConfig;

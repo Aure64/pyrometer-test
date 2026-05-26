@@ -224,6 +224,69 @@ const SLACK_SHORT_ADDRESS = {
 };
 const SLACK_EXCLUDED_EVENTS = mkExcludeEventsPref(`${SLACK_KEY}:exclude`, SLACK_GROUP);
 const SLACK_ONLY_BAKERS = mkOnlyBakersPref(`${SLACK_KEY}:bakers`, SLACK_GROUP);
+const DISCORD_GROUP = { key: "discord", label: "Discord:" };
+const DISCORD_KEY = DISCORD_GROUP.key;
+const DISCORD_ENABLED = {
+    key: `${DISCORD_KEY}:enabled`,
+    default: false,
+    description: "Enable Discord webhook notifications",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_URL = {
+    key: `${DISCORD_KEY}:url`,
+    default: "",
+    description: "Discord webhook URL",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: ["string", { required_if: [`${DISCORD_KEY}.enabled`, true] }],
+};
+const DISCORD_EMOJI = {
+    key: `${DISCORD_KEY}:emoji`,
+    default: true,
+    description: "Use emoji in messages",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_SHORT = {
+    key: `${DISCORD_KEY}:short_address`,
+    default: true,
+    description: "Shorten addresses",
+    alias: undefined,
+    type: "boolean",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "boolean",
+};
+const DISCORD_USERNAME = {
+    key: `${DISCORD_KEY}:username`,
+    default: "",
+    description: "Override webhook username",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: false,
+    validationRule: "string",
+};
+const DISCORD_EXCLUDE = mkExcludeEventsPref(`${DISCORD_KEY}:exclude`, DISCORD_GROUP.label, []);
+const DISCORD_BAKERS = {
+    key: `${DISCORD_KEY}:bakers`,
+    default: undefined,
+    description: "Restrict notifications to these bakers (literal addresses or @group:NAME)",
+    alias: undefined,
+    type: "string",
+    group: DISCORD_GROUP.label,
+    isArray: true,
+    validationRule: "array",
+};
 const TELEGRAM_GROUP = "Telegram Notifications:";
 const TELEGRAM_KEY = "telegram";
 const TELEGRAM_ENABLED = {
@@ -673,6 +736,13 @@ const userPrefs = [
     SLACK_SHORT_ADDRESS,
     SLACK_EXCLUDED_EVENTS,
     SLACK_ONLY_BAKERS,
+    DISCORD_ENABLED,
+    DISCORD_URL,
+    DISCORD_EMOJI,
+    DISCORD_SHORT,
+    DISCORD_USERNAME,
+    DISCORD_EXCLUDE,
+    DISCORD_BAKERS,
     TELEGRAM_ENABLED,
     TELEGRAM_TOKEN,
     TELEGRAM_EMOJI,
@@ -1016,6 +1086,7 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
     createAliasMap(TELEGRAM_KEY);
     createAliasMap(DESKTOP_KEY);
     createAliasMap(SLACK_KEY);
+    createAliasMap(DISCORD_KEY);
     createAliasMap(EMAIL_KEY);
     createAliasMap(UI_GROUP.key);
     const createNodeMonitorConfig = () => {
@@ -1070,6 +1141,9 @@ const load = async (yargOptions = exports.yargRunOptions, validate = true) => {
         },
         get slack() {
             return nconf_1.default.get(SLACK_KEY);
+        },
+        get discord() {
+            return nconf_1.default.get(DISCORD_KEY);
         },
         get notifications() {
             return nconf_1.default.get(NOTIFICATIONS_KEY);
