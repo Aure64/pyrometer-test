@@ -285,7 +285,9 @@ const DISCORD_BAKERS = {
     type: "string",
     group: DISCORD_GROUP.label,
     isArray: true,
-    validationRule: "array",
+    // Per-element rule matching the other senders: accepts a tz address, "*",
+    // or an @group:NAME reference (the "array" rule rejected every entry).
+    validationRule: "baker",
 };
 const TELEGRAM_GROUP = "Telegram Notifications:";
 const TELEGRAM_KEY = "telegram";
