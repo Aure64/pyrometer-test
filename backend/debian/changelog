@@ -1,3 +1,9 @@
+pyrometer (0.15.0) unstable; urgency=medium
+
+  * Add support for the PsUshuai protocol (succeeds Tallinn); reuses the Tallinn block/rights handler.
+
+ -- Pyrometer Maintainers <maintainers@example.com>  Tue, 30 Jun 2026 09:30:00 +0000
+
 pyrometer (0.14.1) unstable; urgency=medium
 
   * Fix discord.bakers validation rejecting every entry (wrong "array" rule); now accepts tz addresses and @group:NAME like the other senders.

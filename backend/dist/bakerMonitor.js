@@ -183,6 +183,9 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                     throw new Error(`Block level ${currentLevel} was requested but data returned level ${blockLevel}`);
                 }
                 let events;
+                // Captured as string so it stays usable in the default branch, where the
+                // switch narrows `block` to `never` for hashes not in the generated union.
+                const protocolHash = block.protocol;
                 switch (block.protocol) {
                     case "PtHangz2aRngywmSRGGvrcTyMbbdpWdpFKuS4uMWxg2RaH9i1qx":
                         events = await (0, bm_proto_h_1.default)({
@@ -283,8 +286,21 @@ const create = async (storageDirectory, { bakers: configuredBakers, rpc: rpcNode
                         });
                         break;
                     default: {
-                        log.warn(`Unknown protocol at level ${blockLevel}`);
-                        events = [];
+                        // PsUshuai (protocol U, succeeds Tallinn) isn't in the generated
+                        // block.protocol union yet; match it here and reuse the Tallinn
+                        // handler since the block/rights structure is unchanged.
+                        if (protocolHash ===
+                            "PsUshuai9QapM5TGj1JpuVGkdxz5GykdnEvS6Rh8SUVrARvZLCY") {
+                            events = await (0, bm_proto_t_1.default)({
+                                bakers,
+                                block: block,
+                                rpc: rpc,
+                            });
+                        }
+                        else {
+                            log.warn(`Unknown protocol at level ${blockLevel}`);
+                            events = [];
+                        }
                         break;
                     }
                 }
