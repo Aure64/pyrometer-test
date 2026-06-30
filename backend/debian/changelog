@@ -1,3 +1,9 @@
+pyrometer (0.14.1) unstable; urgency=medium
+
+  * Fix discord.bakers validation rejecting every entry (wrong "array" rule); now accepts tz addresses and @group:NAME like the other senders.
+
+ -- Pyrometer Maintainers <maintainers@example.com>  Tue, 30 Jun 2026 07:30:00 +0000
+
 pyrometer (0.14.0) unstable; urgency=medium
 
   * Add Tallinn protocol (024) support.
