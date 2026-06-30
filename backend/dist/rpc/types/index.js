@@ -11,6 +11,7 @@ var OpKind;
     OpKind["ENDORSEMENT"] = "endorsement";
     OpKind["ATTESTATION"] = "attestation";
     OpKind["ATTESTATION_WITH_DAL"] = "attestation_with_dal";
+    OpKind["ATTESTATIONS_AGGREGATE"] = "attestations_aggregate";
     OpKind["ENDORSEMENT_WITH_SLOT"] = "endorsement_with_slot";
     OpKind["SEED_NONCE_REVELATION"] = "seed_nonce_revelation";
     OpKind["DOUBLE_ENDORSEMENT_EVIDENCE"] = "double_endorsement_evidence";

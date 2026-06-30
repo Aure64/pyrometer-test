@@ -115,7 +115,7 @@ const checkBlockEndorsingRights = ({ baker, endorsementOperations, level, endors
     }
     const endorsingRight = levelRights.delegates.find((d) => d.delegate === baker);
     if (endorsingRight) {
-        const slotCount = endorsingRight.attestation_power;
+        const slotCount = endorsingRight.attesting_power;
         log.debug(`found ${slotCount} endorsement slots for baker ${baker} at level ${level}`);
         const didEndorse = endorsementOperations.find((op) => isEndorsementByDelegate(op, baker)) !==
             undefined;
@@ -138,6 +138,14 @@ const isEndorsementByDelegate = (operation, delegate) => {
             contentsItem.kind === types_1.OpKind.ATTESTATION_WITH_DAL) &&
             "metadata" in contentsItem) {
             if (contentsItem.metadata.delegate === delegate) {
+                return true;
+            }
+        }
+        // Tailin: attestations_aggregate bundles multiple bakers into one op
+        if (contentsItem.kind === types_1.OpKind.ATTESTATIONS_AGGREGATE &&
+            "metadata" in contentsItem) {
+            const committee = contentsItem.metadata?.committee ?? [];
+            if (committee.some((entry) => entry.delegate === delegate)) {
                 return true;
             }
         }

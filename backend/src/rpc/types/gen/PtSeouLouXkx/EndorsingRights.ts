@@ -11,7 +11,7 @@ export type EndorsingRights = {
   delegates: {
     delegate: Signature$PublicKeyHash;
     first_slot: number;
-    attestation_power: number;
+    attesting_power: number;
     consensus_key: Signature$PublicKeyHash;
   }[];
   estimated_time?: Signature$PublicKeyHash;

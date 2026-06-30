@@ -212,7 +212,7 @@ export const checkBlockEndorsingRights = ({
     (d: EndorsingRightsS[number]["delegates"][number]) => d.delegate === baker,
   );
   if (endorsingRight) {
-    const slotCount = endorsingRight.attestation_power;
+    const slotCount = endorsingRight.attesting_power;
     log.debug(
       `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`,
     );
