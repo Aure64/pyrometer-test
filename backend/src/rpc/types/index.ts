@@ -539,6 +539,7 @@ export enum OpKind {
   ENDORSEMENT = "endorsement",
   ATTESTATION = "attestation",
   ATTESTATION_WITH_DAL = "attestation_with_dal",
+  ATTESTATIONS_AGGREGATE = "attestations_aggregate",
   ENDORSEMENT_WITH_SLOT = "endorsement_with_slot",
   SEED_NONCE_REVELATION = "seed_nonce_revelation",
   DOUBLE_ENDORSEMENT_EVIDENCE = "double_endorsement_evidence",

@@ -115,7 +115,7 @@ const checkBlockEndorsingRights = ({ baker, endorsementOperations, level, endors
     }
     const endorsingRight = levelRights.delegates.find((d) => d.delegate === baker);
     if (endorsingRight) {
-        const slotCount = endorsingRight.attestation_power;
+        const slotCount = endorsingRight.attesting_power;
         log.debug(`found ${slotCount} endorsement slots for baker ${baker} at level ${level}`);
         const didEndorse = endorsementOperations.find((op) => isEndorsementByDelegate(op, baker)) !==
             undefined;

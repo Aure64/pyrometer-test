@@ -1,3 +1,9 @@
+pyrometer (0.15.1) unstable; urgency=medium
+
+  * Fix false missed_endorsement/baker_unhealthy for BLS bakers under PsUshuai: parse attestations_aggregate operations and read the renamed attesting_power rights field.
+
+ -- Pyrometer Maintainers <maintainers@example.com>  Tue, 30 Jun 2026 11:45:00 +0000
+
 pyrometer (0.15.0) unstable; urgency=medium
 
   * Add support for the PsUshuai protocol (succeeds Tallinn); reuses the Tallinn block/rights handler.

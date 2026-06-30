@@ -212,7 +212,7 @@ export const checkBlockEndorsingRights = ({
     (d: EndorsingRightsT[number]["delegates"][number]) => d.delegate === baker,
   );
   if (endorsingRight) {
-    const slotCount = endorsingRight.attestation_power;
+    const slotCount = endorsingRight.attesting_power;
     log.debug(
       `found ${slotCount} endorsement slots for baker ${baker} at level ${level}`,
     );
@@ -242,6 +242,17 @@ const isEndorsementByDelegate = (
       "metadata" in contentsItem
     ) {
       if ((contentsItem as any).metadata.delegate === delegate) {
+        return true;
+      }
+    }
+    // Tailin: attestations_aggregate bundles multiple bakers into one op
+    if (
+      contentsItem.kind === OpKind.ATTESTATIONS_AGGREGATE &&
+      "metadata" in contentsItem
+    ) {
+      const committee: { delegate: string }[] =
+        (contentsItem as any).metadata?.committee ?? [];
+      if (committee.some((entry) => entry.delegate === delegate)) {
         return true;
       }
     }
